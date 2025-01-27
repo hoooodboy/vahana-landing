@@ -1,0 +1,7 @@
+{
+  "rewrites": [
+    { "source": "/api/v1/records", "destination": "https://www.nslookup.io/api/v1/records" },
+    { "source": "/api/:path*", "destination": "https://local.d0hwq1.com/api/:path*" },
+    { "source": "/(.*)", "destination": "/" }
+  ]
+}
