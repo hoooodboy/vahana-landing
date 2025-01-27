@@ -5,9 +5,6 @@ import styled, { css } from "../../themes";
 import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 import LocalStorage from "@/src/local-storage";
 import userLang from "@/src/utils/userLang";
-import userCurrency from "@/src/utils/userCurrency";
-import checkUserLang from "@/src/utils/checkUserLang";
-import checkUserCurrency from "@/src/utils/checkUserCurrency";
 import Logo from "@/src/assets/ic-logo.png";
 
 const useDocumentHeight = () => {

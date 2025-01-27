@@ -7,5 +7,4 @@ export { default as parseJwt } from "./parseJwt";
 export { default as pxOrNot } from "./pxOrNot";
 export { default as useClipboard } from "./useClipboard";
 export { default as useDidUpdate } from "./useDidUpdate";
-export { default as ageOver14 } from "./ageOver14";
 export * from "./useCookie";

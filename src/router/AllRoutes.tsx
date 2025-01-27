@@ -5,7 +5,6 @@ import * as Pages from "../pages/index";
 
 import BaseLayout from "./layouts/BaseLayout";
 import NavigateReplace from "./NavigateReplace";
-import OnBoardingLayout from "./layouts/OnBoardingLayout";
 
 import UAParser from "ua-parser-js";
 import LocalStorage from "../local-storage";
