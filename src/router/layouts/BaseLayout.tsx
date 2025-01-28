@@ -127,8 +127,11 @@ const LogoImg = styled.img`
 
 const Content = styled.div<{ isIos?: boolean; pcView?: boolean }>`
   max-width: ${(p) => (p.pcView ? "none" : "480px")};
-
+  width: 100%;
   min-height: 100vh; /* fallback */
+  max-height: 100vh;
+  overflow-y: scroll;
+  overflow-x: hidden;
   min-height: calc(var(--vh) * 100);
 
   /* height: 100%; */
