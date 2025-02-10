@@ -24,7 +24,11 @@ function AllRoutes() {
         {
           path: "/cars",
           element: <Pages.CarPage />,
-        }, // 완
+        },
+        {
+          path: "/pricing",
+          element: <Pages.PricingPage />,
+        },
         {
           path: "/*",
           element: <Pages.HomePage />,

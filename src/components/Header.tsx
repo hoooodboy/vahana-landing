@@ -26,66 +26,97 @@ const Header = () => {
 
   const currentNav = window.location.pathname;
   const isHome = currentNav === "/";
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  const toggleMenuOpen = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
   return (
-    <HeaderContainer scrolled={scrolled} progress={scrollProgress}>
-      <Link to="/">
-        <Logo
-          src={isHome ? LogoImg : LogoDarkImg}
+    <Container scrolled={scrolled}>
+      <HeaderContainer>
+        <Link to="/">
+          <Logo
+            src={isHome ? LogoImg : LogoDarkImg}
+            style={{
+              opacity: isHome ? 1 - scrollProgress : 1,
+              display: isHome ? "block" : "none",
+            }}
+          />
+        </Link>
+        <Link to="/">
+          <Logo
+            src={LogoDarkImg}
+            style={{
+              opacity: isHome ? scrollProgress : 1,
+              display: isHome ? "block" : "none",
+            }}
+          />
+        </Link>
+        {!isHome && (
+          <Link to="/">
+            <Logo src={LogoDarkImg} />
+          </Link>
+        )}
+
+        <Burger
+          onClick={toggleMenuOpen}
+          src={icBurgerSvg}
           style={{
-            opacity: isHome ? 1 - scrollProgress : 1,
+            opacity: isHome ? 1 - scrollProgress : 0,
             display: isHome ? "block" : "none",
           }}
         />
-      </Link>
-      <Link to="/">
-        <Logo
-          src={LogoDarkImg}
+        <Burger
+          onClick={toggleMenuOpen}
+          src={icBurgerBlackSvg}
           style={{
             opacity: isHome ? scrollProgress : 1,
             display: isHome ? "block" : "none",
           }}
         />
-      </Link>
-      {!isHome && (
-        <Link to="/">
-          <Logo src={LogoDarkImg} />
-        </Link>
+        {!isHome && <Burger onClick={toggleMenuOpen} src={icBurgerBlackSvg} />}
+      </HeaderContainer>
+      {isMenuOpen && (
+        <MenuContainer>
+          <MenuItem to="/cars" scrolled={scrolled} isHome={isHome}>
+            Vehicles
+          </MenuItem>
+          <MenuItem to="/reservation" scrolled={scrolled} isHome={isHome}>
+            Reservation
+          </MenuItem>
+          <MenuItem to="/pricing" scrolled={scrolled} isHome={isHome}>
+            Pricing
+          </MenuItem>
+          <MenuItem to="/my" scrolled={scrolled} isHome={isHome}>
+            My
+          </MenuItem>
+        </MenuContainer>
       )}
-
-      <Burger
-        src={icBurgerSvg}
-        style={{
-          opacity: isHome ? 1 - scrollProgress : 0,
-          display: isHome ? "block" : "none",
-        }}
-      />
-      <Burger
-        src={icBurgerBlackSvg}
-        style={{
-          opacity: isHome ? scrollProgress : 1,
-          display: isHome ? "block" : "none",
-        }}
-      />
-      {!isHome && <Burger src={icBurgerBlackSvg} />}
-    </HeaderContainer>
+    </Container>
   );
 };
 
-const HeaderContainer = styled.div<{ scrolled: boolean; progress: number }>`
+const Container = styled.div<{ scrolled: boolean }>`
   width: 100%;
   max-width: 480px;
-  height: 56px;
+
   position: fixed;
   top: 0;
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+
+  backdrop-filter: ${(p) => (p.scrolled ? "blur(5px)" : "none")};
+  transition: background 0.3s;
+`;
+
+const HeaderContainer = styled.div`
+  height: 56px;
   padding: 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  z-index: 1000;
-  /* background: ${(p) => `rgba(255, 255, 255, ${p.progress * 0.9})`}; */
-  backdrop-filter: ${(p) => (p.scrolled ? "blur(5px)" : "none")};
-  transition: background 0.3s;
+
   @media (max-width: 768px) {
     max-width: 768px;
   }
@@ -96,6 +127,8 @@ const Logo = styled.img`
   height: 20px;
   position: absolute;
   left: 16px;
+  top: 21px;
+  /* transform: translate(0, 50%); */
   transition: opacity 0.3s;
 `;
 
@@ -104,7 +137,29 @@ const Burger = styled.img`
   height: 24px;
   position: absolute;
   right: 16px;
+  top: 16px;
   transition: opacity 0.3s;
+`;
+
+const MenuContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  padding-top: 16px;
+
+  transition: all ease-in 0.3s;
+`;
+
+const MenuItem = styled(Link)<{ scrolled: boolean; isHome: boolean }>`
+  width: 100%;
+  height: 48px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 400;
+  text-decoration: none;
+  color: ${(p) => (!p.isHome ? "#000" : p.scrolled ? "#000" : "#fff")};
 `;
 
 export default Header;
