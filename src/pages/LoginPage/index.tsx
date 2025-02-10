@@ -3,14 +3,13 @@ import Header from "@/src/components/Header";
 import Footer from "@/src/components/Footer";
 import styled from "styled-components";
 
-const JoinPage = () => {
+import IcKakao from "@/src/assets/ic-kakao.png";
+import { Link } from "react-router-dom";
+
+const LoginPage = () => {
   const [formData, setFormData] = useState({
-    name: "",
     id: "",
     password: "",
-    phone: "",
-    smsCode: "",
-    recommendCode: "",
   });
 
   const handleChange = (e) => {
@@ -32,25 +31,14 @@ const JoinPage = () => {
       <Header />
       <TitleContainer>
         <Title>
-          JOIN
+          Login
           <br />
-          MEMBERSHIP
+          Page
         </Title>
-        회원가입
+        로그인
       </TitleContainer>
 
       <Form onSubmit={handleSubmit}>
-        <InputGroup>
-          <Label>이름</Label>
-          <Input
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            placeholder="김아무개"
-          />
-        </InputGroup>
-
         <InputGroup>
           <Label>아이디</Label>
           <Input
@@ -72,42 +60,18 @@ const JoinPage = () => {
             placeholder="비밀번호를 입력해주세요."
           />
         </InputGroup>
-
-        <InputGroup>
-          <Label>전화번호</Label>
-          <Input
-            type="tel"
-            name="phone"
-            value={formData.phone}
-            onChange={handleChange}
-            placeholder="전화번호를 입력해주세요."
-          />
-        </InputGroup>
-
-        <InputGroup>
-          <Label>문자 인증</Label>
-          <Input
-            type="text"
-            name="smsCode"
-            value={formData.smsCode}
-            onChange={handleChange}
-            placeholder="인증코드를 입력해주세요"
-          />
-        </InputGroup>
-
-        <InputGroup>
-          <Label>추천인코드</Label>
-          <Input
-            type="text"
-            name="recommendCode"
-            value={formData.recommendCode}
-            onChange={handleChange}
-            placeholder="A3d*@jd$da"
-          />
-        </InputGroup>
-
-        <SubmitButton type="submit">회원가입</SubmitButton>
       </Form>
+      <UtilWrapper>
+        <Util to="">비밀번호 찾기</Util>
+        <Util to="/join">회원가입</Util>
+      </UtilWrapper>
+      <ButtonWrapper>
+        <SubmitButton type="submit">로그인</SubmitButton>
+        <KakaoLoginButton>
+          <img src={IcKakao} width={36} />
+          카카오 로그인
+        </KakaoLoginButton>
+      </ButtonWrapper>
       <Devider />
 
       <Footer />
@@ -177,13 +141,12 @@ const Input = styled.input`
 const SubmitButton = styled.button`
   width: 100%;
   height: 48px;
-  background: #c6c6c6;
+  background: #3e4730;
   border: none;
   border-radius: 24px;
   color: #fff;
   font-size: 16px;
   font-weight: 500;
-  margin-top: 40px;
   cursor: pointer;
 `;
 
@@ -191,4 +154,43 @@ const Devider = styled.div`
   height: 150px;
 `;
 
-export default JoinPage;
+const ButtonWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  margin-top: 32px;
+`;
+
+const KakaoLoginButton = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 48px;
+  background: #fddc3f;
+  border: none;
+  border-radius: 24px;
+  color: #3a2929;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+`;
+
+const UtilWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  justify-content: flex-end;
+`;
+
+const Util = styled(Link)`
+  color: #666;
+  font-size: 14px;
+  font-weight: 400;
+  text-decoration: none;
+`;
+
+export default LoginPage;

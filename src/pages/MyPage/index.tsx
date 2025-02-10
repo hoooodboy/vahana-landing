@@ -230,7 +230,7 @@ const LinkBlock = styled.div`
 
 const LinkWrapper = styled(Link)`
   display: flex;
-  height: 42px;
+  height: 48px;
   justify-content: space-between;
   align-items: center;
   text-decoration: none;

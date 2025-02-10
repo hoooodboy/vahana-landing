@@ -305,7 +305,7 @@ const PriceContainer = styled.div`
 
 const ReservationButton = styled.div`
   width: 152px;
-  height: 42px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
