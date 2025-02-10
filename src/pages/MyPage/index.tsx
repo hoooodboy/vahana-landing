@@ -88,29 +88,27 @@ const MyPage = () => {
 
       <LinksContainer>
         {LINKS.map((links) => (
-          <>
-            <LinkBlock>
-              <LinkTitle>{links.title}</LinkTitle>
-              {links.contents.map((link) => (
-                <LinkWrapper to={link?.link}>
-                  {link.title}
-                  <img src={IcChevronRight} />
-                </LinkWrapper>
-              ))}
-              {links.title === "고객센터" && (
-                <LinkWrapper to="" onClick={logout}>
-                  {"로그아웃"}
-                  <img src={IcChevronRight} />
-                </LinkWrapper>
-              )}
-              {links.title === "고객센터" && (
-                <LinkWrapper to="">
-                  {"회원 탈퇴"}
-                  <img src={IcChevronRight} />
-                </LinkWrapper>
-              )}
-            </LinkBlock>
-          </>
+          <LinkBlock>
+            <LinkTitle>{links.title}</LinkTitle>
+            {links.contents.map((link) => (
+              <LinkWrapper to={link?.link}>
+                {link.title}
+                <img src={IcChevronRight} />
+              </LinkWrapper>
+            ))}
+            {links.title === "고객센터" && (
+              <LinkWrapper to="" onClick={logout}>
+                {"로그아웃"}
+                <img src={IcChevronRight} />
+              </LinkWrapper>
+            )}
+            {links.title === "고객센터" && (
+              <LinkWrapper to="">
+                {"회원 탈퇴"}
+                <img src={IcChevronRight} />
+              </LinkWrapper>
+            )}
+          </LinkBlock>
         ))}
       </LinksContainer>
       <Footer />
@@ -176,7 +174,7 @@ const HorizontalContainer = styled.div`
 const SectionTitle = styled.div`
   color: #666;
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 600;
   padding-bottom: 0;
 `;
 

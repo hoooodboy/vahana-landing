@@ -34,6 +34,10 @@ function AllRoutes() {
           element: <Pages.MyPage />,
         },
         {
+          path: "/join",
+          element: <Pages.JoinPage />,
+        },
+        {
           path: "/*",
           element: <Pages.HomePage />,
         },
