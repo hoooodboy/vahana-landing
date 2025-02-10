@@ -5,6 +5,7 @@ import LogoImg from "@/src/assets/ic-vahana-white.png";
 import LogoDarkImg from "@/src/assets/ic-vahana-black.png";
 import icBurgerSvg from "@/src/assets/ic-burger.svg";
 import icBurgerBlackSvg from "@/src/assets/ic-burger-black.svg";
+import { Link } from "react-router-dom";
 
 const Header = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -28,21 +29,29 @@ const Header = () => {
 
   return (
     <HeaderContainer scrolled={scrolled} progress={scrollProgress}>
-      <Logo
-        src={isHome ? LogoImg : LogoDarkImg}
-        style={{
-          opacity: isHome ? 1 - scrollProgress : 1,
-          display: isHome ? "block" : "none",
-        }}
-      />
-      <Logo
-        src={LogoDarkImg}
-        style={{
-          opacity: isHome ? scrollProgress : 1,
-          display: isHome ? "block" : "none",
-        }}
-      />
-      {!isHome && <Logo src={LogoDarkImg} />}
+      <Link to="/">
+        <Logo
+          src={isHome ? LogoImg : LogoDarkImg}
+          style={{
+            opacity: isHome ? 1 - scrollProgress : 1,
+            display: isHome ? "block" : "none",
+          }}
+        />
+      </Link>
+      <Link to="/">
+        <Logo
+          src={LogoDarkImg}
+          style={{
+            opacity: isHome ? scrollProgress : 1,
+            display: isHome ? "block" : "none",
+          }}
+        />
+      </Link>
+      {!isHome && (
+        <Link to="/">
+          <Logo src={LogoDarkImg} />
+        </Link>
+      )}
 
       <Burger
         src={icBurgerSvg}

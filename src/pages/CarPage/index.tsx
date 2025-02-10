@@ -11,7 +11,6 @@ import IcChevronDown from "@/src/assets/ic-chevron-down.svg";
 
 import { CarouselProvider, Dot, Slide, Slider } from "pure-react-carousel";
 import "pure-react-carousel/dist/react-carousel.es.css";
-import "./styles/style2.css";
 
 const CarPage = () => {
   // Set to store indices of expanded cards
@@ -244,8 +243,9 @@ const ButtonWrapper = styled.div`
   gap: 4px;
   position: absolute;
   top: 240px;
-  left: 50%;
-  transform: translate(0, -50%);
+  justify-content: center;
+  /* left: 50%;
+  transform: translate(0, -50%); */
   z-index: 100;
 `;
 

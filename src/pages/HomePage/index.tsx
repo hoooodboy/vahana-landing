@@ -270,7 +270,7 @@ const StyledSlider = styled(Slider)`
 
 const ButtonWrapper = styled.div`
   display: flex;
-  width: 100%;
+  /* width: 100%; */
   height: 14px;
   min-height: 14px;
   gap: 4px;
