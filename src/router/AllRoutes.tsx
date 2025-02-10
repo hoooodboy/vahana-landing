@@ -30,6 +30,10 @@ function AllRoutes() {
           element: <Pages.PricingPage />,
         },
         {
+          path: "/my",
+          element: <Pages.MyPage />,
+        },
+        {
           path: "/*",
           element: <Pages.HomePage />,
         },
