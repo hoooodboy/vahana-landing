@@ -6,6 +6,7 @@ import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 import LocalStorage from "@/src/local-storage";
 import userLang from "@/src/utils/userLang";
 import Logo from "@/src/assets/ic-logo.png";
+import ScrollToTop from "@/src/components/ScrollToTop";
 
 const useDocumentHeight = () => {
   const getHeight = useCallback(
@@ -87,6 +88,7 @@ function BaseLayout() {
         {/* <AppNav theme="dark" /> */}
         {/* <ScrollToTop /> */}
       </Content>
+      <ScrollToTop />
     </Container>
   );
 }
@@ -96,9 +98,12 @@ const Container = styled.div`
   height: 100%;
   background: #151711;
   display: flex;
-  justify-content: space-around;
+  justify-content: flex-end;
   align-items: center;
-  max-height: 100vh;
+  padding: 0 10%;
+  @media (max-width: 768px) {
+    padding: 0;
+  }
 `;
 
 const LogoContainer = styled.div`
@@ -114,6 +119,10 @@ const LogoContainer = styled.div`
   line-height: 32px;
   letter-spacing: 2.2px;
   padding: 42px;
+  position: fixed;
+  top: 50%;
+  left: 10%;
+  transform: translate(0, -50%);
   @media (max-width: 768px) {
     display: none;
   }
@@ -128,10 +137,9 @@ const LogoImg = styled.img`
 const Content = styled.div<{ isIos?: boolean; pcView?: boolean }>`
   max-width: ${(p) => (p.pcView ? "none" : "480px")};
   width: 100%;
-  min-height: 100vh; /* fallback */
-  max-height: 100vh;
-  overflow-y: scroll;
-  overflow-x: hidden;
+  height: 100%;
+  /* overflow-y: scroll; */
+  /* overflow-x: hidden; */
   min-height: calc(var(--vh) * 100);
 
   /* height: 100%; */
@@ -147,8 +155,7 @@ const Content = styled.div<{ isIos?: boolean; pcView?: boolean }>`
 
   position: relative;
 
-  box-shadow: ${(p) =>
-    p.pcView ? "none" : "rgba(0, 0, 0, 0.09) 0px 3px 12px"};
+  box-shadow: ${(p) => (p.pcView ? "none" : "rgba(0, 0, 0, 0.9) 0px 3px 12px")};
 
   @media (max-width: 768px) {
     max-width: 768px;

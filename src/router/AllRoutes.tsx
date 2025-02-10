@@ -20,6 +20,10 @@ function AllRoutes() {
         {
           path: "/",
           element: <Pages.HomePage />,
+        },
+        {
+          path: "/cars",
+          element: <Pages.CarPage />,
         }, // 완
         {
           path: "/*",

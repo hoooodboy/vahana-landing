@@ -1,13 +1,12 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
 import MainBanner1 from "@/src/assets/main-banner-1.png";
 import MainBanner2 from "@/src/assets/main-banner-2.png";
 import MainBanner3 from "@/src/assets/main-banner-3.png";
 import MainBanner4 from "@/src/assets/main-banner-4.png";
-import LogoImg from "@/src/assets/ic-vahana-white.png";
-import icBurgerSvg from "@/src/assets/ic-burger.svg";
 
+import LogoImg from "@/src/assets/ic-vahana-white.png";
 import LmImg from "@/src/assets/img-lm500h.png";
 import ServiceImg from "@/src/assets/img-service.png";
 import Hc1Img from "@/src/assets/main-hc-1.png";
@@ -19,6 +18,9 @@ import "pure-react-carousel/dist/react-carousel.es.css";
 import "./styles/style.css";
 
 import ScrollContainer from "react-indiana-drag-scroll";
+import Header from "@/src/components/Header";
+import { Link } from "react-router-dom";
+import Footer from "@/src/components/Footer";
 
 const HomePage = () => {
   const mainData = [
@@ -68,10 +70,7 @@ const HomePage = () => {
 
   return (
     <Container>
-      <HeaderContainer>
-        <Logo src={LogoImg} />
-        <Burger src={icBurgerSvg} />
-      </HeaderContainer>
+      <Header />
       <Section>
         <CarouselContainer>
           <StyledCarouselProvider
@@ -144,7 +143,7 @@ const HomePage = () => {
         <MainImg>
           <img src={LmImg} />
         </MainImg>
-        <Button>전체 차량 보기</Button>
+        <Button to="/cars">전체 차량 보기</Button>
       </ThirdSection>
       <FourthSection>
         <TitleConteiner padding={"0px 16px"}>
@@ -186,18 +185,7 @@ const HomePage = () => {
           <img src={CompanyImg} />
         </Company>
       </ThirdSection>
-      <FooterContainer>
-        <Logo src={LogoImg} />
-        <FooterContentsWrapper>
-          <FooterContents>대표 | 김해</FooterContents>
-          <FooterContents>사업자등록번호 | 691-87-02329</FooterContents>
-          <FooterContents>
-            주소 | 서울시 구로구 경인로53길 90, 11층 1104호
-          </FooterContents>
-          <FooterContents>대표문의 | vahana.sun@gmail.com</FooterContents>
-        </FooterContentsWrapper>
-        @2025 VAHANA. All rights reserved.
-      </FooterContainer>
+      <Footer />
     </Container>
   );
 };
@@ -209,19 +197,20 @@ const Container = styled.div`
   position: relative;
 `;
 
-const HeaderContainer = styled.div`
+const HeaderContainer = styled.div<{ scrolled: boolean }>`
   width: 100%;
   max-width: 480px;
   height: 56px;
-
   position: fixed;
   top: 0;
-
   padding: 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   z-index: 1000;
+  background: ${(p) => (p.scrolled ? "rgba(0, 0, 0, 0.2)" : "transparent")};
+  backdrop-filter: ${(p) => (p.scrolled ? "blur(5px)" : "none")};
+  transition: all 0.3s;
   @media (max-width: 768px) {
     max-width: 768px;
   }
@@ -380,7 +369,7 @@ const Title = styled.div`
   }
 `;
 
-const Button = styled.div`
+const Button = styled(Link)`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -461,29 +450,6 @@ const Company = styled.div`
   & > img {
     width: 100%;
   }
-`;
-
-const FooterContainer = styled.div`
-  padding: 16px 32px;
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-  background: #292c25;
-  color: #fff;
-  font-size: 12px;
-  font-weight: 300;
-`;
-
-const FooterContentsWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-`;
-
-const FooterContents = styled.div`
-  color: #fff;
-  font-size: 12px;
-  font-weight: 300;
 `;
 
 export default HomePage;
