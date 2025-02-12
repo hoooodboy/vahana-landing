@@ -43,16 +43,27 @@ const CalendarPage: React.FC = () => {
     },
   ];
 
-  useEffect(() => {
+  const generateDates = (baseDate: Date) => {
     const dates: Date[] = [];
+    const startDate = new Date(baseDate);
 
-    for (let i = 0; i < 90; i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() + i);
+    for (let i = 0; i < 30; i++) {
+      const date = new Date(startDate);
+      date.setDate(startDate.getDate() + i);
       dates.push(date);
     }
-    setMonthDates(dates);
+    return dates;
+  };
+
+  // 초기 날짜 생성
+  useEffect(() => {
+    setMonthDates(generateDates(today));
   }, []);
+
+  // 월 변경 시 날짜 업데이트
+  useEffect(() => {
+    setMonthDates(generateDates(currentMonth));
+  }, [currentMonth]);
 
   useEffect(() => {
     setCurrentMonth(selectedDate);
@@ -63,15 +74,23 @@ const CalendarPage: React.FC = () => {
   };
 
   const handlePrevMonth = () => {
-    const newDate = new Date(currentMonth);
-    newDate.setMonth(currentMonth.getMonth() - 1);
+    const newDate = new Date(
+      currentMonth.getFullYear(),
+      currentMonth.getMonth() - 1,
+      1
+    );
     setCurrentMonth(newDate);
+    setSelectedDate(newDate);
   };
 
   const handleNextMonth = () => {
-    const newDate = new Date(currentMonth);
-    newDate.setMonth(currentMonth.getMonth() + 1);
+    const newDate = new Date(
+      currentMonth.getFullYear(),
+      currentMonth.getMonth() + 1,
+      1
+    );
     setCurrentMonth(newDate);
+    setSelectedDate(newDate);
   };
 
   const weekDays = ["일", "월", "화", "수", "목", "금", "토"];
@@ -231,8 +250,6 @@ const ScrollContainer = styled.div`
 
 const DaysContainer = styled.div`
   display: flex;
-  /* padding: 8px 0;
-  padding-left: 16px; */
 `;
 
 const DayColumn = styled.div<{ $isSelected?: boolean }>`
@@ -270,7 +287,6 @@ const DateBlock = styled.div`
   padding: 16px 12px;
   background: #76865f;
   border-radius: 10px;
-
   color: #fff;
   font-size: 14px;
   font-weight: 500;
