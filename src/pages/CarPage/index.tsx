@@ -7,6 +7,16 @@ import MainBanner1 from "@/src/assets/main-banner-1.png";
 import MainBanner2 from "@/src/assets/main-banner-2.png";
 import MainBanner3 from "@/src/assets/main-banner-3.png";
 import IcLexus from "@/src/assets/ic-lexus.png";
+import royal1 from "@/src/assets/royal-1.jpg";
+import royal2 from "@/src/assets/royal-2.jpg";
+import royal3 from "@/src/assets/royal-3.jpg";
+import royal4 from "@/src/assets/royal-4.jpg";
+import executive1 from "@/src/assets/executive-1.jpg";
+import executive2 from "@/src/assets/executive-2.jpg";
+import executive3 from "@/src/assets/executive-3.jpg";
+import alphard1 from "@/src/assets/alphard-1.jpg";
+import alphard2 from "@/src/assets/alphard-2.jpg";
+import alphard3 from "@/src/assets/alphard-3.jpg";
 import IcChevronDown from "@/src/assets/ic-chevron-down.svg";
 
 import { CarouselProvider, Dot, Slide, Slider } from "pure-react-carousel";
@@ -19,23 +29,8 @@ const CarPage = () => {
 
   const mainData = [
     {
-      img: [MainBanner1, MainBanner2, MainBanner3],
-      name: "LM 500h",
-      subName: "Automaticㆍ 4WD",
-      label: "6 Seats",
-      bg: "#3E4730",
-      contents: [
-        "ㆍ평균 2025년식",
-        "ㆍ3,000km 미만 신차",
-        "ㆍ파티션 글라스(차음)",
-        "ㆍ1등석 시트",
-        "ㆍ릴렉세이션 마사지",
-        "ㆍ노이즈 캔슬링 모드",
-      ],
-    },
-    {
-      img: [MainBanner1, MainBanner2, MainBanner3],
-      name: "LM 500h",
+      img: [royal1, royal2, royal3, royal4],
+      name: "LM 500h ROYAL",
       subName: "Automaticㆍ 4WD",
       label: "4 Seats",
       bg: "#76865F",
@@ -49,7 +44,22 @@ const CarPage = () => {
       ],
     },
     {
-      img: [MainBanner1, MainBanner2, MainBanner3],
+      img: [executive1, executive2, executive3],
+      name: "LM 500h EXECUTIVE",
+      subName: "Automaticㆍ 4WD",
+      label: "6 Seats",
+      bg: "#3E4730",
+      contents: [
+        "ㆍ평균 2025년식",
+        "ㆍ3,000km 미만 신차",
+        "ㆍ파티션 글라스(차음)",
+        "ㆍ1등석 시트",
+        "ㆍ릴렉세이션 마사지",
+        "ㆍ노이즈 캔슬링 모드",
+      ],
+    },
+    {
+      img: [alphard1, alphard2, alphard3],
       name: "ALPHARD",
       subName: "Automaticㆍ 4WD",
       label: "4 Seats",
@@ -254,7 +264,7 @@ const ImgContainer = styled.div`
   overflow: hidden;
   width: 100%;
   height: 260px;
-  filter: brightness(0.5);
+  /* filter: brightness(0.5); */
   & > img {
     width: 100%;
     height: 100%;

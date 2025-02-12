@@ -81,7 +81,7 @@ const Header = () => {
           <MenuItem to="/cars" scrolled={scrolled} isHome={isHome}>
             Vehicles
           </MenuItem>
-          <MenuItem to="/reservation" scrolled={scrolled} isHome={isHome}>
+          <MenuItem to="/calendar" scrolled={scrolled} isHome={isHome}>
             Reservation
           </MenuItem>
           <MenuItem to="/pricing" scrolled={scrolled} isHome={isHome}>

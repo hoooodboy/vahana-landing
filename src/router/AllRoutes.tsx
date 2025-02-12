@@ -42,6 +42,10 @@ function AllRoutes() {
           element: <Pages.LoginPage />,
         },
         {
+          path: "/calendar",
+          element: <Pages.CalendarPage />,
+        },
+        {
           path: "/*",
           element: <Pages.HomePage />,
         },

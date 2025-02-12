@@ -382,6 +382,7 @@ const Button = styled(Link)`
   font-size: 16px;
   font-weight: 400;
   align-self: flex-start;
+  text-decoration: none;
 `;
 
 const FourthSection = styled.section`
