@@ -32,7 +32,7 @@ const Header = () => {
     setIsMenuOpen(!isMenuOpen);
   };
   return (
-    <Container scrolled={scrolled}>
+    <Container scrolled={scrolled || isMenuOpen}>
       <HeaderContainer>
         <Link to="/">
           <Logo
@@ -107,7 +107,7 @@ const Container = styled.div<{ scrolled: boolean }>`
   z-index: 1000;
 
   backdrop-filter: ${(p) => (p.scrolled ? "blur(5px)" : "none")};
-  transition: background 0.3s;
+  transition: 0.2s all ease-in;
 `;
 
 const HeaderContainer = styled.div`

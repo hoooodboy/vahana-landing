@@ -62,8 +62,8 @@ const CarPage = () => {
       img: [alphard1, alphard2, alphard3],
       name: "ALPHARD",
       subName: "Automaticㆍ 4WD",
-      label: "4 Seats",
-      bg: "#76865F",
+      label: "7 Seats",
+      bg: "#3E4730",
       contents: [
         "ㆍ평균 2025년식",
         "ㆍ3,000km 미만 신차",
