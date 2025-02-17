@@ -16,8 +16,6 @@ axiosInstance.interceptors.request.use(
     const accessToken = LocalStorage.get(KEY_ACCESS_TOKEN);
     const refreshToken = LocalStorage.get(KEY_REFRESH_TOKEN);
 
-    console.log("ASD", await tokens.init());
-
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
@@ -38,11 +36,10 @@ axiosInstance.interceptors.response.use(
 
     if (newAccessToken || newRefreshToken) {
       try {
-        if (newAccessToken && newRefreshToken) {
-          await tokens.setTokens(newAccessToken, newRefreshToken);
-        } else if (newAccessToken) {
+        if (newAccessToken) {
           await tokens.setAccessToken(newAccessToken);
-        } else if (newRefreshToken) {
+        }
+        if (newRefreshToken) {
           await setRefreshToken(newRefreshToken);
           refreshToken(newAccessToken);
         }
