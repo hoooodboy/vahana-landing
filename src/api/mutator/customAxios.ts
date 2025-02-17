@@ -15,7 +15,7 @@ axiosInstance.interceptors.request.use(
     console.log(config, "ASD");
     console.log("tokens", tokens);
     if (tokens.accessToken) {
-      config.headers.Authorization = `${tokens.accessToken}`;
+      config.headers.Authorization = `Bearer ${tokens.accessToken}`;
     }
     return config;
   },
