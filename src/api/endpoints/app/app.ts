@@ -16,7 +16,6 @@ import type {
   UseQueryResult,
 } from "@tanstack/react-query";
 import { customAxios } from "../../mutator/customAxios";
-import type { ErrorType } from "../../mutator/customAxios";
 
 export const getApi = (signal?: AbortSignal) => {
   return customAxios<void>({ url: `/api`, method: "GET", signal });
@@ -28,7 +27,7 @@ export const getGetApiQueryKey = () => {
 
 export const getGetApiQueryOptions = <
   TData = Awaited<ReturnType<typeof getApi>>,
-  TError = ErrorType<unknown>,
+  TError = unknown,
 >(options?: {
   query?: Partial<
     UseQueryOptions<Awaited<ReturnType<typeof getApi>>, TError, TData>
@@ -50,11 +49,11 @@ export const getGetApiQueryOptions = <
 };
 
 export type GetApiQueryResult = NonNullable<Awaited<ReturnType<typeof getApi>>>;
-export type GetApiQueryError = ErrorType<unknown>;
+export type GetApiQueryError = unknown;
 
 export function useGetApi<
   TData = Awaited<ReturnType<typeof getApi>>,
-  TError = ErrorType<unknown>,
+  TError = unknown,
 >(options: {
   query: Partial<
     UseQueryOptions<Awaited<ReturnType<typeof getApi>>, TError, TData>
@@ -72,7 +71,7 @@ export function useGetApi<
 };
 export function useGetApi<
   TData = Awaited<ReturnType<typeof getApi>>,
-  TError = ErrorType<unknown>,
+  TError = unknown,
 >(options?: {
   query?: Partial<
     UseQueryOptions<Awaited<ReturnType<typeof getApi>>, TError, TData>
@@ -90,7 +89,7 @@ export function useGetApi<
 };
 export function useGetApi<
   TData = Awaited<ReturnType<typeof getApi>>,
-  TError = ErrorType<unknown>,
+  TError = unknown,
 >(options?: {
   query?: Partial<
     UseQueryOptions<Awaited<ReturnType<typeof getApi>>, TError, TData>
@@ -101,7 +100,7 @@ export function useGetApi<
 
 export function useGetApi<
   TData = Awaited<ReturnType<typeof getApi>>,
-  TError = ErrorType<unknown>,
+  TError = unknown,
 >(options?: {
   query?: Partial<
     UseQueryOptions<Awaited<ReturnType<typeof getApi>>, TError, TData>

@@ -4,7 +4,6 @@
  * Vahana API
  * OpenAPI spec version: 1.0.0
  */
-import type { UserResponseDtoIdentityStatus } from "./userResponseDtoIdentityStatus";
 
 export type UserResponseDto = {
   /** 이름 */
@@ -18,5 +17,5 @@ export type UserResponseDto = {
   /** 티켓 만료일 */
   ticket_expired_at: string;
   /** 신원 상태 */
-  identity_status: UserResponseDtoIdentityStatus;
+  identity_status: string;
 };

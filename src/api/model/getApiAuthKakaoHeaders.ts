@@ -5,7 +5,6 @@
  * OpenAPI spec version: 1.0.0
  */
 
-/**
- * 신원 상태
- */
-export type AdminReponseUserDtoIdentityStatus = { [key: string]: unknown };
+export type GetApiAuthKakaoHeaders = {
+  "User-Agent": string;
+};

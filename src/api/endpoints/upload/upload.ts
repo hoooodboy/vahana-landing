@@ -12,7 +12,6 @@ import type {
 } from "@tanstack/react-query";
 import type { PostApiUploadBody } from "../../model";
 import { customAxios } from "../../mutator/customAxios";
-import type { ErrorType } from "../../mutator/customAxios";
 
 export const postApiUpload = (
   postApiUploadBody: PostApiUploadBody,
@@ -33,7 +32,7 @@ export const postApiUpload = (
 };
 
 export const getPostApiUploadMutationOptions = <
-  TError = ErrorType<unknown>,
+  TError = unknown,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -73,10 +72,10 @@ export type PostApiUploadMutationResult = NonNullable<
   Awaited<ReturnType<typeof postApiUpload>>
 >;
 export type PostApiUploadMutationBody = PostApiUploadBody;
-export type PostApiUploadMutationError = ErrorType<unknown>;
+export type PostApiUploadMutationError = unknown;
 
 export const usePostApiUpload = <
-  TError = ErrorType<unknown>,
+  TError = unknown,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<

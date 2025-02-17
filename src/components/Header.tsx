@@ -31,7 +31,7 @@ const Header = () => {
   };
 
   return (
-    <StyledContainer $scrolled={scrolled}>
+    <StyledContainer $scrolled={scrolled || isMenuOpen}>
       <HeaderContainer>
         <Link to="/">
           <Logo

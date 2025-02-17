@@ -24,7 +24,7 @@ export default defineConfig({
       },
     },
     input: {
-      target: "https://test.d0hwq1.com/api/docs.json",
+      target: "http://192.168.0.109:3000/api/docs.json",
       override: {
         transformer: "transformer/input-filter.js",
       },

@@ -1,4 +1,4 @@
-import Storage from "@/src/utils/storage";
+import LocalStorage from "../local-storage";
 import { parseJwt } from "../utils";
 
 const KEY_ACCESS_TOKEN = "accessToken";
@@ -17,7 +17,7 @@ const _state: SessionState = {
 
 const setAccessToken = async function setAccessToken(token: string | null) {
   if (token !== null) {
-    await Storage.set(KEY_ACCESS_TOKEN, token);
+    await LocalStorage.set(KEY_ACCESS_TOKEN, token);
   }
   _state.accessToken = token;
   const parsedJwt = token === null ? null : parseJwt(token);
@@ -29,7 +29,7 @@ export const setRefreshToken = async function setRefreshToken(
   token: string | null
 ) {
   if (token !== null) {
-    await Storage.set(KEY_REFRESH_TOKEN, token);
+    await LocalStorage.set(KEY_REFRESH_TOKEN, token);
   }
   _state.refreshToken = token;
 };
@@ -37,8 +37,8 @@ export const setRefreshToken = async function setRefreshToken(
 const tokens = {
   async init() {
     const [accessToken, refreshToken] = await Promise.all([
-      Storage.get(KEY_ACCESS_TOKEN),
-      Storage.get(KEY_REFRESH_TOKEN),
+      LocalStorage.get(KEY_ACCESS_TOKEN),
+      LocalStorage.get(KEY_REFRESH_TOKEN),
     ]);
     await Promise.all([
       setAccessToken(accessToken),
@@ -54,8 +54,8 @@ const tokens = {
   setAccessToken,
   async clearTokens() {
     await Promise.all([
-      Storage.remove(KEY_ACCESS_TOKEN),
-      Storage.remove(KEY_REFRESH_TOKEN),
+      LocalStorage.remove(KEY_ACCESS_TOKEN),
+      LocalStorage.remove(KEY_REFRESH_TOKEN),
     ]);
     _state.accessToken = null;
     _state.accessTokenExpired = null;

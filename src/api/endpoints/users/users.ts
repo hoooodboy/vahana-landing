@@ -38,7 +38,6 @@ import type {
   VerifyIdentityDto,
 } from "../../model";
 import { customAxios } from "../../mutator/customAxios";
-import type { ErrorType } from "../../mutator/customAxios";
 
 /**
  * 유저 정보 조회
@@ -58,7 +57,7 @@ export const getGetApiUsersIdQueryKey = (id: string) => {
 
 export const getGetApiUsersIdQueryOptions = <
   TData = Awaited<ReturnType<typeof getApiUsersId>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   options?: {
@@ -90,13 +89,13 @@ export const getGetApiUsersIdQueryOptions = <
 export type GetApiUsersIdQueryResult = NonNullable<
   Awaited<ReturnType<typeof getApiUsersId>>
 >;
-export type GetApiUsersIdQueryError = ErrorType<
-  APIResponseUnauthorizedDto | APIResponseForbiddenDto
->;
+export type GetApiUsersIdQueryError =
+  | APIResponseUnauthorizedDto
+  | APIResponseForbiddenDto;
 
 export function useGetApiUsersId<
   TData = Awaited<ReturnType<typeof getApiUsersId>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   options: {
@@ -117,7 +116,7 @@ export function useGetApiUsersId<
 };
 export function useGetApiUsersId<
   TData = Awaited<ReturnType<typeof getApiUsersId>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   options?: {
@@ -138,7 +137,7 @@ export function useGetApiUsersId<
 };
 export function useGetApiUsersId<
   TData = Awaited<ReturnType<typeof getApiUsersId>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   options?: {
@@ -155,7 +154,7 @@ export function useGetApiUsersId<
 
 export function useGetApiUsersId<
   TData = Awaited<ReturnType<typeof getApiUsersId>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   options?: {
@@ -196,7 +195,7 @@ export const postApiUsersIdInvite = (
 };
 
 export const getPostApiUsersIdInviteMutationOptions = <
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -236,15 +235,15 @@ export type PostApiUsersIdInviteMutationResult = NonNullable<
   Awaited<ReturnType<typeof postApiUsersIdInvite>>
 >;
 export type PostApiUsersIdInviteMutationBody = InviteUserDto;
-export type PostApiUsersIdInviteMutationError = ErrorType<
-  APIResponseUnauthorizedDto | APIResponseForbiddenDto
->;
+export type PostApiUsersIdInviteMutationError =
+  | APIResponseUnauthorizedDto
+  | APIResponseForbiddenDto;
 
 /**
  * @summary 초대 코드 발송
  */
 export const usePostApiUsersIdInvite = <
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -281,7 +280,7 @@ export const getGetApiUsersIdReferrerQueryKey = (id: string) => {
 
 export const getGetApiUsersIdReferrerQueryOptions = <
   TData = Awaited<ReturnType<typeof getApiUsersIdReferrer>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   options?: {
@@ -318,13 +317,13 @@ export const getGetApiUsersIdReferrerQueryOptions = <
 export type GetApiUsersIdReferrerQueryResult = NonNullable<
   Awaited<ReturnType<typeof getApiUsersIdReferrer>>
 >;
-export type GetApiUsersIdReferrerQueryError = ErrorType<
-  APIResponseUnauthorizedDto | APIResponseForbiddenDto
->;
+export type GetApiUsersIdReferrerQueryError =
+  | APIResponseUnauthorizedDto
+  | APIResponseForbiddenDto;
 
 export function useGetApiUsersIdReferrer<
   TData = Awaited<ReturnType<typeof getApiUsersIdReferrer>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   options: {
@@ -349,7 +348,7 @@ export function useGetApiUsersIdReferrer<
 };
 export function useGetApiUsersIdReferrer<
   TData = Awaited<ReturnType<typeof getApiUsersIdReferrer>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   options?: {
@@ -374,7 +373,7 @@ export function useGetApiUsersIdReferrer<
 };
 export function useGetApiUsersIdReferrer<
   TData = Awaited<ReturnType<typeof getApiUsersIdReferrer>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   options?: {
@@ -395,7 +394,7 @@ export function useGetApiUsersIdReferrer<
 
 export function useGetApiUsersIdReferrer<
   TData = Awaited<ReturnType<typeof getApiUsersIdReferrer>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   options?: {
@@ -439,7 +438,7 @@ export const getGetApiUsersIdTicketsQueryKey = (id: string) => {
 
 export const getGetApiUsersIdTicketsQueryOptions = <
   TData = Awaited<ReturnType<typeof getApiUsersIdTickets>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   options?: {
@@ -476,13 +475,13 @@ export const getGetApiUsersIdTicketsQueryOptions = <
 export type GetApiUsersIdTicketsQueryResult = NonNullable<
   Awaited<ReturnType<typeof getApiUsersIdTickets>>
 >;
-export type GetApiUsersIdTicketsQueryError = ErrorType<
-  APIResponseUnauthorizedDto | APIResponseForbiddenDto
->;
+export type GetApiUsersIdTicketsQueryError =
+  | APIResponseUnauthorizedDto
+  | APIResponseForbiddenDto;
 
 export function useGetApiUsersIdTickets<
   TData = Awaited<ReturnType<typeof getApiUsersIdTickets>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   options: {
@@ -507,7 +506,7 @@ export function useGetApiUsersIdTickets<
 };
 export function useGetApiUsersIdTickets<
   TData = Awaited<ReturnType<typeof getApiUsersIdTickets>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   options?: {
@@ -532,7 +531,7 @@ export function useGetApiUsersIdTickets<
 };
 export function useGetApiUsersIdTickets<
   TData = Awaited<ReturnType<typeof getApiUsersIdTickets>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   options?: {
@@ -553,7 +552,7 @@ export function useGetApiUsersIdTickets<
 
 export function useGetApiUsersIdTickets<
   TData = Awaited<ReturnType<typeof getApiUsersIdTickets>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   options?: {
@@ -608,7 +607,7 @@ export const getGetApiUsersIdReservationsQueryKey = (
 
 export const getGetApiUsersIdReservationsQueryOptions = <
   TData = Awaited<ReturnType<typeof getApiUsersIdReservations>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   params: GetApiUsersIdReservationsParams,
@@ -646,13 +645,13 @@ export const getGetApiUsersIdReservationsQueryOptions = <
 export type GetApiUsersIdReservationsQueryResult = NonNullable<
   Awaited<ReturnType<typeof getApiUsersIdReservations>>
 >;
-export type GetApiUsersIdReservationsQueryError = ErrorType<
-  APIResponseUnauthorizedDto | APIResponseForbiddenDto
->;
+export type GetApiUsersIdReservationsQueryError =
+  | APIResponseUnauthorizedDto
+  | APIResponseForbiddenDto;
 
 export function useGetApiUsersIdReservations<
   TData = Awaited<ReturnType<typeof getApiUsersIdReservations>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   params: GetApiUsersIdReservationsParams,
@@ -678,7 +677,7 @@ export function useGetApiUsersIdReservations<
 };
 export function useGetApiUsersIdReservations<
   TData = Awaited<ReturnType<typeof getApiUsersIdReservations>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   params: GetApiUsersIdReservationsParams,
@@ -704,7 +703,7 @@ export function useGetApiUsersIdReservations<
 };
 export function useGetApiUsersIdReservations<
   TData = Awaited<ReturnType<typeof getApiUsersIdReservations>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   params: GetApiUsersIdReservationsParams,
@@ -726,7 +725,7 @@ export function useGetApiUsersIdReservations<
 
 export function useGetApiUsersIdReservations<
   TData = Awaited<ReturnType<typeof getApiUsersIdReservations>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   params: GetApiUsersIdReservationsParams,
@@ -776,7 +775,7 @@ export const postApiUsersIdReservations = (
 };
 
 export const getPostApiUsersIdReservationsMutationOptions = <
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -816,15 +815,15 @@ export type PostApiUsersIdReservationsMutationResult = NonNullable<
   Awaited<ReturnType<typeof postApiUsersIdReservations>>
 >;
 export type PostApiUsersIdReservationsMutationBody = CreateReservationDto;
-export type PostApiUsersIdReservationsMutationError = ErrorType<
-  APIResponseUnauthorizedDto | APIResponseForbiddenDto
->;
+export type PostApiUsersIdReservationsMutationError =
+  | APIResponseUnauthorizedDto
+  | APIResponseForbiddenDto;
 
 /**
  * @summary 예약 추가
  */
 export const usePostApiUsersIdReservations = <
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -862,7 +861,7 @@ export const postApiUsersIdIdentity = (
 };
 
 export const getPostApiUsersIdIdentityMutationOptions = <
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -902,15 +901,15 @@ export type PostApiUsersIdIdentityMutationResult = NonNullable<
   Awaited<ReturnType<typeof postApiUsersIdIdentity>>
 >;
 export type PostApiUsersIdIdentityMutationBody = VerifyIdentityDto;
-export type PostApiUsersIdIdentityMutationError = ErrorType<
-  APIResponseUnauthorizedDto | APIResponseForbiddenDto
->;
+export type PostApiUsersIdIdentityMutationError =
+  | APIResponseUnauthorizedDto
+  | APIResponseForbiddenDto;
 
 /**
  * @summary 신원 인증
  */
 export const usePostApiUsersIdIdentity = <
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -950,7 +949,7 @@ export const getGetApiUsersIdReservationsLatestQueryKey = (id: string) => {
 
 export const getGetApiUsersIdReservationsLatestQueryOptions = <
   TData = Awaited<ReturnType<typeof getApiUsersIdReservationsLatest>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   options?: {
@@ -987,13 +986,13 @@ export const getGetApiUsersIdReservationsLatestQueryOptions = <
 export type GetApiUsersIdReservationsLatestQueryResult = NonNullable<
   Awaited<ReturnType<typeof getApiUsersIdReservationsLatest>>
 >;
-export type GetApiUsersIdReservationsLatestQueryError = ErrorType<
-  APIResponseUnauthorizedDto | APIResponseForbiddenDto
->;
+export type GetApiUsersIdReservationsLatestQueryError =
+  | APIResponseUnauthorizedDto
+  | APIResponseForbiddenDto;
 
 export function useGetApiUsersIdReservationsLatest<
   TData = Awaited<ReturnType<typeof getApiUsersIdReservationsLatest>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   options: {
@@ -1018,7 +1017,7 @@ export function useGetApiUsersIdReservationsLatest<
 };
 export function useGetApiUsersIdReservationsLatest<
   TData = Awaited<ReturnType<typeof getApiUsersIdReservationsLatest>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   options?: {
@@ -1043,7 +1042,7 @@ export function useGetApiUsersIdReservationsLatest<
 };
 export function useGetApiUsersIdReservationsLatest<
   TData = Awaited<ReturnType<typeof getApiUsersIdReservationsLatest>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   options?: {
@@ -1064,7 +1063,7 @@ export function useGetApiUsersIdReservationsLatest<
 
 export function useGetApiUsersIdReservationsLatest<
   TData = Awaited<ReturnType<typeof getApiUsersIdReservationsLatest>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   options?: {
@@ -1111,7 +1110,7 @@ export const getGetApiAdminUsersQueryKey = () => {
 
 export const getGetApiAdminUsersQueryOptions = <
   TData = Awaited<ReturnType<typeof getApiAdminUsers>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(options?: {
   query?: Partial<
     UseQueryOptions<Awaited<ReturnType<typeof getApiAdminUsers>>, TError, TData>
@@ -1135,13 +1134,13 @@ export const getGetApiAdminUsersQueryOptions = <
 export type GetApiAdminUsersQueryResult = NonNullable<
   Awaited<ReturnType<typeof getApiAdminUsers>>
 >;
-export type GetApiAdminUsersQueryError = ErrorType<
-  APIResponseUnauthorizedDto | APIResponseForbiddenDto
->;
+export type GetApiAdminUsersQueryError =
+  | APIResponseUnauthorizedDto
+  | APIResponseForbiddenDto;
 
 export function useGetApiAdminUsers<
   TData = Awaited<ReturnType<typeof getApiAdminUsers>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(options: {
   query: Partial<
     UseQueryOptions<Awaited<ReturnType<typeof getApiAdminUsers>>, TError, TData>
@@ -1159,7 +1158,7 @@ export function useGetApiAdminUsers<
 };
 export function useGetApiAdminUsers<
   TData = Awaited<ReturnType<typeof getApiAdminUsers>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(options?: {
   query?: Partial<
     UseQueryOptions<Awaited<ReturnType<typeof getApiAdminUsers>>, TError, TData>
@@ -1177,7 +1176,7 @@ export function useGetApiAdminUsers<
 };
 export function useGetApiAdminUsers<
   TData = Awaited<ReturnType<typeof getApiAdminUsers>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(options?: {
   query?: Partial<
     UseQueryOptions<Awaited<ReturnType<typeof getApiAdminUsers>>, TError, TData>
@@ -1191,7 +1190,7 @@ export function useGetApiAdminUsers<
 
 export function useGetApiAdminUsers<
   TData = Awaited<ReturnType<typeof getApiAdminUsers>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(options?: {
   query?: Partial<
     UseQueryOptions<Awaited<ReturnType<typeof getApiAdminUsers>>, TError, TData>
@@ -1227,7 +1226,7 @@ export const patchApiAdminUsersId = (
 };
 
 export const getPatchApiAdminUsersIdMutationOptions = <
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -1267,15 +1266,15 @@ export type PatchApiAdminUsersIdMutationResult = NonNullable<
   Awaited<ReturnType<typeof patchApiAdminUsersId>>
 >;
 export type PatchApiAdminUsersIdMutationBody = UpdateUserDto;
-export type PatchApiAdminUsersIdMutationError = ErrorType<
-  APIResponseUnauthorizedDto | APIResponseForbiddenDto
->;
+export type PatchApiAdminUsersIdMutationError =
+  | APIResponseUnauthorizedDto
+  | APIResponseForbiddenDto;
 
 /**
  * @summary [어드민] 유저 정보 수정
  */
 export const usePatchApiAdminUsersId = <
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -1315,7 +1314,7 @@ export const getGetApiAdminUsersIdReferrerQueryKey = (id: string) => {
 
 export const getGetApiAdminUsersIdReferrerQueryOptions = <
   TData = Awaited<ReturnType<typeof getApiAdminUsersIdReferrer>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   options?: {
@@ -1352,13 +1351,13 @@ export const getGetApiAdminUsersIdReferrerQueryOptions = <
 export type GetApiAdminUsersIdReferrerQueryResult = NonNullable<
   Awaited<ReturnType<typeof getApiAdminUsersIdReferrer>>
 >;
-export type GetApiAdminUsersIdReferrerQueryError = ErrorType<
-  APIResponseUnauthorizedDto | APIResponseForbiddenDto
->;
+export type GetApiAdminUsersIdReferrerQueryError =
+  | APIResponseUnauthorizedDto
+  | APIResponseForbiddenDto;
 
 export function useGetApiAdminUsersIdReferrer<
   TData = Awaited<ReturnType<typeof getApiAdminUsersIdReferrer>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   options: {
@@ -1383,7 +1382,7 @@ export function useGetApiAdminUsersIdReferrer<
 };
 export function useGetApiAdminUsersIdReferrer<
   TData = Awaited<ReturnType<typeof getApiAdminUsersIdReferrer>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   options?: {
@@ -1408,7 +1407,7 @@ export function useGetApiAdminUsersIdReferrer<
 };
 export function useGetApiAdminUsersIdReferrer<
   TData = Awaited<ReturnType<typeof getApiAdminUsersIdReferrer>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   options?: {
@@ -1429,7 +1428,7 @@ export function useGetApiAdminUsersIdReferrer<
 
 export function useGetApiAdminUsersIdReferrer<
   TData = Awaited<ReturnType<typeof getApiAdminUsersIdReferrer>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   options?: {
@@ -1476,7 +1475,7 @@ export const getGetApiAdminUsersIdReservationsQueryKey = (id: string) => {
 
 export const getGetApiAdminUsersIdReservationsQueryOptions = <
   TData = Awaited<ReturnType<typeof getApiAdminUsersIdReservations>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   options?: {
@@ -1513,13 +1512,13 @@ export const getGetApiAdminUsersIdReservationsQueryOptions = <
 export type GetApiAdminUsersIdReservationsQueryResult = NonNullable<
   Awaited<ReturnType<typeof getApiAdminUsersIdReservations>>
 >;
-export type GetApiAdminUsersIdReservationsQueryError = ErrorType<
-  APIResponseUnauthorizedDto | APIResponseForbiddenDto
->;
+export type GetApiAdminUsersIdReservationsQueryError =
+  | APIResponseUnauthorizedDto
+  | APIResponseForbiddenDto;
 
 export function useGetApiAdminUsersIdReservations<
   TData = Awaited<ReturnType<typeof getApiAdminUsersIdReservations>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   options: {
@@ -1544,7 +1543,7 @@ export function useGetApiAdminUsersIdReservations<
 };
 export function useGetApiAdminUsersIdReservations<
   TData = Awaited<ReturnType<typeof getApiAdminUsersIdReservations>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   options?: {
@@ -1569,7 +1568,7 @@ export function useGetApiAdminUsersIdReservations<
 };
 export function useGetApiAdminUsersIdReservations<
   TData = Awaited<ReturnType<typeof getApiAdminUsersIdReservations>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   options?: {
@@ -1590,7 +1589,7 @@ export function useGetApiAdminUsersIdReservations<
 
 export function useGetApiAdminUsersIdReservations<
   TData = Awaited<ReturnType<typeof getApiAdminUsersIdReservations>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   options?: {

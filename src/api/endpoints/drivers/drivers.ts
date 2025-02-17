@@ -28,7 +28,6 @@ import type {
   UpdateDriverDto,
 } from "../../model";
 import { customAxios } from "../../mutator/customAxios";
-import type { ErrorType } from "../../mutator/customAxios";
 
 /**
  * [어드민] 운전자 등록
@@ -48,7 +47,7 @@ export const postApiDrivers = (
 };
 
 export const getPostApiDriversMutationOptions = <
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -88,15 +87,15 @@ export type PostApiDriversMutationResult = NonNullable<
   Awaited<ReturnType<typeof postApiDrivers>>
 >;
 export type PostApiDriversMutationBody = CreateDriverDto;
-export type PostApiDriversMutationError = ErrorType<
-  APIResponseUnauthorizedDto | APIResponseForbiddenDto
->;
+export type PostApiDriversMutationError =
+  | APIResponseUnauthorizedDto
+  | APIResponseForbiddenDto;
 
 /**
  * @summary [어드민] 운전자 등록
  */
 export const usePostApiDrivers = <
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -133,7 +132,7 @@ export const getGetApiDriversQueryKey = () => {
 
 export const getGetApiDriversQueryOptions = <
   TData = Awaited<ReturnType<typeof getApiDrivers>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(options?: {
   query?: Partial<
     UseQueryOptions<Awaited<ReturnType<typeof getApiDrivers>>, TError, TData>
@@ -157,13 +156,13 @@ export const getGetApiDriversQueryOptions = <
 export type GetApiDriversQueryResult = NonNullable<
   Awaited<ReturnType<typeof getApiDrivers>>
 >;
-export type GetApiDriversQueryError = ErrorType<
-  APIResponseUnauthorizedDto | APIResponseForbiddenDto
->;
+export type GetApiDriversQueryError =
+  | APIResponseUnauthorizedDto
+  | APIResponseForbiddenDto;
 
 export function useGetApiDrivers<
   TData = Awaited<ReturnType<typeof getApiDrivers>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(options: {
   query: Partial<
     UseQueryOptions<Awaited<ReturnType<typeof getApiDrivers>>, TError, TData>
@@ -181,7 +180,7 @@ export function useGetApiDrivers<
 };
 export function useGetApiDrivers<
   TData = Awaited<ReturnType<typeof getApiDrivers>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(options?: {
   query?: Partial<
     UseQueryOptions<Awaited<ReturnType<typeof getApiDrivers>>, TError, TData>
@@ -199,7 +198,7 @@ export function useGetApiDrivers<
 };
 export function useGetApiDrivers<
   TData = Awaited<ReturnType<typeof getApiDrivers>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(options?: {
   query?: Partial<
     UseQueryOptions<Awaited<ReturnType<typeof getApiDrivers>>, TError, TData>
@@ -213,7 +212,7 @@ export function useGetApiDrivers<
 
 export function useGetApiDrivers<
   TData = Awaited<ReturnType<typeof getApiDrivers>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(options?: {
   query?: Partial<
     UseQueryOptions<Awaited<ReturnType<typeof getApiDrivers>>, TError, TData>
@@ -250,7 +249,7 @@ export const getGetApiDriversIdQueryKey = (id: string) => {
 
 export const getGetApiDriversIdQueryOptions = <
   TData = Awaited<ReturnType<typeof getApiDriversId>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   options?: {
@@ -286,13 +285,13 @@ export const getGetApiDriversIdQueryOptions = <
 export type GetApiDriversIdQueryResult = NonNullable<
   Awaited<ReturnType<typeof getApiDriversId>>
 >;
-export type GetApiDriversIdQueryError = ErrorType<
-  APIResponseUnauthorizedDto | APIResponseForbiddenDto
->;
+export type GetApiDriversIdQueryError =
+  | APIResponseUnauthorizedDto
+  | APIResponseForbiddenDto;
 
 export function useGetApiDriversId<
   TData = Awaited<ReturnType<typeof getApiDriversId>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   options: {
@@ -317,7 +316,7 @@ export function useGetApiDriversId<
 };
 export function useGetApiDriversId<
   TData = Awaited<ReturnType<typeof getApiDriversId>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   options?: {
@@ -342,7 +341,7 @@ export function useGetApiDriversId<
 };
 export function useGetApiDriversId<
   TData = Awaited<ReturnType<typeof getApiDriversId>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   options?: {
@@ -363,7 +362,7 @@ export function useGetApiDriversId<
 
 export function useGetApiDriversId<
   TData = Awaited<ReturnType<typeof getApiDriversId>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   options?: {
@@ -406,7 +405,7 @@ export const patchApiDriversId = (
 };
 
 export const getPatchApiDriversIdMutationOptions = <
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -446,15 +445,15 @@ export type PatchApiDriversIdMutationResult = NonNullable<
   Awaited<ReturnType<typeof patchApiDriversId>>
 >;
 export type PatchApiDriversIdMutationBody = UpdateDriverDto;
-export type PatchApiDriversIdMutationError = ErrorType<
-  APIResponseUnauthorizedDto | APIResponseForbiddenDto
->;
+export type PatchApiDriversIdMutationError =
+  | APIResponseUnauthorizedDto
+  | APIResponseForbiddenDto;
 
 /**
  * @summary [어드민] 운전자 수정
  */
 export const usePatchApiDriversId = <
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -485,7 +484,7 @@ export const deleteApiDriversId = (id: string) => {
 };
 
 export const getDeleteApiDriversIdMutationOptions = <
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -525,15 +524,15 @@ export type DeleteApiDriversIdMutationResult = NonNullable<
   Awaited<ReturnType<typeof deleteApiDriversId>>
 >;
 
-export type DeleteApiDriversIdMutationError = ErrorType<
-  APIResponseUnauthorizedDto | APIResponseForbiddenDto
->;
+export type DeleteApiDriversIdMutationError =
+  | APIResponseUnauthorizedDto
+  | APIResponseForbiddenDto;
 
 /**
  * @summary [어드민] 운전자 삭제
  */
 export const useDeleteApiDriversId = <
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<

@@ -31,7 +31,6 @@ import type {
   UpdateReservationDto,
 } from "../../model";
 import { customAxios } from "../../mutator/customAxios";
-import type { ErrorType } from "../../mutator/customAxios";
 
 /**
  * [어드민] 예약 목록 조회
@@ -57,7 +56,7 @@ export const getGetApiReservationsQueryKey = (
 
 export const getGetApiReservationsQueryOptions = <
   TData = Awaited<ReturnType<typeof getApiReservations>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   params: GetApiReservationsParams,
   options?: {
@@ -89,13 +88,13 @@ export const getGetApiReservationsQueryOptions = <
 export type GetApiReservationsQueryResult = NonNullable<
   Awaited<ReturnType<typeof getApiReservations>>
 >;
-export type GetApiReservationsQueryError = ErrorType<
-  APIResponseUnauthorizedDto | APIResponseForbiddenDto
->;
+export type GetApiReservationsQueryError =
+  | APIResponseUnauthorizedDto
+  | APIResponseForbiddenDto;
 
 export function useGetApiReservations<
   TData = Awaited<ReturnType<typeof getApiReservations>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   params: GetApiReservationsParams,
   options: {
@@ -120,7 +119,7 @@ export function useGetApiReservations<
 };
 export function useGetApiReservations<
   TData = Awaited<ReturnType<typeof getApiReservations>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   params: GetApiReservationsParams,
   options?: {
@@ -145,7 +144,7 @@ export function useGetApiReservations<
 };
 export function useGetApiReservations<
   TData = Awaited<ReturnType<typeof getApiReservations>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   params: GetApiReservationsParams,
   options?: {
@@ -166,7 +165,7 @@ export function useGetApiReservations<
 
 export function useGetApiReservations<
   TData = Awaited<ReturnType<typeof getApiReservations>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   params: GetApiReservationsParams,
   options?: {
@@ -216,7 +215,7 @@ export const getGetApiReservationsAvailableQueryKey = (
 
 export const getGetApiReservationsAvailableQueryOptions = <
   TData = Awaited<ReturnType<typeof getApiReservationsAvailable>>,
-  TError = ErrorType<unknown>,
+  TError = unknown,
 >(
   params: GetApiReservationsAvailableParams,
   options?: {
@@ -248,11 +247,11 @@ export const getGetApiReservationsAvailableQueryOptions = <
 export type GetApiReservationsAvailableQueryResult = NonNullable<
   Awaited<ReturnType<typeof getApiReservationsAvailable>>
 >;
-export type GetApiReservationsAvailableQueryError = ErrorType<unknown>;
+export type GetApiReservationsAvailableQueryError = unknown;
 
 export function useGetApiReservationsAvailable<
   TData = Awaited<ReturnType<typeof getApiReservationsAvailable>>,
-  TError = ErrorType<unknown>,
+  TError = unknown,
 >(
   params: GetApiReservationsAvailableParams,
   options: {
@@ -277,7 +276,7 @@ export function useGetApiReservationsAvailable<
 };
 export function useGetApiReservationsAvailable<
   TData = Awaited<ReturnType<typeof getApiReservationsAvailable>>,
-  TError = ErrorType<unknown>,
+  TError = unknown,
 >(
   params: GetApiReservationsAvailableParams,
   options?: {
@@ -302,7 +301,7 @@ export function useGetApiReservationsAvailable<
 };
 export function useGetApiReservationsAvailable<
   TData = Awaited<ReturnType<typeof getApiReservationsAvailable>>,
-  TError = ErrorType<unknown>,
+  TError = unknown,
 >(
   params: GetApiReservationsAvailableParams,
   options?: {
@@ -323,7 +322,7 @@ export function useGetApiReservationsAvailable<
 
 export function useGetApiReservationsAvailable<
   TData = Awaited<ReturnType<typeof getApiReservationsAvailable>>,
-  TError = ErrorType<unknown>,
+  TError = unknown,
 >(
   params: GetApiReservationsAvailableParams,
   options?: {
@@ -370,7 +369,7 @@ export const getGetApiReservationsIdQueryKey = (id: string) => {
 
 export const getGetApiReservationsIdQueryOptions = <
   TData = Awaited<ReturnType<typeof getApiReservationsId>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   options?: {
@@ -407,13 +406,13 @@ export const getGetApiReservationsIdQueryOptions = <
 export type GetApiReservationsIdQueryResult = NonNullable<
   Awaited<ReturnType<typeof getApiReservationsId>>
 >;
-export type GetApiReservationsIdQueryError = ErrorType<
-  APIResponseUnauthorizedDto | APIResponseForbiddenDto
->;
+export type GetApiReservationsIdQueryError =
+  | APIResponseUnauthorizedDto
+  | APIResponseForbiddenDto;
 
 export function useGetApiReservationsId<
   TData = Awaited<ReturnType<typeof getApiReservationsId>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   options: {
@@ -438,7 +437,7 @@ export function useGetApiReservationsId<
 };
 export function useGetApiReservationsId<
   TData = Awaited<ReturnType<typeof getApiReservationsId>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   options?: {
@@ -463,7 +462,7 @@ export function useGetApiReservationsId<
 };
 export function useGetApiReservationsId<
   TData = Awaited<ReturnType<typeof getApiReservationsId>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   options?: {
@@ -484,7 +483,7 @@ export function useGetApiReservationsId<
 
 export function useGetApiReservationsId<
   TData = Awaited<ReturnType<typeof getApiReservationsId>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   options?: {
@@ -527,7 +526,7 @@ export const patchApiReservationsId = (
 };
 
 export const getPatchApiReservationsIdMutationOptions = <
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -567,15 +566,15 @@ export type PatchApiReservationsIdMutationResult = NonNullable<
   Awaited<ReturnType<typeof patchApiReservationsId>>
 >;
 export type PatchApiReservationsIdMutationBody = UpdateReservationDto;
-export type PatchApiReservationsIdMutationError = ErrorType<
-  APIResponseUnauthorizedDto | APIResponseForbiddenDto
->;
+export type PatchApiReservationsIdMutationError =
+  | APIResponseUnauthorizedDto
+  | APIResponseForbiddenDto;
 
 /**
  * @summary [어드민] 예약 상태 수정
  */
 export const usePatchApiReservationsId = <
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -611,7 +610,7 @@ export const patchApiReservationsIdDetail = (
 };
 
 export const getPatchApiReservationsIdDetailMutationOptions = <
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -652,15 +651,15 @@ export type PatchApiReservationsIdDetailMutationResult = NonNullable<
 >;
 export type PatchApiReservationsIdDetailMutationBody =
   UpdateReservationDetailDto;
-export type PatchApiReservationsIdDetailMutationError = ErrorType<
-  APIResponseUnauthorizedDto | APIResponseForbiddenDto
->;
+export type PatchApiReservationsIdDetailMutationError =
+  | APIResponseUnauthorizedDto
+  | APIResponseForbiddenDto;
 
 /**
  * @summary [어드민] 예약 상세 정보 수정
  */
 export const usePatchApiReservationsIdDetail = <
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<

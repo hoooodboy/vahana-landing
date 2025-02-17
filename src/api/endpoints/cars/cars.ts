@@ -30,7 +30,6 @@ import type {
   UpdateCarInventoryDto,
 } from "../../model";
 import { customAxios } from "../../mutator/customAxios";
-import type { ErrorType } from "../../mutator/customAxios";
 
 /**
  * 차량 목록 조회
@@ -50,7 +49,7 @@ export const getGetApiCarsQueryKey = () => {
 
 export const getGetApiCarsQueryOptions = <
   TData = Awaited<ReturnType<typeof getApiCars>>,
-  TError = ErrorType<unknown>,
+  TError = unknown,
 >(options?: {
   query?: Partial<
     UseQueryOptions<Awaited<ReturnType<typeof getApiCars>>, TError, TData>
@@ -74,11 +73,11 @@ export const getGetApiCarsQueryOptions = <
 export type GetApiCarsQueryResult = NonNullable<
   Awaited<ReturnType<typeof getApiCars>>
 >;
-export type GetApiCarsQueryError = ErrorType<unknown>;
+export type GetApiCarsQueryError = unknown;
 
 export function useGetApiCars<
   TData = Awaited<ReturnType<typeof getApiCars>>,
-  TError = ErrorType<unknown>,
+  TError = unknown,
 >(options: {
   query: Partial<
     UseQueryOptions<Awaited<ReturnType<typeof getApiCars>>, TError, TData>
@@ -96,7 +95,7 @@ export function useGetApiCars<
 };
 export function useGetApiCars<
   TData = Awaited<ReturnType<typeof getApiCars>>,
-  TError = ErrorType<unknown>,
+  TError = unknown,
 >(options?: {
   query?: Partial<
     UseQueryOptions<Awaited<ReturnType<typeof getApiCars>>, TError, TData>
@@ -114,7 +113,7 @@ export function useGetApiCars<
 };
 export function useGetApiCars<
   TData = Awaited<ReturnType<typeof getApiCars>>,
-  TError = ErrorType<unknown>,
+  TError = unknown,
 >(options?: {
   query?: Partial<
     UseQueryOptions<Awaited<ReturnType<typeof getApiCars>>, TError, TData>
@@ -128,7 +127,7 @@ export function useGetApiCars<
 
 export function useGetApiCars<
   TData = Awaited<ReturnType<typeof getApiCars>>,
-  TError = ErrorType<unknown>,
+  TError = unknown,
 >(options?: {
   query?: Partial<
     UseQueryOptions<Awaited<ReturnType<typeof getApiCars>>, TError, TData>
@@ -165,7 +164,7 @@ export const postApiCars = (
 };
 
 export const getPostApiCarsMutationOptions = <
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -205,15 +204,15 @@ export type PostApiCarsMutationResult = NonNullable<
   Awaited<ReturnType<typeof postApiCars>>
 >;
 export type PostApiCarsMutationBody = CreateCarDto;
-export type PostApiCarsMutationError = ErrorType<
-  APIResponseUnauthorizedDto | APIResponseForbiddenDto
->;
+export type PostApiCarsMutationError =
+  | APIResponseUnauthorizedDto
+  | APIResponseForbiddenDto;
 
 /**
  * @summary [어드민] 차량 등록
  */
 export const usePostApiCars = <
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -250,7 +249,7 @@ export const getGetApiCarsIdQueryKey = (id: string) => {
 
 export const getGetApiCarsIdQueryOptions = <
   TData = Awaited<ReturnType<typeof getApiCarsId>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   options?: {
@@ -282,13 +281,13 @@ export const getGetApiCarsIdQueryOptions = <
 export type GetApiCarsIdQueryResult = NonNullable<
   Awaited<ReturnType<typeof getApiCarsId>>
 >;
-export type GetApiCarsIdQueryError = ErrorType<
-  APIResponseUnauthorizedDto | APIResponseForbiddenDto
->;
+export type GetApiCarsIdQueryError =
+  | APIResponseUnauthorizedDto
+  | APIResponseForbiddenDto;
 
 export function useGetApiCarsId<
   TData = Awaited<ReturnType<typeof getApiCarsId>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   options: {
@@ -309,7 +308,7 @@ export function useGetApiCarsId<
 };
 export function useGetApiCarsId<
   TData = Awaited<ReturnType<typeof getApiCarsId>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   options?: {
@@ -330,7 +329,7 @@ export function useGetApiCarsId<
 };
 export function useGetApiCarsId<
   TData = Awaited<ReturnType<typeof getApiCarsId>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   options?: {
@@ -347,7 +346,7 @@ export function useGetApiCarsId<
 
 export function useGetApiCarsId<
   TData = Awaited<ReturnType<typeof getApiCarsId>>,
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
 >(
   id: string,
   options?: {
@@ -383,7 +382,7 @@ export const patchApiCarsId = (id: string, updateCarDto: UpdateCarDto) => {
 };
 
 export const getPatchApiCarsIdMutationOptions = <
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -423,15 +422,15 @@ export type PatchApiCarsIdMutationResult = NonNullable<
   Awaited<ReturnType<typeof patchApiCarsId>>
 >;
 export type PatchApiCarsIdMutationBody = UpdateCarDto;
-export type PatchApiCarsIdMutationError = ErrorType<
-  APIResponseUnauthorizedDto | APIResponseForbiddenDto
->;
+export type PatchApiCarsIdMutationError =
+  | APIResponseUnauthorizedDto
+  | APIResponseForbiddenDto;
 
 /**
  * @summary [어드민] 차량 수정
  */
 export const usePatchApiCarsId = <
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -462,7 +461,7 @@ export const deleteApiCarsId = (id: string) => {
 };
 
 export const getDeleteApiCarsIdMutationOptions = <
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -502,15 +501,15 @@ export type DeleteApiCarsIdMutationResult = NonNullable<
   Awaited<ReturnType<typeof deleteApiCarsId>>
 >;
 
-export type DeleteApiCarsIdMutationError = ErrorType<
-  APIResponseUnauthorizedDto | APIResponseForbiddenDto
->;
+export type DeleteApiCarsIdMutationError =
+  | APIResponseUnauthorizedDto
+  | APIResponseForbiddenDto;
 
 /**
  * @summary [어드민] 차량 삭제
  */
 export const useDeleteApiCarsId = <
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -548,7 +547,7 @@ export const postApiCarsIdInventory = (
 };
 
 export const getPostApiCarsIdInventoryMutationOptions = <
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -588,15 +587,15 @@ export type PostApiCarsIdInventoryMutationResult = NonNullable<
   Awaited<ReturnType<typeof postApiCarsIdInventory>>
 >;
 export type PostApiCarsIdInventoryMutationBody = CreateCarInventoryDto;
-export type PostApiCarsIdInventoryMutationError = ErrorType<
-  APIResponseUnauthorizedDto | APIResponseForbiddenDto
->;
+export type PostApiCarsIdInventoryMutationError =
+  | APIResponseUnauthorizedDto
+  | APIResponseForbiddenDto;
 
 /**
  * @summary [어드민] 차량 재고 등록
  */
 export const usePostApiCarsIdInventory = <
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -633,7 +632,7 @@ export const patchApiCarsIdInventoryInventoryId = (
 };
 
 export const getPatchApiCarsIdInventoryInventoryIdMutationOptions = <
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -674,15 +673,15 @@ export type PatchApiCarsIdInventoryInventoryIdMutationResult = NonNullable<
 >;
 export type PatchApiCarsIdInventoryInventoryIdMutationBody =
   UpdateCarInventoryDto;
-export type PatchApiCarsIdInventoryInventoryIdMutationError = ErrorType<
-  APIResponseUnauthorizedDto | APIResponseForbiddenDto
->;
+export type PatchApiCarsIdInventoryInventoryIdMutationError =
+  | APIResponseUnauthorizedDto
+  | APIResponseForbiddenDto;
 
 /**
  * @summary [어드민] 차량 재고 수정
  */
 export const usePatchApiCarsIdInventoryInventoryId = <
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -717,7 +716,7 @@ export const deleteApiCarsIdInventoryInventoryId = (
 };
 
 export const getDeleteApiCarsIdInventoryInventoryIdMutationOptions = <
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -757,15 +756,15 @@ export type DeleteApiCarsIdInventoryInventoryIdMutationResult = NonNullable<
   Awaited<ReturnType<typeof deleteApiCarsIdInventoryInventoryId>>
 >;
 
-export type DeleteApiCarsIdInventoryInventoryIdMutationError = ErrorType<
-  APIResponseUnauthorizedDto | APIResponseForbiddenDto
->;
+export type DeleteApiCarsIdInventoryInventoryIdMutationError =
+  | APIResponseUnauthorizedDto
+  | APIResponseForbiddenDto;
 
 /**
  * @summary [어드민] 차량 재고 삭제
  */
 export const useDeleteApiCarsIdInventoryInventoryId = <
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<

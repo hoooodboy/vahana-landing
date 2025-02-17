@@ -17,7 +17,6 @@ import type {
   CreateTicketDto,
 } from "../../model";
 import { customAxios } from "../../mutator/customAxios";
-import type { ErrorType } from "../../mutator/customAxios";
 
 /**
  * [어드민] 티켓을 부여/만료합니다.<br />amount가 0인 경우 date만큼 만료일을 업데이트합니다.
@@ -37,7 +36,7 @@ export const postApiTickets = (
 };
 
 export const getPostApiTicketsMutationOptions = <
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -77,15 +76,15 @@ export type PostApiTicketsMutationResult = NonNullable<
   Awaited<ReturnType<typeof postApiTickets>>
 >;
 export type PostApiTicketsMutationBody = CreateTicketDto;
-export type PostApiTicketsMutationError = ErrorType<
-  APIResponseUnauthorizedDto | APIResponseForbiddenDto
->;
+export type PostApiTicketsMutationError =
+  | APIResponseUnauthorizedDto
+  | APIResponseForbiddenDto;
 
 /**
  * @summary [어드민] 티켓 부여/만료
  */
 export const usePostApiTickets = <
-  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<

@@ -5,7 +5,9 @@
  * OpenAPI spec version: 1.0.0
  */
 
-/**
- * 신원 상태
- */
-export type UserResponseDtoIdentityStatus = { [key: string]: unknown };
+export type PostApiAuthLoginHeaders = {
+  /**
+   * 유저 환경
+   */
+  "User-Agent"?: string;
+};

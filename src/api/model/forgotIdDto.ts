@@ -5,7 +5,9 @@
  * OpenAPI spec version: 1.0.0
  */
 
-/**
- * 신원 상태
- */
-export type UpdateUserDtoIdentityStatus = { [key: string]: unknown };
+export type ForgotIdDto = {
+  /** 이름 */
+  name: string;
+  /** 전화번호 */
+  phone: string;
+};

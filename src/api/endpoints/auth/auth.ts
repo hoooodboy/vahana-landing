@@ -23,12 +23,14 @@ import type {
   APIResponseLoginResponseDto,
   APIResponseUnauthorizedDto,
   CreateUserDto,
+  ForgotIdDto,
   ForgotPwDto,
+  GetApiAuthKakaoHeaders,
   LoginDto,
+  PostApiAuthLoginHeaders,
   SingUpDto,
 } from "../../model";
 import { customAxios } from "../../mutator/customAxios";
-import type { ErrorType } from "../../mutator/customAxios";
 
 export const postApiAuthCreate = (
   createUserDto: CreateUserDto,
@@ -44,7 +46,7 @@ export const postApiAuthCreate = (
 };
 
 export const getPostApiAuthCreateMutationOptions = <
-  TError = ErrorType<unknown>,
+  TError = unknown,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -84,10 +86,10 @@ export type PostApiAuthCreateMutationResult = NonNullable<
   Awaited<ReturnType<typeof postApiAuthCreate>>
 >;
 export type PostApiAuthCreateMutationBody = CreateUserDto;
-export type PostApiAuthCreateMutationError = ErrorType<unknown>;
+export type PostApiAuthCreateMutationError = unknown;
 
 export const usePostApiAuthCreate = <
-  TError = ErrorType<unknown>,
+  TError = unknown,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -110,30 +112,34 @@ export const usePostApiAuthCreate = <
  * 로그인 처리. 리턴값으로 토큰을 주긴 하지만, 헤더에도 토큰을 세팅함(Authorization, Refresh)<br /><br />백단에서 액세스 토큰과 리프레시 토큰을 자동으로 갱신하는데,<br /> 프론트에서 axios 인터셉터 구현해서 토큰 갱신 처리 필요(response 헤더에 Authorization, Refresh 헤더가 있으면 토큰 갱신 처리)
  * @summary 로그인
  */
-export const postApiAuthLogin = (loginDto: LoginDto, signal?: AbortSignal) => {
+export const postApiAuthLogin = (
+  loginDto: LoginDto,
+  headers?: PostApiAuthLoginHeaders,
+  signal?: AbortSignal,
+) => {
   return customAxios<APIResponseLoginResponseDto>({
     url: `/api/auth/login`,
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...headers },
     data: loginDto,
     signal,
   });
 };
 
 export const getPostApiAuthLoginMutationOptions = <
-  TError = ErrorType<unknown>,
+  TError = unknown,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postApiAuthLogin>>,
     TError,
-    { data: LoginDto },
+    { data: LoginDto; headers?: PostApiAuthLoginHeaders },
     TContext
   >;
 }): UseMutationOptions<
   Awaited<ReturnType<typeof postApiAuthLogin>>,
   TError,
-  { data: LoginDto },
+  { data: LoginDto; headers?: PostApiAuthLoginHeaders },
   TContext
 > => {
   const mutationKey = ["postApiAuthLogin"];
@@ -147,11 +153,11 @@ export const getPostApiAuthLoginMutationOptions = <
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof postApiAuthLogin>>,
-    { data: LoginDto }
+    { data: LoginDto; headers?: PostApiAuthLoginHeaders }
   > = (props) => {
-    const { data } = props ?? {};
+    const { data, headers } = props ?? {};
 
-    return postApiAuthLogin(data);
+    return postApiAuthLogin(data, headers);
   };
 
   return { mutationFn, ...mutationOptions };
@@ -161,25 +167,25 @@ export type PostApiAuthLoginMutationResult = NonNullable<
   Awaited<ReturnType<typeof postApiAuthLogin>>
 >;
 export type PostApiAuthLoginMutationBody = LoginDto;
-export type PostApiAuthLoginMutationError = ErrorType<unknown>;
+export type PostApiAuthLoginMutationError = unknown;
 
 /**
  * @summary 로그인
  */
 export const usePostApiAuthLogin = <
-  TError = ErrorType<unknown>,
+  TError = unknown,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postApiAuthLogin>>,
     TError,
-    { data: LoginDto },
+    { data: LoginDto; headers?: PostApiAuthLoginHeaders },
     TContext
   >;
 }): UseMutationResult<
   Awaited<ReturnType<typeof postApiAuthLogin>>,
   TError,
-  { data: LoginDto },
+  { data: LoginDto; headers?: PostApiAuthLoginHeaders },
   TContext
 > => {
   const mutationOptions = getPostApiAuthLoginMutationOptions(options);
@@ -200,7 +206,7 @@ export const postApiAuthSignup = (
 };
 
 export const getPostApiAuthSignupMutationOptions = <
-  TError = ErrorType<unknown>,
+  TError = unknown,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -240,10 +246,10 @@ export type PostApiAuthSignupMutationResult = NonNullable<
   Awaited<ReturnType<typeof postApiAuthSignup>>
 >;
 export type PostApiAuthSignupMutationBody = SingUpDto;
-export type PostApiAuthSignupMutationError = ErrorType<unknown>;
+export type PostApiAuthSignupMutationError = unknown;
 
 export const usePostApiAuthSignup = <
-  TError = ErrorType<unknown>,
+  TError = unknown,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -266,8 +272,16 @@ export const usePostApiAuthSignup = <
  * 카카오 로그인을 진행.<br />유저 정보가 없을 시 회원가입 처리가 됨. https://front/signup?id={id}&provider=KAKAO 로 리다이렉트(id는 회원가입 폼에서 고정으로 해야함).<br />DB에 유저정보가 있으면 로그인 처리(헤더에 토큰 발급 - Authorization, Refresh)
  * @summary 카카오 로그인
  */
-export const getApiAuthKakao = (signal?: AbortSignal) => {
-  return customAxios<void>({ url: `/api/auth/kakao`, method: "GET", signal });
+export const getApiAuthKakao = (
+  headers: GetApiAuthKakaoHeaders,
+  signal?: AbortSignal,
+) => {
+  return customAxios<void>({
+    url: `/api/auth/kakao`,
+    method: "GET",
+    headers,
+    signal,
+  });
 };
 
 export const getGetApiAuthKakaoQueryKey = () => {
@@ -276,19 +290,26 @@ export const getGetApiAuthKakaoQueryKey = () => {
 
 export const getGetApiAuthKakaoQueryOptions = <
   TData = Awaited<ReturnType<typeof getApiAuthKakao>>,
-  TError = ErrorType<unknown>,
->(options?: {
-  query?: Partial<
-    UseQueryOptions<Awaited<ReturnType<typeof getApiAuthKakao>>, TError, TData>
-  >;
-}) => {
+  TError = unknown,
+>(
+  headers: GetApiAuthKakaoHeaders,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiAuthKakao>>,
+        TError,
+        TData
+      >
+    >;
+  },
+) => {
   const { query: queryOptions } = options ?? {};
 
   const queryKey = queryOptions?.queryKey ?? getGetApiAuthKakaoQueryKey();
 
   const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiAuthKakao>>> = ({
     signal,
-  }) => getApiAuthKakao(signal);
+  }) => getApiAuthKakao(headers, signal);
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof getApiAuthKakao>>,
@@ -300,52 +321,73 @@ export const getGetApiAuthKakaoQueryOptions = <
 export type GetApiAuthKakaoQueryResult = NonNullable<
   Awaited<ReturnType<typeof getApiAuthKakao>>
 >;
-export type GetApiAuthKakaoQueryError = ErrorType<unknown>;
+export type GetApiAuthKakaoQueryError = unknown;
 
 export function useGetApiAuthKakao<
   TData = Awaited<ReturnType<typeof getApiAuthKakao>>,
-  TError = ErrorType<unknown>,
->(options: {
-  query: Partial<
-    UseQueryOptions<Awaited<ReturnType<typeof getApiAuthKakao>>, TError, TData>
-  > &
-    Pick<
-      DefinedInitialDataOptions<
+  TError = unknown,
+>(
+  headers: GetApiAuthKakaoHeaders,
+  options: {
+    query: Partial<
+      UseQueryOptions<
         Awaited<ReturnType<typeof getApiAuthKakao>>,
         TError,
-        Awaited<ReturnType<typeof getApiAuthKakao>>
-      >,
-      "initialData"
-    >;
-}): DefinedUseQueryResult<TData, TError> & {
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiAuthKakao>>,
+          TError,
+          Awaited<ReturnType<typeof getApiAuthKakao>>
+        >,
+        "initialData"
+      >;
+  },
+): DefinedUseQueryResult<TData, TError> & {
   queryKey: DataTag<QueryKey, TData, TError>;
 };
 export function useGetApiAuthKakao<
   TData = Awaited<ReturnType<typeof getApiAuthKakao>>,
-  TError = ErrorType<unknown>,
->(options?: {
-  query?: Partial<
-    UseQueryOptions<Awaited<ReturnType<typeof getApiAuthKakao>>, TError, TData>
-  > &
-    Pick<
-      UndefinedInitialDataOptions<
+  TError = unknown,
+>(
+  headers: GetApiAuthKakaoHeaders,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
         Awaited<ReturnType<typeof getApiAuthKakao>>,
         TError,
-        Awaited<ReturnType<typeof getApiAuthKakao>>
-      >,
-      "initialData"
-    >;
-}): UseQueryResult<TData, TError> & {
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiAuthKakao>>,
+          TError,
+          Awaited<ReturnType<typeof getApiAuthKakao>>
+        >,
+        "initialData"
+      >;
+  },
+): UseQueryResult<TData, TError> & {
   queryKey: DataTag<QueryKey, TData, TError>;
 };
 export function useGetApiAuthKakao<
   TData = Awaited<ReturnType<typeof getApiAuthKakao>>,
-  TError = ErrorType<unknown>,
->(options?: {
-  query?: Partial<
-    UseQueryOptions<Awaited<ReturnType<typeof getApiAuthKakao>>, TError, TData>
-  >;
-}): UseQueryResult<TData, TError> & {
+  TError = unknown,
+>(
+  headers: GetApiAuthKakaoHeaders,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiAuthKakao>>,
+        TError,
+        TData
+      >
+    >;
+  },
+): UseQueryResult<TData, TError> & {
   queryKey: DataTag<QueryKey, TData, TError>;
 };
 /**
@@ -354,15 +396,22 @@ export function useGetApiAuthKakao<
 
 export function useGetApiAuthKakao<
   TData = Awaited<ReturnType<typeof getApiAuthKakao>>,
-  TError = ErrorType<unknown>,
->(options?: {
-  query?: Partial<
-    UseQueryOptions<Awaited<ReturnType<typeof getApiAuthKakao>>, TError, TData>
-  >;
-}): UseQueryResult<TData, TError> & {
+  TError = unknown,
+>(
+  headers: GetApiAuthKakaoHeaders,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiAuthKakao>>,
+        TError,
+        TData
+      >
+    >;
+  },
+): UseQueryResult<TData, TError> & {
   queryKey: DataTag<QueryKey, TData, TError>;
 } {
-  const queryOptions = getGetApiAuthKakaoQueryOptions(options);
+  const queryOptions = getGetApiAuthKakaoQueryOptions(headers, options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: DataTag<QueryKey, TData, TError>;
@@ -382,7 +431,7 @@ export const postApiAuthWithdraw = (signal?: AbortSignal) => {
 };
 
 export const getPostApiAuthWithdrawMutationOptions = <
-  TError = ErrorType<APIResponseUnauthorizedDto>,
+  TError = APIResponseUnauthorizedDto,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -420,11 +469,10 @@ export type PostApiAuthWithdrawMutationResult = NonNullable<
   Awaited<ReturnType<typeof postApiAuthWithdraw>>
 >;
 
-export type PostApiAuthWithdrawMutationError =
-  ErrorType<APIResponseUnauthorizedDto>;
+export type PostApiAuthWithdrawMutationError = APIResponseUnauthorizedDto;
 
 export const usePostApiAuthWithdraw = <
-  TError = ErrorType<APIResponseUnauthorizedDto>,
+  TError = APIResponseUnauthorizedDto,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -457,7 +505,7 @@ export const postApiAuthForgotPw = (
 };
 
 export const getPostApiAuthForgotPwMutationOptions = <
-  TError = ErrorType<unknown>,
+  TError = unknown,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -497,10 +545,10 @@ export type PostApiAuthForgotPwMutationResult = NonNullable<
   Awaited<ReturnType<typeof postApiAuthForgotPw>>
 >;
 export type PostApiAuthForgotPwMutationBody = ForgotPwDto;
-export type PostApiAuthForgotPwMutationError = ErrorType<unknown>;
+export type PostApiAuthForgotPwMutationError = unknown;
 
 export const usePostApiAuthForgotPw = <
-  TError = ErrorType<unknown>,
+  TError = unknown,
   TContext = unknown,
 >(options?: {
   mutation?: UseMutationOptions<
@@ -516,6 +564,82 @@ export const usePostApiAuthForgotPw = <
   TContext
 > => {
   const mutationOptions = getPostApiAuthForgotPwMutationOptions(options);
+
+  return useMutation(mutationOptions);
+};
+export const postApiAuthForgotId = (
+  forgotIdDto: ForgotIdDto,
+  signal?: AbortSignal,
+) => {
+  return customAxios<APIResponseBoolean>({
+    url: `/api/auth/forgot-id`,
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    data: forgotIdDto,
+    signal,
+  });
+};
+
+export const getPostApiAuthForgotIdMutationOptions = <
+  TError = unknown,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postApiAuthForgotId>>,
+    TError,
+    { data: ForgotIdDto },
+    TContext
+  >;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postApiAuthForgotId>>,
+  TError,
+  { data: ForgotIdDto },
+  TContext
+> => {
+  const mutationKey = ["postApiAuthForgotId"];
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof postApiAuthForgotId>>,
+    { data: ForgotIdDto }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return postApiAuthForgotId(data);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type PostApiAuthForgotIdMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postApiAuthForgotId>>
+>;
+export type PostApiAuthForgotIdMutationBody = ForgotIdDto;
+export type PostApiAuthForgotIdMutationError = unknown;
+
+export const usePostApiAuthForgotId = <
+  TError = unknown,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postApiAuthForgotId>>,
+    TError,
+    { data: ForgotIdDto },
+    TContext
+  >;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof postApiAuthForgotId>>,
+  TError,
+  { data: ForgotIdDto },
+  TContext
+> => {
+  const mutationOptions = getPostApiAuthForgotIdMutationOptions(options);
 
   return useMutation(mutationOptions);
 };
