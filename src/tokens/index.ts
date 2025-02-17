@@ -1,8 +1,8 @@
 import LocalStorage from "../local-storage";
 import { parseJwt } from "../utils";
 
-const KEY_ACCESS_TOKEN = "accessToken";
-const KEY_REFRESH_TOKEN = "refreshToken";
+export const KEY_ACCESS_TOKEN = "accessToken";
+export const KEY_REFRESH_TOKEN = "refreshToken";
 
 type SessionState = {
   accessToken: string | null;

@@ -1,12 +1,8 @@
-import React from "react";
 import { RouteObject, useRoutes } from "react-router-dom";
-import { useMemo, useState } from "react";
 import * as Pages from "../pages/index";
 
 import BaseLayout from "./layouts/BaseLayout";
-import NavigateReplace from "./NavigateReplace";
 
-import UAParser from "ua-parser-js";
 import LocalStorage from "../local-storage";
 import PCLayout from "./layouts/PCLayout";
 
@@ -75,7 +71,7 @@ function AllRoutes() {
           element: <Pages.MyPage />,
         },
         {
-          path: "/join",
+          path: "/signup",
           element: <Pages.JoinPage />,
         },
         {
