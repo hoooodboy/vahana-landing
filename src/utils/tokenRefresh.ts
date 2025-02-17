@@ -1,4 +1,3 @@
-import { getAPIHost } from "../api";
 import LocalStorage from "../local-storage";
 
 interface Token {
@@ -49,4 +48,7 @@ async function handleAccessToken() {
       console.error("Invalid expiresIn format");
     }
   }
+}
+function getAPIHost() {
+  throw new Error("Function not implemented.");
 }

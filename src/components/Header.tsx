@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-
 import LogoImg from "@/src/assets/ic-vahana-white.png";
 import LogoDarkImg from "@/src/assets/ic-vahana-black.png";
 import icBurgerSvg from "@/src/assets/ic-burger.svg";
@@ -10,10 +9,10 @@ import { Link } from "react-router-dom";
 const Header = () => {
   const [scrolled, setScrolled] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleScroll = () => {
     const scrollY = window.scrollY;
-    // 스크롤 진행도를 0에서 1 사이의 값으로 계산 (100px를 기준으로)
     const progress = Math.min(scrollY / 100, 1);
     setScrollProgress(progress);
     setScrolled(scrollY > 0);
@@ -26,13 +25,13 @@ const Header = () => {
 
   const currentNav = window.location.pathname;
   const isHome = currentNav === "/";
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const toggleMenuOpen = () => {
     setIsMenuOpen(!isMenuOpen);
   };
+
   return (
-    <Container scrolled={scrolled || isMenuOpen}>
+    <StyledContainer $scrolled={scrolled}>
       <HeaderContainer>
         <Link to="/">
           <Logo
@@ -76,37 +75,37 @@ const Header = () => {
         />
         {!isHome && <Burger onClick={toggleMenuOpen} src={icBurgerBlackSvg} />}
       </HeaderContainer>
+
       {isMenuOpen && (
         <MenuContainer>
-          <MenuItem to="/cars" scrolled={scrolled} isHome={isHome}>
+          <StyledMenuItem to="/cars" $scrolled={scrolled} $isHome={isHome}>
             Vehicles
-          </MenuItem>
-          <MenuItem to="/calendar" scrolled={scrolled} isHome={isHome}>
+          </StyledMenuItem>
+          <StyledMenuItem to="/calendar" $scrolled={scrolled} $isHome={isHome}>
             Reservation
-          </MenuItem>
-          <MenuItem to="/pricing" scrolled={scrolled} isHome={isHome}>
+          </StyledMenuItem>
+          <StyledMenuItem to="/pricing" $scrolled={scrolled} $isHome={isHome}>
             Pricing
-          </MenuItem>
-          <MenuItem to="/my" scrolled={scrolled} isHome={isHome}>
+          </StyledMenuItem>
+          <StyledMenuItem to="/my" $scrolled={scrolled} $isHome={isHome}>
             My
-          </MenuItem>
+          </StyledMenuItem>
         </MenuContainer>
       )}
-    </Container>
+    </StyledContainer>
   );
 };
 
-const Container = styled.div<{ scrolled: boolean }>`
+// Styled Components
+const StyledContainer = styled.div<{ $scrolled: boolean }>`
   width: 100%;
   max-width: 480px;
-
   position: fixed;
   top: 0;
   display: flex;
   flex-direction: column;
   z-index: 1000;
-
-  backdrop-filter: ${(p) => (p.scrolled ? "blur(5px)" : "none")};
+  backdrop-filter: ${(p) => (p.$scrolled ? "blur(5px)" : "none")};
   transition: 0.2s all ease-in;
 `;
 
@@ -128,7 +127,6 @@ const Logo = styled.img`
   position: absolute;
   left: 16px;
   top: 21px;
-  /* transform: translate(0, 50%); */
   transition: opacity 0.3s;
 `;
 
@@ -145,11 +143,10 @@ const MenuContainer = styled.div`
   display: flex;
   flex-direction: column;
   padding-top: 16px;
-
   transition: all ease-in 0.3s;
 `;
 
-const MenuItem = styled(Link)<{ scrolled: boolean; isHome: boolean }>`
+const StyledMenuItem = styled(Link)<{ $scrolled: boolean; $isHome: boolean }>`
   width: 100%;
   height: 48px;
   display: flex;
@@ -159,7 +156,7 @@ const MenuItem = styled(Link)<{ scrolled: boolean; isHome: boolean }>`
   font-size: 14px;
   font-weight: 400;
   text-decoration: none;
-  color: ${(p) => (!p.isHome ? "#000" : p.scrolled ? "#000" : "#fff")};
+  color: ${(p) => (!p.$isHome ? "#000" : p.$scrolled ? "#000" : "#fff")};
 `;
 
 export default Header;

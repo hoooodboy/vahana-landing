@@ -14,8 +14,6 @@ export type SingUpDto = {
   password?: string;
   /** 전화번호 */
   phone: string;
-  /** SMS 인증 코드 */
-  code: string;
   /** 추천인 코드 */
   referrerCode: string;
   /** 프로바이더 */

@@ -6,9 +6,13 @@
  */
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type {
+  DataTag,
+  DefinedInitialDataOptions,
+  DefinedUseQueryResult,
   MutationFunction,
   QueryFunction,
   QueryKey,
+  UndefinedInitialDataOptions,
   UseMutationOptions,
   UseMutationResult,
   UseQueryOptions,
@@ -57,10 +61,12 @@ export const getGetApiReservationsQueryOptions = <
 >(
   params: GetApiReservationsParams,
   options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getApiReservations>>,
-      TError,
-      TData
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiReservations>>,
+        TError,
+        TData
+      >
     >;
   },
 ) => {
@@ -77,7 +83,7 @@ export const getGetApiReservationsQueryOptions = <
     Awaited<ReturnType<typeof getApiReservations>>,
     TError,
     TData
-  > & { queryKey: QueryKey };
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
 };
 
 export type GetApiReservationsQueryResult = NonNullable<
@@ -87,6 +93,73 @@ export type GetApiReservationsQueryError = ErrorType<
   APIResponseUnauthorizedDto | APIResponseForbiddenDto
 >;
 
+export function useGetApiReservations<
+  TData = Awaited<ReturnType<typeof getApiReservations>>,
+  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+>(
+  params: GetApiReservationsParams,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiReservations>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiReservations>>,
+          TError,
+          Awaited<ReturnType<typeof getApiReservations>>
+        >,
+        "initialData"
+      >;
+  },
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetApiReservations<
+  TData = Awaited<ReturnType<typeof getApiReservations>>,
+  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+>(
+  params: GetApiReservationsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiReservations>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiReservations>>,
+          TError,
+          Awaited<ReturnType<typeof getApiReservations>>
+        >,
+        "initialData"
+      >;
+  },
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetApiReservations<
+  TData = Awaited<ReturnType<typeof getApiReservations>>,
+  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+>(
+  params: GetApiReservationsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiReservations>>,
+        TError,
+        TData
+      >
+    >;
+  },
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
 /**
  * @summary [어드민] 예약 목록 조회
  */
@@ -97,17 +170,21 @@ export function useGetApiReservations<
 >(
   params: GetApiReservationsParams,
   options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getApiReservations>>,
-      TError,
-      TData
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiReservations>>,
+        TError,
+        TData
+      >
     >;
   },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+} {
   const queryOptions = getGetApiReservationsQueryOptions(params, options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
+    queryKey: DataTag<QueryKey, TData, TError>;
   };
 
   query.queryKey = queryOptions.queryKey;
@@ -143,10 +220,12 @@ export const getGetApiReservationsAvailableQueryOptions = <
 >(
   params: GetApiReservationsAvailableParams,
   options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getApiReservationsAvailable>>,
-      TError,
-      TData
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiReservationsAvailable>>,
+        TError,
+        TData
+      >
     >;
   },
 ) => {
@@ -163,7 +242,7 @@ export const getGetApiReservationsAvailableQueryOptions = <
     Awaited<ReturnType<typeof getApiReservationsAvailable>>,
     TError,
     TData
-  > & { queryKey: QueryKey };
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
 };
 
 export type GetApiReservationsAvailableQueryResult = NonNullable<
@@ -171,6 +250,73 @@ export type GetApiReservationsAvailableQueryResult = NonNullable<
 >;
 export type GetApiReservationsAvailableQueryError = ErrorType<unknown>;
 
+export function useGetApiReservationsAvailable<
+  TData = Awaited<ReturnType<typeof getApiReservationsAvailable>>,
+  TError = ErrorType<unknown>,
+>(
+  params: GetApiReservationsAvailableParams,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiReservationsAvailable>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiReservationsAvailable>>,
+          TError,
+          Awaited<ReturnType<typeof getApiReservationsAvailable>>
+        >,
+        "initialData"
+      >;
+  },
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetApiReservationsAvailable<
+  TData = Awaited<ReturnType<typeof getApiReservationsAvailable>>,
+  TError = ErrorType<unknown>,
+>(
+  params: GetApiReservationsAvailableParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiReservationsAvailable>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiReservationsAvailable>>,
+          TError,
+          Awaited<ReturnType<typeof getApiReservationsAvailable>>
+        >,
+        "initialData"
+      >;
+  },
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetApiReservationsAvailable<
+  TData = Awaited<ReturnType<typeof getApiReservationsAvailable>>,
+  TError = ErrorType<unknown>,
+>(
+  params: GetApiReservationsAvailableParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiReservationsAvailable>>,
+        TError,
+        TData
+      >
+    >;
+  },
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
 /**
  * @summary 예약 가능한 차량 목록 조회
  */
@@ -181,20 +327,24 @@ export function useGetApiReservationsAvailable<
 >(
   params: GetApiReservationsAvailableParams,
   options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getApiReservationsAvailable>>,
-      TError,
-      TData
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiReservationsAvailable>>,
+        TError,
+        TData
+      >
     >;
   },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+} {
   const queryOptions = getGetApiReservationsAvailableQueryOptions(
     params,
     options,
   );
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
+    queryKey: DataTag<QueryKey, TData, TError>;
   };
 
   query.queryKey = queryOptions.queryKey;
@@ -224,10 +374,12 @@ export const getGetApiReservationsIdQueryOptions = <
 >(
   id: string,
   options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getApiReservationsId>>,
-      TError,
-      TData
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiReservationsId>>,
+        TError,
+        TData
+      >
     >;
   },
 ) => {
@@ -249,7 +401,7 @@ export const getGetApiReservationsIdQueryOptions = <
     Awaited<ReturnType<typeof getApiReservationsId>>,
     TError,
     TData
-  > & { queryKey: QueryKey };
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
 };
 
 export type GetApiReservationsIdQueryResult = NonNullable<
@@ -259,6 +411,73 @@ export type GetApiReservationsIdQueryError = ErrorType<
   APIResponseUnauthorizedDto | APIResponseForbiddenDto
 >;
 
+export function useGetApiReservationsId<
+  TData = Awaited<ReturnType<typeof getApiReservationsId>>,
+  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+>(
+  id: string,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiReservationsId>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiReservationsId>>,
+          TError,
+          Awaited<ReturnType<typeof getApiReservationsId>>
+        >,
+        "initialData"
+      >;
+  },
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetApiReservationsId<
+  TData = Awaited<ReturnType<typeof getApiReservationsId>>,
+  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+>(
+  id: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiReservationsId>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiReservationsId>>,
+          TError,
+          Awaited<ReturnType<typeof getApiReservationsId>>
+        >,
+        "initialData"
+      >;
+  },
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetApiReservationsId<
+  TData = Awaited<ReturnType<typeof getApiReservationsId>>,
+  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+>(
+  id: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiReservationsId>>,
+        TError,
+        TData
+      >
+    >;
+  },
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
 /**
  * @summary [어드민] 예약 상세 정보 조회
  */
@@ -269,17 +488,21 @@ export function useGetApiReservationsId<
 >(
   id: string,
   options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getApiReservationsId>>,
-      TError,
-      TData
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiReservationsId>>,
+        TError,
+        TData
+      >
     >;
   },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+} {
   const queryOptions = getGetApiReservationsIdQueryOptions(id, options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
+    queryKey: DataTag<QueryKey, TData, TError>;
   };
 
   query.queryKey = queryOptions.queryKey;

@@ -6,9 +6,13 @@
  */
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type {
+  DataTag,
+  DefinedInitialDataOptions,
+  DefinedUseQueryResult,
   MutationFunction,
   QueryFunction,
   QueryKey,
+  UndefinedInitialDataOptions,
   UseMutationOptions,
   UseMutationResult,
   UseQueryOptions,
@@ -21,7 +25,7 @@ import type {
   APIResponseBoolean,
   APIResponseForbiddenDto,
   APIResponseLatestReservationResponseDto,
-  APIResponseReferrerResponseDto,
+  APIResponseReferrerResponseWithLimitDto,
   APIResponseReservationResponseDto,
   APIResponseReserveResponse,
   APIResponseTicketResponseDto,
@@ -31,6 +35,7 @@ import type {
   GetApiUsersIdReservationsParams,
   InviteUserDto,
   UpdateUserDto,
+  VerifyIdentityDto,
 } from "../../model";
 import { customAxios } from "../../mutator/customAxios";
 import type { ErrorType } from "../../mutator/customAxios";
@@ -57,10 +62,8 @@ export const getGetApiUsersIdQueryOptions = <
 >(
   id: string,
   options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getApiUsersId>>,
-      TError,
-      TData
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getApiUsersId>>, TError, TData>
     >;
   },
 ) => {
@@ -81,7 +84,7 @@ export const getGetApiUsersIdQueryOptions = <
     Awaited<ReturnType<typeof getApiUsersId>>,
     TError,
     TData
-  > & { queryKey: QueryKey };
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
 };
 
 export type GetApiUsersIdQueryResult = NonNullable<
@@ -91,6 +94,61 @@ export type GetApiUsersIdQueryError = ErrorType<
   APIResponseUnauthorizedDto | APIResponseForbiddenDto
 >;
 
+export function useGetApiUsersId<
+  TData = Awaited<ReturnType<typeof getApiUsersId>>,
+  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+>(
+  id: string,
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getApiUsersId>>, TError, TData>
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiUsersId>>,
+          TError,
+          Awaited<ReturnType<typeof getApiUsersId>>
+        >,
+        "initialData"
+      >;
+  },
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetApiUsersId<
+  TData = Awaited<ReturnType<typeof getApiUsersId>>,
+  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+>(
+  id: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getApiUsersId>>, TError, TData>
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiUsersId>>,
+          TError,
+          Awaited<ReturnType<typeof getApiUsersId>>
+        >,
+        "initialData"
+      >;
+  },
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetApiUsersId<
+  TData = Awaited<ReturnType<typeof getApiUsersId>>,
+  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+>(
+  id: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getApiUsersId>>, TError, TData>
+    >;
+  },
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
 /**
  * @summary 유저 정보 조회
  */
@@ -101,17 +159,17 @@ export function useGetApiUsersId<
 >(
   id: string,
   options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getApiUsersId>>,
-      TError,
-      TData
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getApiUsersId>>, TError, TData>
     >;
   },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+} {
   const queryOptions = getGetApiUsersIdQueryOptions(id, options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
+    queryKey: DataTag<QueryKey, TData, TError>;
   };
 
   query.queryKey = queryOptions.queryKey;
@@ -120,7 +178,7 @@ export function useGetApiUsersId<
 }
 
 /**
- * 초대 코드 발송. 초대 링크는 https://front/signup?referrer={referrer}&sms={sms} 형식으로 진행
+ * 초대 코드 발송. 초대 링크는 https://front/signup?referrer={referrer} 형식으로 진행
  * @summary 초대 코드 발송
  */
 export const postApiUsersIdInvite = (
@@ -210,7 +268,7 @@ export const usePostApiUsersIdInvite = <
  * @summary 추천인 조회
  */
 export const getApiUsersIdReferrer = (id: string, signal?: AbortSignal) => {
-  return customAxios<APIResponseReferrerResponseDto>({
+  return customAxios<APIResponseReferrerResponseWithLimitDto>({
     url: `/api/users/${id}/referrer`,
     method: "GET",
     signal,
@@ -227,10 +285,12 @@ export const getGetApiUsersIdReferrerQueryOptions = <
 >(
   id: string,
   options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getApiUsersIdReferrer>>,
-      TError,
-      TData
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiUsersIdReferrer>>,
+        TError,
+        TData
+      >
     >;
   },
 ) => {
@@ -252,7 +312,7 @@ export const getGetApiUsersIdReferrerQueryOptions = <
     Awaited<ReturnType<typeof getApiUsersIdReferrer>>,
     TError,
     TData
-  > & { queryKey: QueryKey };
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
 };
 
 export type GetApiUsersIdReferrerQueryResult = NonNullable<
@@ -262,6 +322,73 @@ export type GetApiUsersIdReferrerQueryError = ErrorType<
   APIResponseUnauthorizedDto | APIResponseForbiddenDto
 >;
 
+export function useGetApiUsersIdReferrer<
+  TData = Awaited<ReturnType<typeof getApiUsersIdReferrer>>,
+  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+>(
+  id: string,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiUsersIdReferrer>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiUsersIdReferrer>>,
+          TError,
+          Awaited<ReturnType<typeof getApiUsersIdReferrer>>
+        >,
+        "initialData"
+      >;
+  },
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetApiUsersIdReferrer<
+  TData = Awaited<ReturnType<typeof getApiUsersIdReferrer>>,
+  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+>(
+  id: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiUsersIdReferrer>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiUsersIdReferrer>>,
+          TError,
+          Awaited<ReturnType<typeof getApiUsersIdReferrer>>
+        >,
+        "initialData"
+      >;
+  },
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetApiUsersIdReferrer<
+  TData = Awaited<ReturnType<typeof getApiUsersIdReferrer>>,
+  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+>(
+  id: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiUsersIdReferrer>>,
+        TError,
+        TData
+      >
+    >;
+  },
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
 /**
  * @summary 추천인 조회
  */
@@ -272,17 +399,21 @@ export function useGetApiUsersIdReferrer<
 >(
   id: string,
   options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getApiUsersIdReferrer>>,
-      TError,
-      TData
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiUsersIdReferrer>>,
+        TError,
+        TData
+      >
     >;
   },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+} {
   const queryOptions = getGetApiUsersIdReferrerQueryOptions(id, options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
+    queryKey: DataTag<QueryKey, TData, TError>;
   };
 
   query.queryKey = queryOptions.queryKey;
@@ -312,10 +443,12 @@ export const getGetApiUsersIdTicketsQueryOptions = <
 >(
   id: string,
   options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getApiUsersIdTickets>>,
-      TError,
-      TData
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiUsersIdTickets>>,
+        TError,
+        TData
+      >
     >;
   },
 ) => {
@@ -337,7 +470,7 @@ export const getGetApiUsersIdTicketsQueryOptions = <
     Awaited<ReturnType<typeof getApiUsersIdTickets>>,
     TError,
     TData
-  > & { queryKey: QueryKey };
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
 };
 
 export type GetApiUsersIdTicketsQueryResult = NonNullable<
@@ -347,6 +480,73 @@ export type GetApiUsersIdTicketsQueryError = ErrorType<
   APIResponseUnauthorizedDto | APIResponseForbiddenDto
 >;
 
+export function useGetApiUsersIdTickets<
+  TData = Awaited<ReturnType<typeof getApiUsersIdTickets>>,
+  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+>(
+  id: string,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiUsersIdTickets>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiUsersIdTickets>>,
+          TError,
+          Awaited<ReturnType<typeof getApiUsersIdTickets>>
+        >,
+        "initialData"
+      >;
+  },
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetApiUsersIdTickets<
+  TData = Awaited<ReturnType<typeof getApiUsersIdTickets>>,
+  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+>(
+  id: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiUsersIdTickets>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiUsersIdTickets>>,
+          TError,
+          Awaited<ReturnType<typeof getApiUsersIdTickets>>
+        >,
+        "initialData"
+      >;
+  },
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetApiUsersIdTickets<
+  TData = Awaited<ReturnType<typeof getApiUsersIdTickets>>,
+  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+>(
+  id: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiUsersIdTickets>>,
+        TError,
+        TData
+      >
+    >;
+  },
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
 /**
  * @summary [어드민] 티켓 조회
  */
@@ -357,17 +557,21 @@ export function useGetApiUsersIdTickets<
 >(
   id: string,
   options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getApiUsersIdTickets>>,
-      TError,
-      TData
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiUsersIdTickets>>,
+        TError,
+        TData
+      >
     >;
   },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+} {
   const queryOptions = getGetApiUsersIdTicketsQueryOptions(id, options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
+    queryKey: DataTag<QueryKey, TData, TError>;
   };
 
   query.queryKey = queryOptions.queryKey;
@@ -409,10 +613,12 @@ export const getGetApiUsersIdReservationsQueryOptions = <
   id: string,
   params: GetApiUsersIdReservationsParams,
   options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getApiUsersIdReservations>>,
-      TError,
-      TData
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiUsersIdReservations>>,
+        TError,
+        TData
+      >
     >;
   },
 ) => {
@@ -434,7 +640,7 @@ export const getGetApiUsersIdReservationsQueryOptions = <
     Awaited<ReturnType<typeof getApiUsersIdReservations>>,
     TError,
     TData
-  > & { queryKey: QueryKey };
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
 };
 
 export type GetApiUsersIdReservationsQueryResult = NonNullable<
@@ -444,6 +650,76 @@ export type GetApiUsersIdReservationsQueryError = ErrorType<
   APIResponseUnauthorizedDto | APIResponseForbiddenDto
 >;
 
+export function useGetApiUsersIdReservations<
+  TData = Awaited<ReturnType<typeof getApiUsersIdReservations>>,
+  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+>(
+  id: string,
+  params: GetApiUsersIdReservationsParams,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiUsersIdReservations>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiUsersIdReservations>>,
+          TError,
+          Awaited<ReturnType<typeof getApiUsersIdReservations>>
+        >,
+        "initialData"
+      >;
+  },
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetApiUsersIdReservations<
+  TData = Awaited<ReturnType<typeof getApiUsersIdReservations>>,
+  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+>(
+  id: string,
+  params: GetApiUsersIdReservationsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiUsersIdReservations>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiUsersIdReservations>>,
+          TError,
+          Awaited<ReturnType<typeof getApiUsersIdReservations>>
+        >,
+        "initialData"
+      >;
+  },
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetApiUsersIdReservations<
+  TData = Awaited<ReturnType<typeof getApiUsersIdReservations>>,
+  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+>(
+  id: string,
+  params: GetApiUsersIdReservationsParams,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiUsersIdReservations>>,
+        TError,
+        TData
+      >
+    >;
+  },
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
 /**
  * @summary 예약 내역 조회
  */
@@ -455,13 +731,17 @@ export function useGetApiUsersIdReservations<
   id: string,
   params: GetApiUsersIdReservationsParams,
   options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getApiUsersIdReservations>>,
-      TError,
-      TData
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiUsersIdReservations>>,
+        TError,
+        TData
+      >
     >;
   },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+} {
   const queryOptions = getGetApiUsersIdReservationsQueryOptions(
     id,
     params,
@@ -469,7 +749,7 @@ export function useGetApiUsersIdReservations<
   );
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
+    queryKey: DataTag<QueryKey, TData, TError>;
   };
 
   query.queryKey = queryOptions.queryKey;
@@ -564,6 +844,92 @@ export const usePostApiUsersIdReservations = <
   return useMutation(mutationOptions);
 };
 /**
+ * 신원 인증
+ * @summary 신원 인증
+ */
+export const postApiUsersIdIdentity = (
+  id: string,
+  verifyIdentityDto: VerifyIdentityDto,
+  signal?: AbortSignal,
+) => {
+  return customAxios<APIResponseBoolean>({
+    url: `/api/users/${id}/identity`,
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    data: verifyIdentityDto,
+    signal,
+  });
+};
+
+export const getPostApiUsersIdIdentityMutationOptions = <
+  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postApiUsersIdIdentity>>,
+    TError,
+    { id: string; data: VerifyIdentityDto },
+    TContext
+  >;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postApiUsersIdIdentity>>,
+  TError,
+  { id: string; data: VerifyIdentityDto },
+  TContext
+> => {
+  const mutationKey = ["postApiUsersIdIdentity"];
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof postApiUsersIdIdentity>>,
+    { id: string; data: VerifyIdentityDto }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return postApiUsersIdIdentity(id, data);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type PostApiUsersIdIdentityMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postApiUsersIdIdentity>>
+>;
+export type PostApiUsersIdIdentityMutationBody = VerifyIdentityDto;
+export type PostApiUsersIdIdentityMutationError = ErrorType<
+  APIResponseUnauthorizedDto | APIResponseForbiddenDto
+>;
+
+/**
+ * @summary 신원 인증
+ */
+export const usePostApiUsersIdIdentity = <
+  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postApiUsersIdIdentity>>,
+    TError,
+    { id: string; data: VerifyIdentityDto },
+    TContext
+  >;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof postApiUsersIdIdentity>>,
+  TError,
+  { id: string; data: VerifyIdentityDto },
+  TContext
+> => {
+  const mutationOptions = getPostApiUsersIdIdentityMutationOptions(options);
+
+  return useMutation(mutationOptions);
+};
+/**
  * 최근 예약 내역 1개 조회
  * @summary 최근 예약 내역 조회
  */
@@ -588,10 +954,12 @@ export const getGetApiUsersIdReservationsLatestQueryOptions = <
 >(
   id: string,
   options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getApiUsersIdReservationsLatest>>,
-      TError,
-      TData
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiUsersIdReservationsLatest>>,
+        TError,
+        TData
+      >
     >;
   },
 ) => {
@@ -613,7 +981,7 @@ export const getGetApiUsersIdReservationsLatestQueryOptions = <
     Awaited<ReturnType<typeof getApiUsersIdReservationsLatest>>,
     TError,
     TData
-  > & { queryKey: QueryKey };
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
 };
 
 export type GetApiUsersIdReservationsLatestQueryResult = NonNullable<
@@ -623,6 +991,73 @@ export type GetApiUsersIdReservationsLatestQueryError = ErrorType<
   APIResponseUnauthorizedDto | APIResponseForbiddenDto
 >;
 
+export function useGetApiUsersIdReservationsLatest<
+  TData = Awaited<ReturnType<typeof getApiUsersIdReservationsLatest>>,
+  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+>(
+  id: string,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiUsersIdReservationsLatest>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiUsersIdReservationsLatest>>,
+          TError,
+          Awaited<ReturnType<typeof getApiUsersIdReservationsLatest>>
+        >,
+        "initialData"
+      >;
+  },
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetApiUsersIdReservationsLatest<
+  TData = Awaited<ReturnType<typeof getApiUsersIdReservationsLatest>>,
+  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+>(
+  id: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiUsersIdReservationsLatest>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiUsersIdReservationsLatest>>,
+          TError,
+          Awaited<ReturnType<typeof getApiUsersIdReservationsLatest>>
+        >,
+        "initialData"
+      >;
+  },
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetApiUsersIdReservationsLatest<
+  TData = Awaited<ReturnType<typeof getApiUsersIdReservationsLatest>>,
+  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+>(
+  id: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiUsersIdReservationsLatest>>,
+        TError,
+        TData
+      >
+    >;
+  },
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
 /**
  * @summary 최근 예약 내역 조회
  */
@@ -633,20 +1068,24 @@ export function useGetApiUsersIdReservationsLatest<
 >(
   id: string,
   options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getApiUsersIdReservationsLatest>>,
-      TError,
-      TData
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiUsersIdReservationsLatest>>,
+        TError,
+        TData
+      >
     >;
   },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+} {
   const queryOptions = getGetApiUsersIdReservationsLatestQueryOptions(
     id,
     options,
   );
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
+    queryKey: DataTag<QueryKey, TData, TError>;
   };
 
   query.queryKey = queryOptions.queryKey;
@@ -674,10 +1113,8 @@ export const getGetApiAdminUsersQueryOptions = <
   TData = Awaited<ReturnType<typeof getApiAdminUsers>>,
   TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
 >(options?: {
-  query?: UseQueryOptions<
-    Awaited<ReturnType<typeof getApiAdminUsers>>,
-    TError,
-    TData
+  query?: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof getApiAdminUsers>>, TError, TData>
   >;
 }) => {
   const { query: queryOptions } = options ?? {};
@@ -692,7 +1129,7 @@ export const getGetApiAdminUsersQueryOptions = <
     Awaited<ReturnType<typeof getApiAdminUsers>>,
     TError,
     TData
-  > & { queryKey: QueryKey };
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
 };
 
 export type GetApiAdminUsersQueryResult = NonNullable<
@@ -702,6 +1139,52 @@ export type GetApiAdminUsersQueryError = ErrorType<
   APIResponseUnauthorizedDto | APIResponseForbiddenDto
 >;
 
+export function useGetApiAdminUsers<
+  TData = Awaited<ReturnType<typeof getApiAdminUsers>>,
+  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+>(options: {
+  query: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof getApiAdminUsers>>, TError, TData>
+  > &
+    Pick<
+      DefinedInitialDataOptions<
+        Awaited<ReturnType<typeof getApiAdminUsers>>,
+        TError,
+        Awaited<ReturnType<typeof getApiAdminUsers>>
+      >,
+      "initialData"
+    >;
+}): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetApiAdminUsers<
+  TData = Awaited<ReturnType<typeof getApiAdminUsers>>,
+  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+>(options?: {
+  query?: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof getApiAdminUsers>>, TError, TData>
+  > &
+    Pick<
+      UndefinedInitialDataOptions<
+        Awaited<ReturnType<typeof getApiAdminUsers>>,
+        TError,
+        Awaited<ReturnType<typeof getApiAdminUsers>>
+      >,
+      "initialData"
+    >;
+}): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetApiAdminUsers<
+  TData = Awaited<ReturnType<typeof getApiAdminUsers>>,
+  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+>(options?: {
+  query?: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof getApiAdminUsers>>, TError, TData>
+  >;
+}): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
 /**
  * @summary [어드민] 유저 목록 조회
  */
@@ -710,16 +1193,16 @@ export function useGetApiAdminUsers<
   TData = Awaited<ReturnType<typeof getApiAdminUsers>>,
   TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
 >(options?: {
-  query?: UseQueryOptions<
-    Awaited<ReturnType<typeof getApiAdminUsers>>,
-    TError,
-    TData
+  query?: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof getApiAdminUsers>>, TError, TData>
   >;
-}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+}): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+} {
   const queryOptions = getGetApiAdminUsersQueryOptions(options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
+    queryKey: DataTag<QueryKey, TData, TError>;
   };
 
   query.queryKey = queryOptions.queryKey;
@@ -836,10 +1319,12 @@ export const getGetApiAdminUsersIdReferrerQueryOptions = <
 >(
   id: string,
   options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getApiAdminUsersIdReferrer>>,
-      TError,
-      TData
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiAdminUsersIdReferrer>>,
+        TError,
+        TData
+      >
     >;
   },
 ) => {
@@ -861,7 +1346,7 @@ export const getGetApiAdminUsersIdReferrerQueryOptions = <
     Awaited<ReturnType<typeof getApiAdminUsersIdReferrer>>,
     TError,
     TData
-  > & { queryKey: QueryKey };
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
 };
 
 export type GetApiAdminUsersIdReferrerQueryResult = NonNullable<
@@ -871,6 +1356,73 @@ export type GetApiAdminUsersIdReferrerQueryError = ErrorType<
   APIResponseUnauthorizedDto | APIResponseForbiddenDto
 >;
 
+export function useGetApiAdminUsersIdReferrer<
+  TData = Awaited<ReturnType<typeof getApiAdminUsersIdReferrer>>,
+  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+>(
+  id: string,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiAdminUsersIdReferrer>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiAdminUsersIdReferrer>>,
+          TError,
+          Awaited<ReturnType<typeof getApiAdminUsersIdReferrer>>
+        >,
+        "initialData"
+      >;
+  },
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetApiAdminUsersIdReferrer<
+  TData = Awaited<ReturnType<typeof getApiAdminUsersIdReferrer>>,
+  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+>(
+  id: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiAdminUsersIdReferrer>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiAdminUsersIdReferrer>>,
+          TError,
+          Awaited<ReturnType<typeof getApiAdminUsersIdReferrer>>
+        >,
+        "initialData"
+      >;
+  },
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetApiAdminUsersIdReferrer<
+  TData = Awaited<ReturnType<typeof getApiAdminUsersIdReferrer>>,
+  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+>(
+  id: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiAdminUsersIdReferrer>>,
+        TError,
+        TData
+      >
+    >;
+  },
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
 /**
  * @summary [어드민] 추천인 조회
  */
@@ -881,17 +1433,21 @@ export function useGetApiAdminUsersIdReferrer<
 >(
   id: string,
   options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getApiAdminUsersIdReferrer>>,
-      TError,
-      TData
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiAdminUsersIdReferrer>>,
+        TError,
+        TData
+      >
     >;
   },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+} {
   const queryOptions = getGetApiAdminUsersIdReferrerQueryOptions(id, options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
+    queryKey: DataTag<QueryKey, TData, TError>;
   };
 
   query.queryKey = queryOptions.queryKey;
@@ -924,10 +1480,12 @@ export const getGetApiAdminUsersIdReservationsQueryOptions = <
 >(
   id: string,
   options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getApiAdminUsersIdReservations>>,
-      TError,
-      TData
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiAdminUsersIdReservations>>,
+        TError,
+        TData
+      >
     >;
   },
 ) => {
@@ -949,7 +1507,7 @@ export const getGetApiAdminUsersIdReservationsQueryOptions = <
     Awaited<ReturnType<typeof getApiAdminUsersIdReservations>>,
     TError,
     TData
-  > & { queryKey: QueryKey };
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
 };
 
 export type GetApiAdminUsersIdReservationsQueryResult = NonNullable<
@@ -959,6 +1517,73 @@ export type GetApiAdminUsersIdReservationsQueryError = ErrorType<
   APIResponseUnauthorizedDto | APIResponseForbiddenDto
 >;
 
+export function useGetApiAdminUsersIdReservations<
+  TData = Awaited<ReturnType<typeof getApiAdminUsersIdReservations>>,
+  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+>(
+  id: string,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiAdminUsersIdReservations>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiAdminUsersIdReservations>>,
+          TError,
+          Awaited<ReturnType<typeof getApiAdminUsersIdReservations>>
+        >,
+        "initialData"
+      >;
+  },
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetApiAdminUsersIdReservations<
+  TData = Awaited<ReturnType<typeof getApiAdminUsersIdReservations>>,
+  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+>(
+  id: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiAdminUsersIdReservations>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiAdminUsersIdReservations>>,
+          TError,
+          Awaited<ReturnType<typeof getApiAdminUsersIdReservations>>
+        >,
+        "initialData"
+      >;
+  },
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetApiAdminUsersIdReservations<
+  TData = Awaited<ReturnType<typeof getApiAdminUsersIdReservations>>,
+  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+>(
+  id: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiAdminUsersIdReservations>>,
+        TError,
+        TData
+      >
+    >;
+  },
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
 /**
  * @summary [어드민] 운행 횟수 조회
  */
@@ -969,20 +1594,24 @@ export function useGetApiAdminUsersIdReservations<
 >(
   id: string,
   options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getApiAdminUsersIdReservations>>,
-      TError,
-      TData
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiAdminUsersIdReservations>>,
+        TError,
+        TData
+      >
     >;
   },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+} {
   const queryOptions = getGetApiAdminUsersIdReservationsQueryOptions(
     id,
     options,
   );
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
+    queryKey: DataTag<QueryKey, TData, TError>;
   };
 
   query.queryKey = queryOptions.queryKey;

@@ -8,6 +8,7 @@ import executive1 from "@/src/assets/executive-1.jpg";
 import alphard1 from "@/src/assets/alphard-1.jpg";
 import Footer from "@/src/components/Footer";
 import Header from "@/src/components/Header";
+import { useGetApiCars, useGetApiCarsId } from "@/src/api/endpoints/cars/cars";
 
 interface CarOption {
   name: string;
@@ -21,6 +22,12 @@ const CalendarPage: React.FC = () => {
   const [currentMonth, setCurrentMonth] = useState(today);
   const [selectedDate, setSelectedDate] = useState<Date>(today);
   const [monthDates, setMonthDates] = useState<Date[]>([]);
+
+  const { data: cars } = useGetApiCars();
+  const { data: detailCars } = useGetApiCarsId("1");
+
+  console.log("cars", cars);
+  console.log("detailCars", detailCars);
 
   const carOptions: CarOption[] = [
     {

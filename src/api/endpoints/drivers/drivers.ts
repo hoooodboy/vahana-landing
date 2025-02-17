@@ -6,9 +6,13 @@
  */
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type {
+  DataTag,
+  DefinedInitialDataOptions,
+  DefinedUseQueryResult,
   MutationFunction,
   QueryFunction,
   QueryKey,
+  UndefinedInitialDataOptions,
   UseMutationOptions,
   UseMutationResult,
   UseQueryOptions,
@@ -131,10 +135,8 @@ export const getGetApiDriversQueryOptions = <
   TData = Awaited<ReturnType<typeof getApiDrivers>>,
   TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
 >(options?: {
-  query?: UseQueryOptions<
-    Awaited<ReturnType<typeof getApiDrivers>>,
-    TError,
-    TData
+  query?: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof getApiDrivers>>, TError, TData>
   >;
 }) => {
   const { query: queryOptions } = options ?? {};
@@ -149,7 +151,7 @@ export const getGetApiDriversQueryOptions = <
     Awaited<ReturnType<typeof getApiDrivers>>,
     TError,
     TData
-  > & { queryKey: QueryKey };
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
 };
 
 export type GetApiDriversQueryResult = NonNullable<
@@ -159,6 +161,52 @@ export type GetApiDriversQueryError = ErrorType<
   APIResponseUnauthorizedDto | APIResponseForbiddenDto
 >;
 
+export function useGetApiDrivers<
+  TData = Awaited<ReturnType<typeof getApiDrivers>>,
+  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+>(options: {
+  query: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof getApiDrivers>>, TError, TData>
+  > &
+    Pick<
+      DefinedInitialDataOptions<
+        Awaited<ReturnType<typeof getApiDrivers>>,
+        TError,
+        Awaited<ReturnType<typeof getApiDrivers>>
+      >,
+      "initialData"
+    >;
+}): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetApiDrivers<
+  TData = Awaited<ReturnType<typeof getApiDrivers>>,
+  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+>(options?: {
+  query?: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof getApiDrivers>>, TError, TData>
+  > &
+    Pick<
+      UndefinedInitialDataOptions<
+        Awaited<ReturnType<typeof getApiDrivers>>,
+        TError,
+        Awaited<ReturnType<typeof getApiDrivers>>
+      >,
+      "initialData"
+    >;
+}): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetApiDrivers<
+  TData = Awaited<ReturnType<typeof getApiDrivers>>,
+  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+>(options?: {
+  query?: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof getApiDrivers>>, TError, TData>
+  >;
+}): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
 /**
  * @summary [어드민] 운전자 목록 조회
  */
@@ -167,16 +215,16 @@ export function useGetApiDrivers<
   TData = Awaited<ReturnType<typeof getApiDrivers>>,
   TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
 >(options?: {
-  query?: UseQueryOptions<
-    Awaited<ReturnType<typeof getApiDrivers>>,
-    TError,
-    TData
+  query?: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof getApiDrivers>>, TError, TData>
   >;
-}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+}): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+} {
   const queryOptions = getGetApiDriversQueryOptions(options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
+    queryKey: DataTag<QueryKey, TData, TError>;
   };
 
   query.queryKey = queryOptions.queryKey;
@@ -206,10 +254,12 @@ export const getGetApiDriversIdQueryOptions = <
 >(
   id: string,
   options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getApiDriversId>>,
-      TError,
-      TData
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiDriversId>>,
+        TError,
+        TData
+      >
     >;
   },
 ) => {
@@ -230,7 +280,7 @@ export const getGetApiDriversIdQueryOptions = <
     Awaited<ReturnType<typeof getApiDriversId>>,
     TError,
     TData
-  > & { queryKey: QueryKey };
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
 };
 
 export type GetApiDriversIdQueryResult = NonNullable<
@@ -240,6 +290,73 @@ export type GetApiDriversIdQueryError = ErrorType<
   APIResponseUnauthorizedDto | APIResponseForbiddenDto
 >;
 
+export function useGetApiDriversId<
+  TData = Awaited<ReturnType<typeof getApiDriversId>>,
+  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+>(
+  id: string,
+  options: {
+    query: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiDriversId>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiDriversId>>,
+          TError,
+          Awaited<ReturnType<typeof getApiDriversId>>
+        >,
+        "initialData"
+      >;
+  },
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetApiDriversId<
+  TData = Awaited<ReturnType<typeof getApiDriversId>>,
+  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+>(
+  id: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiDriversId>>,
+        TError,
+        TData
+      >
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiDriversId>>,
+          TError,
+          Awaited<ReturnType<typeof getApiDriversId>>
+        >,
+        "initialData"
+      >;
+  },
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetApiDriversId<
+  TData = Awaited<ReturnType<typeof getApiDriversId>>,
+  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+>(
+  id: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiDriversId>>,
+        TError,
+        TData
+      >
+    >;
+  },
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
 /**
  * @summary [어드민] 운전자 상세 조회
  */
@@ -250,17 +367,21 @@ export function useGetApiDriversId<
 >(
   id: string,
   options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getApiDriversId>>,
-      TError,
-      TData
+    query?: Partial<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof getApiDriversId>>,
+        TError,
+        TData
+      >
     >;
   },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+} {
   const queryOptions = getGetApiDriversIdQueryOptions(id, options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
+    queryKey: DataTag<QueryKey, TData, TError>;
   };
 
   query.queryKey = queryOptions.queryKey;

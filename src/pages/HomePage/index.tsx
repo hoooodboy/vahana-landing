@@ -156,8 +156,8 @@ const HomePage = () => {
         </TitleConteiner>
         <ScrollContainer>
           <FilterWrapper>
-            {AmbassadorData?.map((data) => (
-              <AmbassadorCard>
+            {AmbassadorData?.map((data, i) => (
+              <AmbassadorCard key={i}>
                 <AmbassadorImg>
                   <img src={data.img} />
                 </AmbassadorImg>
@@ -195,25 +195,6 @@ const Container = styled.div`
   height: 100%;
   background: #fffbf1;
   position: relative;
-`;
-
-const HeaderContainer = styled.div<{ scrolled: boolean }>`
-  width: 100%;
-  max-width: 480px;
-  height: 56px;
-  position: fixed;
-  top: 0;
-  padding: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  z-index: 1000;
-  background: ${(p) => (p.scrolled ? "rgba(0, 0, 0, 0.2)" : "transparent")};
-  backdrop-filter: ${(p) => (p.scrolled ? "blur(5px)" : "none")};
-  transition: all 0.3s;
-  @media (max-width: 768px) {
-    max-width: 768px;
-  }
 `;
 
 const Section = styled.section`

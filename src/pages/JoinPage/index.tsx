@@ -1,17 +1,35 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import Header from "@/src/components/Header";
 import Footer from "@/src/components/Footer";
 import styled from "styled-components";
+import { usePostApiAuthSignup } from "@/src/api/endpoints/auth/auth";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const JoinPage = () => {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const kakaoId = searchParams.get("id");
+  const provider = searchParams.get("provider");
+
   const [formData, setFormData] = useState({
     name: "",
-    id: "",
+    id: kakaoId || "",
     password: "",
+    passwordConfirm: "",
     phone: "",
-    smsCode: "",
-    recommendCode: "",
+    referrerCode: "",
+    provider: provider || "LOCAL",
   });
+
+  const [passwordError, setPasswordError] = useState(false);
+
+  useEffect(() => {
+    if (!kakaoId && formData.password && formData.passwordConfirm) {
+      setPasswordError(formData.password !== formData.passwordConfirm);
+    }
+  }, [formData.password, formData.passwordConfirm, kakaoId]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -21,10 +39,45 @@ const JoinPage = () => {
     }));
   };
 
+  const isFormValid = () => {
+    if (kakaoId) {
+      return !!(formData.name && formData.id && formData.phone);
+    } else {
+      return !!(
+        formData.name &&
+        formData.id &&
+        formData.password &&
+        formData.passwordConfirm &&
+        formData.phone &&
+        !passwordError
+      );
+    }
+  };
+
+  const signupMutation = usePostApiAuthSignup({
+    mutation: {
+      onSuccess: (data) => {
+        toast("회원가입 성공");
+        navigate("/login");
+      },
+      onError: (error) => {
+        toast("회원가입 실패");
+      },
+    },
+  });
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    // 회원가입 로직 구현
-    console.log("Form submitted:", formData);
+    signupMutation.mutate({
+      data: {
+        name: formData.name,
+        id: formData.id,
+        password: formData.password,
+        phone: formData.phone,
+        referrerCode: formData.referrerCode,
+        provider: formData.provider,
+      },
+    });
   };
 
   return (
@@ -59,19 +112,41 @@ const JoinPage = () => {
             value={formData.id}
             onChange={handleChange}
             placeholder="아이디를 입력해주세요."
+            disabled={!!kakaoId}
+            style={{ background: kakaoId ? "#f5f5f5" : "#fff" }}
           />
         </InputGroup>
 
-        <InputGroup>
-          <Label>비밀번호</Label>
-          <Input
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            placeholder="비밀번호를 입력해주세요."
-          />
-        </InputGroup>
+        {!kakaoId && (
+          <>
+            <InputGroup>
+              <Label>비밀번호</Label>
+              <Input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="비밀번호를 입력해주세요."
+                $error={passwordError}
+              />
+            </InputGroup>
+
+            <InputGroup>
+              <Label>비밀번호 확인</Label>
+              <Input
+                type="password"
+                name="passwordConfirm"
+                value={formData.passwordConfirm}
+                onChange={handleChange}
+                placeholder="비밀번호를 다시 입력해주세요."
+                $error={passwordError}
+              />
+              {passwordError && (
+                <ErrorMessage>비밀번호가 일치하지 않습니다.</ErrorMessage>
+              )}
+            </InputGroup>
+          </>
+        )}
 
         <InputGroup>
           <Label>전화번호</Label>
@@ -85,28 +160,19 @@ const JoinPage = () => {
         </InputGroup>
 
         <InputGroup>
-          <Label>문자 인증</Label>
+          <Label>추천인 코드</Label>
           <Input
             type="text"
-            name="smsCode"
-            value={formData.smsCode}
+            name="referrerCode"
+            value={formData.referrerCode}
             onChange={handleChange}
-            placeholder="인증코드를 입력해주세요"
+            placeholder="추천인 코드를 입력해주세요"
           />
         </InputGroup>
 
-        <InputGroup>
-          <Label>추천인코드</Label>
-          <Input
-            type="text"
-            name="recommendCode"
-            value={formData.recommendCode}
-            onChange={handleChange}
-            placeholder="A3d*@jd$da"
-          />
-        </InputGroup>
-
-        <SubmitButton type="submit">회원가입</SubmitButton>
+        <SubmitButton type="submit" $isValid={isFormValid()}>
+          회원가입
+        </SubmitButton>
       </Form>
       <Devider />
 
@@ -154,37 +220,62 @@ const Label = styled.label`
   color: #666;
   font-size: 14px;
   font-weight: 600;
-
   padding: 8px;
 `;
 
-const Input = styled.input`
+const Input = styled.input<{ $error?: boolean }>`
   width: 100%;
   height: 48px;
   padding: 0 16px;
   border-radius: 12px;
-  border: 1px solid #c7c7c7;
+  border: 1px solid ${(props) => (props.$error ? "#ff0000" : "#c7c7c7")};
   background: #fff;
-
   color: #000;
   font-size: 16px;
   font-weight: 400;
+  transition: border-color 0.3s ease;
+
   &::placeholder {
     color: #666;
   }
+  &:disabled {
+    cursor: not-allowed;
+  }
+  &:focus {
+    outline: none;
+    border-color: ${(props) => (props.$error ? "#ff0000" : "#3e4730")};
+  }
 `;
 
-const SubmitButton = styled.button`
+const ErrorMessage = styled.span`
+  color: #ff0000;
+  font-size: 12px;
+  margin-top: 4px;
+  padding-left: 8px;
+`;
+
+const SubmitButton = styled.button<{ $isValid: boolean }>`
   width: 100%;
   height: 48px;
-  background: #c6c6c6;
+  background: ${(props) => {
+    if (props.disabled) return "#e0e0e0";
+    return props.$isValid ? "#3e4730" : "#c6c6c6";
+  }};
   border: none;
   border-radius: 24px;
   color: #fff;
   font-size: 16px;
   font-weight: 500;
   margin-top: 40px;
-  cursor: pointer;
+  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background: ${(props) => {
+      if (props.disabled) return "#e0e0e0";
+      return props.$isValid ? "#2e3520" : "#b5b5b5";
+    }};
+  }
 `;
 
 const Devider = styled.div`

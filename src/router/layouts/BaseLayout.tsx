@@ -4,7 +4,6 @@ import styled, { css } from "../../themes";
 
 import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 import LocalStorage from "@/src/local-storage";
-import userLang from "@/src/utils/userLang";
 import Logo from "@/src/assets/ic-logo.png";
 import ScrollToTop from "@/src/components/ScrollToTop";
 
@@ -80,15 +79,14 @@ function BaseLayout() {
         <br />
         도로 위의 시간을 더욱 가치있게
       </LogoContainer>
-      <Content isIos={checkMobile()} pcView={pcView}>
+      <Content>
         {/* <TermsAgree /> */}
         {/* <Logo>adasssasdasd</Logo> */}
         <Outlet />
 
         {/* <AppNav theme="dark" /> */}
-        {/* <ScrollToTop /> */}
+        <ScrollToTop />
       </Content>
-      <ScrollToTop />
     </Container>
   );
 }
@@ -96,6 +94,7 @@ function BaseLayout() {
 const Container = styled.div`
   width: 100%;
   height: 100%;
+  overflow: scroll;
   background: #151711;
   display: flex;
   justify-content: flex-end;

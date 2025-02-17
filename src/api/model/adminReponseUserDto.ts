@@ -4,6 +4,7 @@
  * Vahana API
  * OpenAPI spec version: 1.0.0
  */
+import type { AdminReponseUserDtoIdentityStatus } from "./adminReponseUserDtoIdentityStatus";
 
 export type AdminReponseUserDto = {
   /** 유저PK */
@@ -26,4 +27,10 @@ export type AdminReponseUserDto = {
   latest_logined_at: string;
   /** 추천인 */
   referrer: string;
+  /** 신원 상태 */
+  identity_status: AdminReponseUserDtoIdentityStatus;
+  /** 신원 인증 파일 */
+  identity_file: string;
+  /** 잔여 추천 횟수 */
+  invite_limit: number;
 };

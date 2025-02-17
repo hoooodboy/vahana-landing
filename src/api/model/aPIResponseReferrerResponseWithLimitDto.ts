@@ -4,10 +4,10 @@
  * Vahana API
  * OpenAPI spec version: 1.0.0
  */
-import type { ReferrerResponseDto } from "./referrerResponseDto";
+import type { ReferrerResponseWithLimitDto } from "./referrerResponseWithLimitDto";
 
-export type APIResponseReferrerResponseDto = {
-  result: ReferrerResponseDto[];
+export type APIResponseReferrerResponseWithLimitDto = {
+  result: ReferrerResponseWithLimitDto[];
   /** 응답 메시지 */
   message: string;
   /** 응답 상태 코드 */

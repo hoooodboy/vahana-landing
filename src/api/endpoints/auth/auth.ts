@@ -6,9 +6,13 @@
  */
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type {
+  DataTag,
+  DefinedInitialDataOptions,
+  DefinedUseQueryResult,
   MutationFunction,
   QueryFunction,
   QueryKey,
+  UndefinedInitialDataOptions,
   UseMutationOptions,
   UseMutationResult,
   UseQueryOptions,
@@ -274,10 +278,8 @@ export const getGetApiAuthKakaoQueryOptions = <
   TData = Awaited<ReturnType<typeof getApiAuthKakao>>,
   TError = ErrorType<unknown>,
 >(options?: {
-  query?: UseQueryOptions<
-    Awaited<ReturnType<typeof getApiAuthKakao>>,
-    TError,
-    TData
+  query?: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof getApiAuthKakao>>, TError, TData>
   >;
 }) => {
   const { query: queryOptions } = options ?? {};
@@ -292,7 +294,7 @@ export const getGetApiAuthKakaoQueryOptions = <
     Awaited<ReturnType<typeof getApiAuthKakao>>,
     TError,
     TData
-  > & { queryKey: QueryKey };
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
 };
 
 export type GetApiAuthKakaoQueryResult = NonNullable<
@@ -300,6 +302,52 @@ export type GetApiAuthKakaoQueryResult = NonNullable<
 >;
 export type GetApiAuthKakaoQueryError = ErrorType<unknown>;
 
+export function useGetApiAuthKakao<
+  TData = Awaited<ReturnType<typeof getApiAuthKakao>>,
+  TError = ErrorType<unknown>,
+>(options: {
+  query: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof getApiAuthKakao>>, TError, TData>
+  > &
+    Pick<
+      DefinedInitialDataOptions<
+        Awaited<ReturnType<typeof getApiAuthKakao>>,
+        TError,
+        Awaited<ReturnType<typeof getApiAuthKakao>>
+      >,
+      "initialData"
+    >;
+}): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetApiAuthKakao<
+  TData = Awaited<ReturnType<typeof getApiAuthKakao>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof getApiAuthKakao>>, TError, TData>
+  > &
+    Pick<
+      UndefinedInitialDataOptions<
+        Awaited<ReturnType<typeof getApiAuthKakao>>,
+        TError,
+        Awaited<ReturnType<typeof getApiAuthKakao>>
+      >,
+      "initialData"
+    >;
+}): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetApiAuthKakao<
+  TData = Awaited<ReturnType<typeof getApiAuthKakao>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof getApiAuthKakao>>, TError, TData>
+  >;
+}): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
 /**
  * @summary 카카오 로그인
  */
@@ -308,16 +356,16 @@ export function useGetApiAuthKakao<
   TData = Awaited<ReturnType<typeof getApiAuthKakao>>,
   TError = ErrorType<unknown>,
 >(options?: {
-  query?: UseQueryOptions<
-    Awaited<ReturnType<typeof getApiAuthKakao>>,
-    TError,
-    TData
+  query?: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof getApiAuthKakao>>, TError, TData>
   >;
-}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+}): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+} {
   const queryOptions = getGetApiAuthKakaoQueryOptions(options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
+    queryKey: DataTag<QueryKey, TData, TError>;
   };
 
   query.queryKey = queryOptions.queryKey;

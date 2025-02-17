@@ -6,8 +6,12 @@
  */
 import { useQuery } from "@tanstack/react-query";
 import type {
+  DataTag,
+  DefinedInitialDataOptions,
+  DefinedUseQueryResult,
   QueryFunction,
   QueryKey,
+  UndefinedInitialDataOptions,
   UseQueryOptions,
   UseQueryResult,
 } from "@tanstack/react-query";
@@ -26,7 +30,9 @@ export const getGetApiQueryOptions = <
   TData = Awaited<ReturnType<typeof getApi>>,
   TError = ErrorType<unknown>,
 >(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getApi>>, TError, TData>;
+  query?: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof getApi>>, TError, TData>
+  >;
 }) => {
   const { query: queryOptions } = options ?? {};
 
@@ -40,7 +46,7 @@ export const getGetApiQueryOptions = <
     Awaited<ReturnType<typeof getApi>>,
     TError,
     TData
-  > & { queryKey: QueryKey };
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
 };
 
 export type GetApiQueryResult = NonNullable<Awaited<ReturnType<typeof getApi>>>;
@@ -49,13 +55,64 @@ export type GetApiQueryError = ErrorType<unknown>;
 export function useGetApi<
   TData = Awaited<ReturnType<typeof getApi>>,
   TError = ErrorType<unknown>,
+>(options: {
+  query: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof getApi>>, TError, TData>
+  > &
+    Pick<
+      DefinedInitialDataOptions<
+        Awaited<ReturnType<typeof getApi>>,
+        TError,
+        Awaited<ReturnType<typeof getApi>>
+      >,
+      "initialData"
+    >;
+}): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetApi<
+  TData = Awaited<ReturnType<typeof getApi>>,
+  TError = ErrorType<unknown>,
 >(options?: {
-  query?: UseQueryOptions<Awaited<ReturnType<typeof getApi>>, TError, TData>;
-}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  query?: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof getApi>>, TError, TData>
+  > &
+    Pick<
+      UndefinedInitialDataOptions<
+        Awaited<ReturnType<typeof getApi>>,
+        TError,
+        Awaited<ReturnType<typeof getApi>>
+      >,
+      "initialData"
+    >;
+}): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetApi<
+  TData = Awaited<ReturnType<typeof getApi>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof getApi>>, TError, TData>
+  >;
+}): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+
+export function useGetApi<
+  TData = Awaited<ReturnType<typeof getApi>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof getApi>>, TError, TData>
+  >;
+}): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+} {
   const queryOptions = getGetApiQueryOptions(options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
+    queryKey: DataTag<QueryKey, TData, TError>;
   };
 
   query.queryKey = queryOptions.queryKey;

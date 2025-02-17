@@ -6,9 +6,13 @@
  */
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type {
+  DataTag,
+  DefinedInitialDataOptions,
+  DefinedUseQueryResult,
   MutationFunction,
   QueryFunction,
   QueryKey,
+  UndefinedInitialDataOptions,
   UseMutationOptions,
   UseMutationResult,
   UseQueryOptions,
@@ -48,10 +52,8 @@ export const getGetApiCarsQueryOptions = <
   TData = Awaited<ReturnType<typeof getApiCars>>,
   TError = ErrorType<unknown>,
 >(options?: {
-  query?: UseQueryOptions<
-    Awaited<ReturnType<typeof getApiCars>>,
-    TError,
-    TData
+  query?: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof getApiCars>>, TError, TData>
   >;
 }) => {
   const { query: queryOptions } = options ?? {};
@@ -66,7 +68,7 @@ export const getGetApiCarsQueryOptions = <
     Awaited<ReturnType<typeof getApiCars>>,
     TError,
     TData
-  > & { queryKey: QueryKey };
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
 };
 
 export type GetApiCarsQueryResult = NonNullable<
@@ -74,6 +76,52 @@ export type GetApiCarsQueryResult = NonNullable<
 >;
 export type GetApiCarsQueryError = ErrorType<unknown>;
 
+export function useGetApiCars<
+  TData = Awaited<ReturnType<typeof getApiCars>>,
+  TError = ErrorType<unknown>,
+>(options: {
+  query: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof getApiCars>>, TError, TData>
+  > &
+    Pick<
+      DefinedInitialDataOptions<
+        Awaited<ReturnType<typeof getApiCars>>,
+        TError,
+        Awaited<ReturnType<typeof getApiCars>>
+      >,
+      "initialData"
+    >;
+}): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetApiCars<
+  TData = Awaited<ReturnType<typeof getApiCars>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof getApiCars>>, TError, TData>
+  > &
+    Pick<
+      UndefinedInitialDataOptions<
+        Awaited<ReturnType<typeof getApiCars>>,
+        TError,
+        Awaited<ReturnType<typeof getApiCars>>
+      >,
+      "initialData"
+    >;
+}): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetApiCars<
+  TData = Awaited<ReturnType<typeof getApiCars>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof getApiCars>>, TError, TData>
+  >;
+}): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
 /**
  * @summary 차량 목록 조회
  */
@@ -82,16 +130,16 @@ export function useGetApiCars<
   TData = Awaited<ReturnType<typeof getApiCars>>,
   TError = ErrorType<unknown>,
 >(options?: {
-  query?: UseQueryOptions<
-    Awaited<ReturnType<typeof getApiCars>>,
-    TError,
-    TData
+  query?: Partial<
+    UseQueryOptions<Awaited<ReturnType<typeof getApiCars>>, TError, TData>
   >;
-}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+}): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+} {
   const queryOptions = getGetApiCarsQueryOptions(options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
+    queryKey: DataTag<QueryKey, TData, TError>;
   };
 
   query.queryKey = queryOptions.queryKey;
@@ -206,10 +254,8 @@ export const getGetApiCarsIdQueryOptions = <
 >(
   id: string,
   options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getApiCarsId>>,
-      TError,
-      TData
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getApiCarsId>>, TError, TData>
     >;
   },
 ) => {
@@ -230,7 +276,7 @@ export const getGetApiCarsIdQueryOptions = <
     Awaited<ReturnType<typeof getApiCarsId>>,
     TError,
     TData
-  > & { queryKey: QueryKey };
+  > & { queryKey: DataTag<QueryKey, TData, TError> };
 };
 
 export type GetApiCarsIdQueryResult = NonNullable<
@@ -240,6 +286,61 @@ export type GetApiCarsIdQueryError = ErrorType<
   APIResponseUnauthorizedDto | APIResponseForbiddenDto
 >;
 
+export function useGetApiCarsId<
+  TData = Awaited<ReturnType<typeof getApiCarsId>>,
+  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+>(
+  id: string,
+  options: {
+    query: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getApiCarsId>>, TError, TData>
+    > &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiCarsId>>,
+          TError,
+          Awaited<ReturnType<typeof getApiCarsId>>
+        >,
+        "initialData"
+      >;
+  },
+): DefinedUseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetApiCarsId<
+  TData = Awaited<ReturnType<typeof getApiCarsId>>,
+  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+>(
+  id: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getApiCarsId>>, TError, TData>
+    > &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiCarsId>>,
+          TError,
+          Awaited<ReturnType<typeof getApiCarsId>>
+        >,
+        "initialData"
+      >;
+  },
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
+export function useGetApiCarsId<
+  TData = Awaited<ReturnType<typeof getApiCarsId>>,
+  TError = ErrorType<APIResponseUnauthorizedDto | APIResponseForbiddenDto>,
+>(
+  id: string,
+  options?: {
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getApiCarsId>>, TError, TData>
+    >;
+  },
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+};
 /**
  * @summary [어드민] 차량 상세 조회
  */
@@ -250,17 +351,17 @@ export function useGetApiCarsId<
 >(
   id: string,
   options?: {
-    query?: UseQueryOptions<
-      Awaited<ReturnType<typeof getApiCarsId>>,
-      TError,
-      TData
+    query?: Partial<
+      UseQueryOptions<Awaited<ReturnType<typeof getApiCarsId>>, TError, TData>
     >;
   },
-): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+): UseQueryResult<TData, TError> & {
+  queryKey: DataTag<QueryKey, TData, TError>;
+} {
   const queryOptions = getGetApiCarsIdQueryOptions(id, options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
-    queryKey: QueryKey;
+    queryKey: DataTag<QueryKey, TData, TError>;
   };
 
   query.queryKey = queryOptions.queryKey;

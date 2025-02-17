@@ -1,0 +1,13 @@
+.Toastify {
+  z-index: 100000;
+}
+
+.Toastify__toast-container {
+  z-index: 100000;
+  top: 54px;
+  display: flex;
+}
+
+.Toastify__toast-body {
+  display: flex;
+}

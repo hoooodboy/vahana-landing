@@ -11,7 +11,10 @@
     "orval": "npx orval --config src/api/orval.config.ts"
   },
   "dependencies": {
+    "@reduxjs/toolkit": "^2.5.1",
     "@tanstack/react-query": "^5.66.0",
+    "@tanstack/react-query-devtools": "^5.66.0",
+    "async-mutex": "^0.5.0",
     "axios": "^1.7.9",
     "buffer": "^6.0.3",
     "dayjs": "^1.11.13",
@@ -24,6 +27,7 @@
     "react-dom": "^18.3.1",
     "react-helmet-async": "^2.0.5",
     "react-indiana-drag-scroll": "^2.2.0",
+    "react-redux": "^9.2.0",
     "react-router-dom": "^7.1.3",
     "react-toastify": "^11.0.3",
     "resize-observer-polyfill": "^1.5.1",

@@ -10,4 +10,6 @@ export type UpdateReservationDto = {
   status: string;
   /** 운전자 아이디 */
   driver_id: number;
+  /** 차량 인벤토리 아이디 */
+  car_inventory_id: number;
 };

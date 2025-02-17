@@ -1,15 +1,47 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import {
+  PostApiAuthLoginMutationResult,
+  usePostApiAuthLogin,
+} from "@/src/api/endpoints/auth/auth";
 import Header from "@/src/components/Header";
 import Footer from "@/src/components/Footer";
 import styled from "styled-components";
-
 import IcKakao from "@/src/assets/ic-kakao.png";
 import { Link } from "react-router-dom";
+import tokens from "@/src/tokens";
+import { useDispatch } from "react-redux";
+import { me } from "@/src/data/auth";
 
 const LoginPage = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     id: "",
     password: "",
+  });
+
+  const loginMutation = usePostApiAuthLogin({
+    mutation: {
+      onSuccess: async (data: PostApiAuthLoginMutationResult) => {
+        // toast("로그인 성공");
+        console.log("data", data);
+
+        // 토큰 저장
+        if (data.result.accessToken) {
+          localStorage.setItem("accessToken", data.result.accessToken);
+        }
+        if (data.result.refreshToken) {
+          localStorage.setItem("refreshToken", data.result.refreshToken);
+        }
+
+        navigate("/");
+        return;
+      },
+      onError: (error) => {
+        // toast("로그인 실패");
+      },
+    },
   });
 
   const handleChange = (e) => {
@@ -22,8 +54,16 @@ const LoginPage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // 회원가입 로직 구현
-    console.log("Form submitted:", formData);
+    loginMutation.mutate({
+      data: {
+        id: formData.id,
+        password: formData.password,
+      },
+    });
+  };
+
+  const handleKakaoLogin = () => {
+    window.location.href = "/api/auth/kakao";
   };
 
   return (
@@ -61,19 +101,24 @@ const LoginPage = () => {
           />
         </InputGroup>
       </Form>
+
       <UtilWrapper>
-        <Util to="">비밀번호 찾기</Util>
-        <Util to="/join">회원가입</Util>
+        <Util to="/forgot-password">비밀번호 찾기</Util>
+        <Util to="/signup">회원가입</Util>
       </UtilWrapper>
+
       <ButtonWrapper>
-        <SubmitButton type="submit">로그인</SubmitButton>
-        <KakaoLoginButton>
-          <img src={IcKakao} width={36} />
+        <SubmitButton type="submit" onClick={handleSubmit}>
+          로그인
+        </SubmitButton>
+
+        <KakaoLoginButton onClick={handleKakaoLogin}>
+          <img src={IcKakao} width={36} alt="kakao" />
           카카오 로그인
         </KakaoLoginButton>
       </ButtonWrapper>
-      <Devider />
 
+      <Devider />
       <Footer />
     </Container>
   );
