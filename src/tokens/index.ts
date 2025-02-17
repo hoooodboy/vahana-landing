@@ -1,6 +1,9 @@
 import LocalStorage from "../local-storage";
 import { parseJwt } from "../utils";
 
+const KEY_ACCESS_TOKEN = "accessToken";
+const KEY_REFRESH_TOKEN = "refreshToken";
+
 type SessionState = {
   accessToken: string | null;
   accessTokenExpired: number | null;
@@ -54,76 +57,29 @@ const setAccessToken = async function setAccessToken(token: string | null) {
   }
 };
 
-export const setRefreshToken = async function setRefreshToken(
-  token: string | null
-) {
-  try {
-    if (token !== null) {
-      await LocalStorage.set("refreshToken", token);
-      _state.refreshToken = token;
-    } else {
-      await LocalStorage.remove("refreshToken");
-      _state.refreshToken = null;
-    }
-    console.log("Refresh token updated:", _state.refreshToken);
-  } catch (error) {
-    console.error("Failed to set refresh token:", error);
-    throw error;
+export const setRefreshToken = async function setRefreshToken(token: string | null) {
+  if (token !== null) {
+    await LocalStorage.set(KEY_REFRESH_TOKEN, token);
   }
+  _state.refreshToken = token;
 };
 
 const tokens = {
   async init() {
-    try {
-      const [accessToken, refreshToken] = await Promise.all([
-        LocalStorage.get("accessToken"),
-        LocalStorage.get("refreshToken"),
-      ]);
-
-      if (accessToken) {
-        await setAccessToken(accessToken);
-      }
-      if (refreshToken) {
-        await setRefreshToken(refreshToken);
-      }
-
-      console.log("Tokens re-initialized:", _state);
-      return _state;
-    } catch (error) {
-      console.error("Failed to initialize tokens:", error);
-      throw error;
-    }
+    const [accessToken, refreshToken] = await Promise.all([LocalStorage.get(KEY_ACCESS_TOKEN), LocalStorage.get(KEY_REFRESH_TOKEN)]);
+    await Promise.all([setAccessToken(accessToken), setRefreshToken(refreshToken)]);
   },
-
   async setTokens(accessToken: string, refreshToken: string) {
-    try {
-      await Promise.all([
-        setAccessToken(accessToken),
-        setRefreshToken(refreshToken),
-      ]);
-      console.log("Tokens set successfully:", _state);
-    } catch (error) {
-      console.error("Failed to set tokens:", error);
-      throw error;
-    }
+    await Promise.all([setAccessToken(accessToken), setRefreshToken(refreshToken)]);
   },
 
   setAccessToken,
 
   async clearTokens() {
-    try {
-      await Promise.all([
-        LocalStorage.remove("accessToken"),
-        LocalStorage.remove("refreshToken"),
-      ]);
-      _state.accessToken = null;
-      _state.accessTokenExpired = null;
-      _state.refreshToken = null;
-      console.log("Tokens cleared");
-    } catch (error) {
-      console.error("Failed to clear tokens:", error);
-      throw error;
-    }
+    await Promise.all([LocalStorage.remove(KEY_ACCESS_TOKEN), LocalStorage.remove(KEY_REFRESH_TOKEN)]);
+    _state.accessToken = null;
+    _state.accessTokenExpired = null;
+    _state.refreshToken = null;
   },
 
   get accessToken() {

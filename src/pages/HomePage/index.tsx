@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
 import MainBanner1 from "@/src/assets/main-banner-1.png";
@@ -6,29 +5,27 @@ import MainBanner2 from "@/src/assets/main-banner-2.png";
 import MainBanner3 from "@/src/assets/main-banner-3.png";
 import MainBanner4 from "@/src/assets/main-banner-4.png";
 
-import LogoImg from "@/src/assets/ic-vahana-white.png";
+import CompanyImg from "@/src/assets/img-company.png";
 import LmImg from "@/src/assets/img-lm500h.png";
 import ServiceImg from "@/src/assets/img-service.png";
 import Hc1Img from "@/src/assets/main-hc-1.png";
 import Hc2Img from "@/src/assets/main-hc-2.png";
-import CompanyImg from "@/src/assets/img-company.png";
 
 import { CarouselProvider, Dot, Slide, Slider } from "pure-react-carousel";
 import "pure-react-carousel/dist/react-carousel.es.css";
 import "./styles/style.css";
 
-import ScrollContainer from "react-indiana-drag-scroll";
-import Header from "@/src/components/Header";
-import { Link } from "react-router-dom";
 import Footer from "@/src/components/Footer";
+import Header from "@/src/components/Header";
+import ScrollContainer from "react-indiana-drag-scroll";
+import { Link } from "react-router-dom";
 
 const HomePage = () => {
   const mainData = [
     {
       img: MainBanner1,
       title: "당신만을 위한 품격 있는\n이동 서비스.",
-      contents:
-        "고급스러움, 역동성, 맞춤형.\n바하나는 도로 위의 시간을 특별한 순간으로 만듭니다.",
+      contents: "고급스러움, 역동성, 맞춤형.\n바하나는 도로 위의 시간을 특별한 순간으로 만듭니다.",
     },
     {
       img: MainBanner2,
@@ -57,8 +54,7 @@ const HomePage = () => {
     {
       img: Hc2Img,
       author: "황희찬",
-      contents:
-        "인터뷰라서 하는 말이 아니라, 가족들이 의전 서비스를 정말 많이 만족하고 있고 저도 그런 모습을 보면서 안정감을 느껴요.",
+      contents: "인터뷰라서 하는 말이 아니라, 가족들이 의전 서비스를 정말 많이 만족하고 있고 저도 그런 모습을 보면서 안정감을 느껴요.",
     },
     {
       img: MainBanner3,

@@ -1,19 +1,10 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
-import {
-  PostApiAuthLoginMutationResult,
-  usePostApiAuthLogin,
-} from "@/src/api/endpoints/auth/auth";
-import Header from "@/src/components/Header";
-import Footer from "@/src/components/Footer";
-import styled from "styled-components";
+import { PostApiAuthLoginMutationResult, usePostApiAuthLogin } from "@/src/api/endpoints/auth/auth";
 import IcKakao from "@/src/assets/ic-kakao.png";
-import { Link } from "react-router-dom";
-import tokens from "@/src/tokens";
-import { useDispatch } from "react-redux";
-import { me } from "@/src/data/auth";
-
+import Footer from "@/src/components/Footer";
+import Header from "@/src/components/Header";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import styled from "styled-components";
 const LoginPage = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -81,24 +72,12 @@ const LoginPage = () => {
       <Form onSubmit={handleSubmit}>
         <InputGroup>
           <Label>아이디</Label>
-          <Input
-            type="text"
-            name="id"
-            value={formData.id}
-            onChange={handleChange}
-            placeholder="아이디를 입력해주세요."
-          />
+          <Input type="text" name="id" value={formData.id} onChange={handleChange} placeholder="아이디를 입력해주세요." />
         </InputGroup>
 
         <InputGroup>
           <Label>비밀번호</Label>
-          <Input
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            placeholder="비밀번호를 입력해주세요."
-          />
+          <Input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="비밀번호를 입력해주세요." />
         </InputGroup>
       </Form>
 

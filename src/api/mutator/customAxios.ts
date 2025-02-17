@@ -1,6 +1,7 @@
-import Axios, { AxiosError, AxiosRequestConfig } from "axios";
-import tokens, { setRefreshToken } from "@/src/tokens";
+import LocalStorage from "@/src/local-storage";
+import tokens, { KEY_ACCESS_TOKEN, KEY_REFRESH_TOKEN, setRefreshToken } from "@/src/tokens";
 import { refreshToken } from "@/src/utils/tokenRefresh";
+import Axios, { AxiosRequestConfig } from "axios";
 
 const { VITE_APP_API_HOST } = import.meta.env;
 
@@ -11,15 +12,22 @@ export const axiosInstance = Axios.create({
 
 // 요청 인터셉터
 axiosInstance.interceptors.request.use(
-  (config) => {
-    console.log(config, "ASD");
-    console.log("tokens", tokens);
-    if (tokens.accessToken) {
-      config.headers.Authorization = `Bearer ${tokens.accessToken}`;
+  async (config) => {
+    const accessToken = LocalStorage.get(KEY_ACCESS_TOKEN);
+    const refreshToken = LocalStorage.get(KEY_REFRESH_TOKEN);
+
+    console.log("ASD", await tokens.init());
+
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
     }
+    if (refreshToken) {
+      config.headers.Refresh = `Bearer ${refreshToken}`;
+    }
+    console.log(config.headers, "config.headers");
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 // 응답 인터셉터
@@ -52,7 +60,7 @@ axiosInstance.interceptors.response.use(
       await setRefreshToken(""); // refresh token 제거
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 export const customAxios = <T>(config: AxiosRequestConfig): Promise<T> => {
