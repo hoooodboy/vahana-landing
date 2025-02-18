@@ -53,9 +53,9 @@ const CarComparisonTable = () => {
   const tableData = [
     {
       title: "인원수",
-      royal: "2",
-      executive: "2(4)",
-      alphard: "2(5)",
+      royal: "2인 Seats (최대 2인)",
+      executive: "2 Seats (최대 4인)",
+      alphard: "2 Seats (최대 4인)",
     },
     {
       title: "노이즈켄슬링",
@@ -138,9 +138,15 @@ const CarComparisonTable = () => {
           <thead>
             <tr>
               <Th></Th>
-              <Th>로얄</Th>
-              <Th>이그제큐티브</Th>
-              <Th>알파드</Th>
+              <Th>
+                LM 500h
+                <br /> ROYAL
+              </Th>
+              <Th>
+                LM 500h
+                <br /> EXECUTIVE
+              </Th>
+              <Th>ALPHARD</Th>
             </tr>
           </thead>
           <tbody>
