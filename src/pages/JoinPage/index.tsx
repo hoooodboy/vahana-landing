@@ -42,7 +42,14 @@ const JoinPage = () => {
     if (kakaoId) {
       return !!(formData.name && formData.id && formData.phone);
     } else {
-      return !!(formData.name && formData.id && formData.password && formData.passwordConfirm && formData.phone && !passwordError);
+      return !!(
+        formData.name &&
+        formData.id &&
+        formData.password &&
+        formData.passwordConfirm &&
+        formData.phone &&
+        !passwordError
+      );
     }
   };
 
@@ -87,7 +94,13 @@ const JoinPage = () => {
       <Form onSubmit={handleSubmit}>
         <InputGroup>
           <Label>이름</Label>
-          <Input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="김아무개" />
+          <Input
+            type="text"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            placeholder="김아무개"
+          />
         </InputGroup>
 
         <InputGroup>
@@ -127,19 +140,33 @@ const JoinPage = () => {
                 placeholder="비밀번호를 다시 입력해주세요."
                 $error={passwordError}
               />
-              {passwordError && <ErrorMessage>비밀번호가 일치하지 않습니다.</ErrorMessage>}
+              {passwordError && (
+                <ErrorMessage>비밀번호가 일치하지 않습니다.</ErrorMessage>
+              )}
             </InputGroup>
           </>
         )}
 
         <InputGroup>
           <Label>전화번호</Label>
-          <Input type="tel" name="phone" value={formData.phone} onChange={handleChange} placeholder="전화번호를 입력해주세요." />
+          <Input
+            type="tel"
+            name="phone"
+            value={formData.phone}
+            onChange={handleChange}
+            placeholder="전화번호를 입력해주세요."
+          />
         </InputGroup>
 
         <InputGroup>
           <Label>추천인 코드</Label>
-          <Input type="text" name="referrerCode" value={formData.referrerCode} onChange={handleChange} placeholder="추천인 코드를 입력해주세요" />
+          <Input
+            type="text"
+            name="referrerCode"
+            value={formData.referrerCode}
+            onChange={handleChange}
+            placeholder="추천인 코드를 입력해주세요"
+          />
         </InputGroup>
 
         <SubmitButton type="submit" $isValid={isFormValid()}>
@@ -147,8 +174,6 @@ const JoinPage = () => {
         </SubmitButton>
       </Form>
       <Devider />
-
-      <Footer />
     </Container>
   );
 };

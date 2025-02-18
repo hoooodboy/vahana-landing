@@ -21,6 +21,7 @@ import IcChevronDown from "@/src/assets/ic-chevron-down.svg";
 
 import { CarouselProvider, Dot, Slide, Slider } from "pure-react-carousel";
 import "pure-react-carousel/dist/react-carousel.es.css";
+import CarComparisonTable from "./components/CarComparisonTable";
 
 const CarPage = () => {
   // Set to store indices of expanded cards
@@ -174,7 +175,10 @@ const CarPage = () => {
           ))}
         </CarSection>
       </CarContainer>
-      <Footer />
+      <TableContainer>
+        <TableTitle>모델별 비교</TableTitle>
+        <CarComparisonTable />
+      </TableContainer>
     </Container>
   );
 };
@@ -186,6 +190,7 @@ const Container = styled.div`
   background: #fff;
   position: relative;
   padding-top: 56px;
+  padding-bottom: 215px;
 `;
 
 const TitleContainer = styled.div`
@@ -356,6 +361,19 @@ const ContentItem = styled.div`
   color: #666;
   font-size: 14px;
   font-weight: 500;
+`;
+
+const TableContainer = styled.div`
+  overflow-x: auto;
+  margin-bottom: 152px;
+  padding: 16px 0;
+`;
+
+const TableTitle = styled.div`
+  padding-left: 24px;
+  color: #666;
+  font-size: 14px;
+  font-weight: 700;
 `;
 
 export default CarPage;

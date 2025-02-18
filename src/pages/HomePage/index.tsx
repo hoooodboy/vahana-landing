@@ -5,11 +5,18 @@ import MainBanner2 from "@/src/assets/main-banner-2.png";
 import MainBanner3 from "@/src/assets/main-banner-3.png";
 import MainBanner4 from "@/src/assets/main-banner-4.png";
 
-import CompanyImg from "@/src/assets/img-company.png";
+import VideoThumbImg from "@/src/assets/video-thumb.png";
+
+import CompanyImg from "@/src/assets/img-company-2.png";
 import LmImg from "@/src/assets/img-lm500h.png";
 import ServiceImg from "@/src/assets/img-service.png";
 import Hc1Img from "@/src/assets/main-hc-1.png";
 import Hc2Img from "@/src/assets/main-hc-2.png";
+import Customer1Img from "@/src/assets/img-customer-1.png";
+import Customer2Img from "@/src/assets/img-customer-2.png";
+import Customer3Img from "@/src/assets/img-customer-3.png";
+import Customer4Img from "@/src/assets/img-customer-4.png";
+import Customer5Img from "@/src/assets/img-customer-5.png";
 
 import { CarouselProvider, Dot, Slide, Slider } from "pure-react-carousel";
 import "pure-react-carousel/dist/react-carousel.es.css";
@@ -26,23 +33,24 @@ const HomePage = () => {
     {
       img: MainBanner1,
       title: "당신만을 위한 품격 있는\n이동 서비스.",
-      contents: "고급스러움, 역동성, 맞춤형.\n바하나는 도로 위의 시간을 특별한 순간으로 만듭니다.",
+      contents:
+        "고급스러움, 역동성, 맞춤형.\n바하나는 도로 위의 시간을 특별한 순간으로 만듭니다.",
     },
-    {
-      img: MainBanner2,
-      title: "222222222",
-      contents: "2g2g2g2g2gg2g2g2g2g2gg2g2g2g2",
-    },
-    {
-      img: MainBanner3,
-      title: "3333333",
-      contents: "3koi03opjnmkjnoklmasd",
-    },
-    {
-      img: MainBanner4,
-      title: "44444",
-      contents: "asdasdasd",
-    },
+    // {
+    //   img: MainBanner2,
+    //   title: "222222222",
+    //   contents: "2g2g2g2g2gg2g2g2g2g2gg2g2g2g2",
+    // },
+    // {
+    //   img: MainBanner3,
+    //   title: "3333333",
+    //   contents: "3koi03opjnmkjnoklmasd",
+    // },
+    // {
+    //   img: MainBanner4,
+    //   title: "44444",
+    //   contents: "asdasdasd",
+    // },
   ];
 
   const AmbassadorData = [
@@ -55,13 +63,31 @@ const HomePage = () => {
     {
       img: Hc2Img,
       author: "황희찬",
-      contents: "인터뷰라서 하는 말이 아니라, 가족들이 의전 서비스를 정말 많이 만족하고 있고 저도 그런 모습을 보면서 안정감을 느껴요.",
+      contents:
+        "인터뷰라서 하는 말이 아니라, 가족들이 의전 서비스를 정말 많이 만족하고 있고 저도 그런 모습을 보면서 안정감을 느껴요.",
+    },
+  ];
+
+  const CustomerData = [
+    {
+      img: Customer1Img,
+      author: "홍수아",
     },
     {
-      img: MainBanner3,
-      author: "황희찬",
-      contents:
-        "차량 관리, 차량 감가 외 관리비, 채용 등의 복잡함 없이 어릴 때부터 꿈꿔왔던 차를 운전하며 이동의 즐거움을 느끼고 있습니다. VAHAN의 서비스는 제게 새로운 동기부여를 제공해 줍니다.",
+      img: Customer2Img,
+      author: "김태균",
+    },
+    {
+      img: Customer3Img,
+      author: "티에리 앙리",
+    },
+    {
+      img: Customer4Img,
+      author: "호나우두",
+    },
+    {
+      img: Customer5Img,
+      author: "트럼프 주니어",
     },
   ];
 
@@ -176,6 +202,36 @@ const HomePage = () => {
             ))}
           </FilterWrapper>
         </ScrollContainer>
+
+        <VideoContainer>
+          <VideoBlock onClick={() => window.open("https://www.youtube.com/")}>
+            <VideoThumb src={VideoThumbImg} />
+          </VideoBlock>
+        </VideoContainer>
+      </FourthSection>
+
+      <FourthSection>
+        <TitleConteiner padding={"0px 16px"}>
+          <Title>
+            바하나와 함께한
+            <br />
+            유명인들
+          </Title>
+          VAHANA Customer
+        </TitleConteiner>
+        <ScrollContainer>
+          <FilterWrapper>
+            {CustomerData?.map((data, i) => (
+              <AmbassadorCard2 key={i}>
+                <AmbassadorImg2>
+                  <img src={data.img} />
+                </AmbassadorImg2>
+
+                <Author2>-{data.author}-</Author2>
+              </AmbassadorCard2>
+            ))}
+          </FilterWrapper>
+        </ScrollContainer>
       </FourthSection>
 
       <ThirdSection>
@@ -192,7 +248,39 @@ const HomePage = () => {
           <img src={CompanyImg} />
         </Company>
       </ThirdSection>
-      <Footer />
+
+      <FifthSection>
+        <TitleConteiner>
+          <Title>
+            바하나를
+            <br />
+            이용하고 싶다면
+          </Title>
+          아래 버튼들로 자세히 확인해보세요
+        </TitleConteiner>
+        <MenuContainer>
+          <MenuBlock>
+            <MenuTitle>서비스 예약</MenuTitle>
+            <MenuContents>
+              차량 등급별 가격 안내 <br />
+              이용 시간 및 거리에 따른
+              <br />
+              요금을 간편하게 확인하세요.
+            </MenuContents>
+            <Button to="/calendar">예약하기</Button>
+          </MenuBlock>
+          <MenuBlock>
+            <MenuTitle>가격표 안내</MenuTitle>
+            <MenuContents>
+              원하시는 일정으로 <br />
+              간편하게 예약하고
+              <br />
+              편안한 이동을 약속드립니다.
+            </MenuContents>
+            <Button to="/pricing">바로가기</Button>
+          </MenuBlock>
+        </MenuContainer>
+      </FifthSection>
     </Container>
   );
 };
@@ -202,6 +290,7 @@ const Container = styled.div`
   height: 100%;
   background: #fffbf1;
   position: relative;
+  padding-bottom: 215px;
 `;
 
 const Section = styled.section`
@@ -358,6 +447,7 @@ const Title = styled.div`
 `;
 
 const Button = styled(Link)`
+  width: fit-content;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -401,6 +491,10 @@ const AmbassadorCard = styled.div`
   filter: drop-shadow(0px 0px 4px rgba(0, 0, 0, 0.25));
 `;
 
+const AmbassadorCard2 = styled(AmbassadorCard)`
+  background: transparent;
+`;
+
 const AmbassadorImg = styled.div`
   width: 100%;
   height: 220px;
@@ -410,6 +504,22 @@ const AmbassadorImg = styled.div`
   & > img {
     width: 100%;
     background-position: 50% 50%;
+  }
+`;
+
+const AmbassadorImg2 = styled.div`
+  width: 100%;
+  padding-top: 130%;
+  position: relative;
+  /* min-height: 220px; */
+  overflow: hidden;
+  border-radius: 16px;
+  & > img {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
   }
 `;
 
@@ -433,12 +543,77 @@ const Author = styled.div`
   line-height: 20px;
 `;
 
+const Author2 = styled(Author)`
+  text-align: right;
+  padding: 12px;
+`;
+
 const Company = styled.div`
   width: 100%;
   margin-top: 22px;
+  filter: drop-shadow(0px 0px 4px rgba(0, 0, 0, 0.25));
+  border-radius: 16px;
+  background: #fff;
+  overflow: hidden;
   & > img {
     width: 100%;
   }
 `;
+
+const VideoContainer = styled.div`
+  padding: 0 16px;
+`;
+
+const VideoBlock = styled.div`
+  width: 100%;
+  padding-top: 56%;
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+`;
+
+const VideoThumb = styled.img`
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+`;
+
+const FifthSection = styled.div`
+  padding: 16px;
+  padding-bottom: 152px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+  gap: 42px;
+`;
+
+const MenuContainer = styled.div`
+  width: 100%;
+  display: flex;
+  /* flex-direction: column; */
+  /* gap: 42px; */
+`;
+
+const MenuBlock = styled.div`
+  width: 100%;
+`;
+
+const MenuTitle = styled.div`
+  color: #000;
+  font-size: 20px;
+  font-weight: 800;
+`;
+
+const MenuContents = styled.div`
+  color: #666;
+  font-size: 14px;
+  font-weight: 500;
+  margin: 12px 0 20px 0;
+`;
+
+const MenuButton = styled(Link)``;
 
 export default HomePage;

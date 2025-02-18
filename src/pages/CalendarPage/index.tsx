@@ -132,7 +132,7 @@ const CalendarPage: React.FC = () => {
 
   const handleCarSelect = (car) => {
     if (car.status === "AVAILABLE") {
-      navigate("/reservation", {
+      navigate("/reservation/first", {
         state: {
           selectedCar: {
             id: car.id,
@@ -141,6 +141,7 @@ const CalendarPage: React.FC = () => {
             maxSeats: car.seats,
             image: car.image,
           },
+          selectedDate: selectedDate,
         },
       });
     }
@@ -210,7 +211,6 @@ const CalendarPage: React.FC = () => {
           </CarList>
         </CalendarBlock>
       </CalendarContainer>
-      <Footer />
     </Container>
   );
 };
@@ -221,6 +221,7 @@ const Container = styled.div`
   background: #fff;
   position: relative;
   padding-top: 56px;
+  min-height: 100vh;
 `;
 
 const TitleContainer = styled.div`
@@ -251,6 +252,7 @@ const CalendarBlock = styled.div`
   border-radius: 28px;
   box-shadow: 0px 0px 15px 4px rgba(0, 0, 0, 0.1);
   padding-bottom: 64px;
+  margin-bottom: 150px;
 `;
 
 const CalendarHeader = styled.div`
@@ -339,6 +341,7 @@ const DateBlock = styled.div`
 
 const CarList = styled.div`
   margin-top: 32px;
+
   display: flex;
   flex-direction: column;
 `;
@@ -348,7 +351,7 @@ const CarItem = styled.div`
   align-items: center;
   padding: 16px;
   border-bottom: 1px solid #666;
-
+  cursor: pointer;
   &:last-child {
     border: none;
   }

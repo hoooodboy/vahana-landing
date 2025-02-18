@@ -5,11 +5,16 @@ import LogoDarkImg from "@/src/assets/ic-vahana-black.png";
 import icBurgerSvg from "@/src/assets/ic-burger.svg";
 import icBurgerBlackSvg from "@/src/assets/ic-burger-black.svg";
 import { Link } from "react-router-dom";
+import LocalStorage from "../local-storage";
 
 const Header = () => {
   const [scrolled, setScrolled] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const isLoggedIn = LocalStorage.get("accessToken");
+  const currentNav = window.location.pathname;
+  const isHome = currentNav === "/";
 
   const handleScroll = () => {
     const scrollY = window.scrollY;
@@ -22,9 +27,6 @@ const Header = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  const currentNav = window.location.pathname;
-  const isHome = currentNav === "/";
 
   const toggleMenuOpen = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -88,7 +90,7 @@ const Header = () => {
             Pricing
           </StyledMenuItem>
           <StyledMenuItem to="/my" $scrolled={scrolled} $isHome={isHome}>
-            My
+            {!!isLoggedIn ? "My" : "Login"}
           </StyledMenuItem>
         </MenuContainer>
       )}

@@ -1,16 +1,12 @@
-import React, { useState, useEffect, useRef } from "react";
-import IcChevronRight from "@/src/assets/ic-chevron-right.svg";
-import IcChevronLeft from "@/src/assets/ic-chevron-right.svg";
+import React, { useState, useMemo } from "react";
 import styled from "styled-components";
 
-import royal1 from "@/src/assets/royal-1.jpg";
-import executive1 from "@/src/assets/executive-1.jpg";
-import alphard1 from "@/src/assets/alphard-1.jpg";
 import Footer from "@/src/components/Footer";
 import Header from "@/src/components/Header";
-import { useGetApiCars, useGetApiCarsId } from "@/src/api/endpoints/cars/cars";
-import { imgView } from "@/src/utils/upload";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
+import ReservationFirstStep from "./components/ReservationFirstStep";
+import ReservationSecondStep from "./components/ReservationSecondStep";
+import ReservationThirdStep from "./components/ReservationThirdStep";
 
 interface CarOption {
   name: string;
@@ -21,24 +17,29 @@ interface CarOption {
 
 const ReservationPage: React.FC = () => {
   const location = useLocation();
-  const navigate = useNavigate();
+
   const locationState = location.state;
+  const selectedDate = locationState?.selectedDate;
   const selectedCar = locationState?.selectedCar;
 
   // 선택된 차량 정보가 없으면 예약 페이지로 리다이렉트
-  useEffect(() => {
-    if (!selectedCar) {
-      navigate("/reservation");
-    }
-  }, [selectedCar, navigate]);
+  // useEffect(() => {
+  //   if (!selectedCar) {
+  //     navigate("/calendar");
+  //   }
+  // }, [selectedCar, navigate]);
 
   const [formData, setFormData] = useState({
+    car_id: selectedCar?.id,
     name: "",
-    id: "",
-    password: "",
-    passwordConfirm: "",
     phone: "",
-    referrerCode: "",
+    pickup_location: "",
+    pickup_time: "",
+    dropoff_location: "",
+    ride_purpose: "",
+    luggage_count: 0,
+    passenger_count: 0,
+    special_requests: "",
   });
 
   const handleChange = (e) => {
@@ -49,30 +50,62 @@ const ReservationPage: React.FC = () => {
     }));
   };
 
+  const params = useParams();
+
+  const __step = params?.step === "first" ? 30 : 100;
+
+  const onStep = () => {
+    if (params?.step === "first") return 30;
+    if (params?.step === "second") return 75;
+  };
+
+  const step = useMemo(() => {
+    return {
+      key: params?.step ?? "first",
+      value: onStep(),
+    };
+  }, [params, __step]);
+
+  console.log("formData", formData);
+
   return (
     <Container>
       <Header />
-      <TitleContainer>
-        <Title>
-          {selectedCar.name}
-          <br />
-          예약하기
-        </Title>
-        차량 예약
-      </TitleContainer>
-      <Form>
-        <InputGroup>
-          <Label>이름</Label>
-          <Input
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            placeholder="김아무개"
-          />
-        </InputGroup>
-      </Form>
-      <Footer />
+      {step.key !== "third" && (
+        <ProgressBarConatiner>
+          <ProgressBar>
+            <ProgressValue value={step?.value} />
+          </ProgressBar>
+        </ProgressBarConatiner>
+      )}
+
+      {step.key !== "third" && (
+        <TitleContainer>
+          <Title>
+            {selectedCar?.name}
+            <br />
+            예약하기
+          </Title>
+          차량 예약
+        </TitleContainer>
+      )}
+
+      {step.key === "first" && (
+        <ReservationFirstStep
+          formData={formData}
+          selectedDate={selectedDate}
+          selectedCar={selectedCar}
+          handleChange={handleChange}
+        />
+      )}
+      {step.key === "second" && (
+        <ReservationSecondStep
+          formData={formData}
+          selectedCar={selectedCar}
+          handleChange={handleChange}
+        />
+      )}
+      {step.key === "third" && <ReservationThirdStep formData={formData} />}
     </Container>
   );
 };
@@ -83,6 +116,8 @@ const Container = styled.div`
   background: #fff;
   position: relative;
   padding-top: 56px;
+  padding-bottom: 215px;
+  min-height: 100vh;
 `;
 
 const TitleContainer = styled.div`
@@ -99,82 +134,36 @@ const Title = styled.div`
   font-weight: 700;
 `;
 
-const Form = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-  padding: 0 16px;
-`;
-
-const InputGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-`;
-
-const Label = styled.label`
-  color: #666;
-  font-size: 14px;
-  font-weight: 600;
-  padding: 8px;
-`;
-
-const Input = styled.input<{ $error?: boolean }>`
+const ProgressBarConatiner = styled.div`
   width: 100%;
-  height: 48px;
   padding: 0 16px;
-  border-radius: 12px;
-  border: 1px solid ${(props) => (props.$error ? "#ff0000" : "#c7c7c7")};
-  background: #fff;
-  color: #000;
-  font-size: 16px;
-  font-weight: 400;
-  transition: border-color 0.3s ease;
-
-  &::placeholder {
-    color: #666;
-  }
-  &:disabled {
-    cursor: not-allowed;
-  }
-  &:focus {
-    outline: none;
-    border-color: ${(props) => (props.$error ? "#ff0000" : "#3e4730")};
-  }
+  position: absolute;
+  top: 56px;
+  left: 0;
+  z-index: 100;
 `;
 
-const ErrorMessage = styled.span`
-  color: #ff0000;
-  font-size: 12px;
-  margin-top: 4px;
-  padding-left: 8px;
-`;
-
-const SubmitButton = styled.button<{ $isValid: boolean }>`
+const ProgressBar = styled.div`
   width: 100%;
-  height: 48px;
-  background: ${(props) => {
-    if (props.disabled) return "#e0e0e0";
-    return props.$isValid ? "#3e4730" : "#c6c6c6";
-  }};
-  border: none;
-  border-radius: 24px;
-  color: #fff;
-  font-size: 16px;
-  font-weight: 500;
-  margin-top: 40px;
-  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
-  transition: background-color 0.3s ease;
-
-  &:hover {
-    background: ${(props) => {
-      if (props.disabled) return "#e0e0e0";
-      return props.$isValid ? "#2e3520" : "#b5b5b5";
-    }};
-  }
+  height: 4px;
+  border-radius: 2px;
+  /* border-radius: 5px; */
+  overflow: hidden;
+  position: relative;
+  background: #d9d9d9;
+  overflow: none;
 `;
 
-const Devider = styled.div`
-  height: 150px;
+const ProgressValue = styled.div<{ value: number }>`
+  width: ${(p) => (p.value ? `${p.value}%` : "0%")};
+  border-radius: 2px;
+  max-width: 100%;
+  height: 100%;
+  position: absolute;
+  background: #76865f;
+  left: 0;
+  top: 0;
+  transition: ease-in 0.3s;
 `;
 
 export default ReservationPage;

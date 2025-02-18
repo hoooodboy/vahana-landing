@@ -43,6 +43,14 @@ function AllRoutes() {
           element: <Pages.CalendarPage />,
         },
         {
+          path: "/privacy",
+          element: <Pages.PrivacyPage />,
+        },
+        {
+          path: "/terms",
+          element: <Pages.TermsPage />,
+        },
+        {
           path: "/*",
           element: <Pages.HomePage />,
         },
@@ -91,8 +99,16 @@ function AllRoutes() {
           element: <Pages.AdminHomePage />,
         },
         {
-          path: "/reservation",
+          path: "/reservation/:step",
           element: <Pages.ReservationPage />,
+        },
+        {
+          path: "/terms",
+          element: <Pages.TermsPage />,
+        },
+        {
+          path: "/privacy",
+          element: <Pages.PrivacyPage />,
         },
         {
           path: "/*",

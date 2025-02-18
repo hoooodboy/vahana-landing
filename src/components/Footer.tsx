@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 
 import LogoImg from "@/src/assets/ic-vahana-white.png";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
@@ -15,6 +16,10 @@ const Footer = () => {
         </FooterContents>
         <FooterContents>대표문의 | vahana.sun@gmail.com</FooterContents>
       </FooterContentsWrapper>
+      <FooterLinkWrapper>
+        <FooterLink to="/terms">이용약관</FooterLink>
+        <FooterLink to="/privacy">개인정보 처리방침</FooterLink>
+      </FooterLinkWrapper>
       @2025 VAHANA. All rights reserved.
     </FooterContainer>
   );
@@ -25,11 +30,13 @@ const FooterContainer = styled.div`
   padding: 16px 32px;
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: 24px;
   background: #151711;
   color: #fff;
   font-size: 12px;
   font-weight: 300;
+  position: absolute;
+  bottom: 0;
 `;
 
 const FooterContentsWrapper = styled.div`
@@ -47,6 +54,19 @@ const FooterContents = styled.div`
 const Logo = styled.img`
   width: 128px;
   height: 20px;
+  margin-bottom: 12px;
+`;
+
+const FooterLinkWrapper = styled.div`
+  display: flex;
+  gap: 12px;
+`;
+
+const FooterLink = styled(Link)`
+  color: #fff;
+  font-size: 12px;
+  font-weight: 300;
+  text-decoration: none;
 `;
 
 export default Footer;

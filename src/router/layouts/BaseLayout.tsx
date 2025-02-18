@@ -6,6 +6,7 @@ import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 import LocalStorage from "@/src/local-storage";
 import Logo from "@/src/assets/ic-logo.png";
 import ScrollToTop from "@/src/components/ScrollToTop";
+import Footer from "@/src/components/Footer";
 
 const useDocumentHeight = () => {
   const getHeight = useCallback(
@@ -85,6 +86,7 @@ function BaseLayout() {
         <Outlet />
 
         {/* <AppNav theme="dark" /> */}
+        <Footer />
         <ScrollToTop />
       </Content>
     </Container>
@@ -146,7 +148,6 @@ const Content = styled.div<{ isIos?: boolean; pcView?: boolean }>`
   flex: 1 !important;
   max-height: auto;
   justify-content: flex-end;
-
   /* padding-top: ${(p) => (p.pcView ? "60px" : "48px")}; */
   /* padding-bottom: ${(p) => (p.pcView ? "60px" : "0px")}; */
   /* padding-left: ${(p) => (p.pcView ? "300px" : "0")}; */

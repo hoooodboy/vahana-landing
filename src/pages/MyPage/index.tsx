@@ -38,7 +38,7 @@ const MyPage = () => {
       contents: [
         {
           title: "개인정보처리방침",
-          link: "/privacy-policy",
+          link: "/privacy",
         },
         {
           title: "이용약관",
@@ -115,7 +115,6 @@ const MyPage = () => {
           </LinkBlock>
         ))}
       </LinksContainer>
-      <Footer />
     </Container>
   );
 };
@@ -127,6 +126,8 @@ const Container = styled.div`
   background: #fff;
   position: relative;
   padding-top: 56px;
+  min-height: 100vh;
+  padding-bottom: 215px;
 `;
 
 const TitleContainer = styled.div`
@@ -223,7 +224,7 @@ const LinksContainer = styled.div`
   margin-top: 32px;
   padding: 24px 0;
   background: #fff;
-  padding-bottom: 150px;
+  padding-bottom: 152px;
 `;
 
 const LinkBlock = styled.div`

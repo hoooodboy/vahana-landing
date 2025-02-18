@@ -6,4 +6,6 @@ export { default as JoinPage } from "./JoinPage";
 export { default as LoginPage } from "./LoginPage";
 export { default as CalendarPage } from "./CalendarPage";
 export { default as ReservationPage } from "./ReservationPage";
+export { default as TermsPage } from "./TermsPage";
+export { default as PrivacyPage } from "./PrivacyPage";
 export * from "./Admin";
