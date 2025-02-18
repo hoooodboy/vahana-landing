@@ -17,6 +17,7 @@ import "./styles/style.css";
 
 import Footer from "@/src/components/Footer";
 import Header from "@/src/components/Header";
+import { useEffect } from "react";
 import ScrollContainer from "react-indiana-drag-scroll";
 import { Link } from "react-router-dom";
 
@@ -63,6 +64,16 @@ const HomePage = () => {
         "차량 관리, 차량 감가 외 관리비, 채용 등의 복잡함 없이 어릴 때부터 꿈꿔왔던 차를 운전하며 이동의 즐거움을 느끼고 있습니다. VAHAN의 서비스는 제게 새로운 동기부여를 제공해 줍니다.",
     },
   ];
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const accessToken = searchParams.get("accessToken");
+    const refreshToken = searchParams.get("refreshToken");
+    if (accessToken && refreshToken) {
+      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("refreshToken", refreshToken);
+    }
+  }, []);
 
   return (
     <Container>
