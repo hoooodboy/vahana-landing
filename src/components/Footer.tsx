@@ -21,6 +21,7 @@ const Footer = () => {
 };
 
 const FooterContainer = styled.div`
+  width: 100%;
   padding: 16px 32px;
   display: flex;
   flex-direction: column;

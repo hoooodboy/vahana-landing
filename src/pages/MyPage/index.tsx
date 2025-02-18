@@ -8,6 +8,7 @@ import IcProfile from "@/src/assets/ic-profile.svg";
 import IcWallet from "@/src/assets/ic-wallet.svg";
 import IcChevronRight from "@/src/assets/ic-chevron-right.svg";
 import { Link } from "react-router-dom";
+import LocalStorage from "@/src/local-storage";
 
 const MyPage = () => {
   const LINKS = [
@@ -47,7 +48,10 @@ const MyPage = () => {
     },
   ];
 
-  const logout = () => {};
+  const logout = () => {
+    localStorage.clear();
+    location.reload();
+  };
 
   return (
     <Container>

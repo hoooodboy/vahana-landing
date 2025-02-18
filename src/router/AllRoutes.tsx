@@ -28,7 +28,7 @@ function AllRoutes() {
         },
         {
           path: "/my",
-          element: <Pages.MyPage />,
+          element: <Pages.LoginPage />,
         },
         {
           path: "/join",
@@ -89,6 +89,10 @@ function AllRoutes() {
         {
           path: "/admin/user",
           element: <Pages.AdminHomePage />,
+        },
+        {
+          path: "/reservation",
+          element: <Pages.ReservationPage />,
         },
         {
           path: "/*",

@@ -49,10 +49,6 @@ const AdminHomePage = () => {
     setActiveNav(item);
   };
 
-  const { data: users } = useGetApiAdminUsers();
-
-  console.log("users", users);
-
   return (
     <Container>
       <SideBarContainer>

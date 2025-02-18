@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import IcChevronRight from "@/src/assets/ic-chevron-right.svg";
 import IcChevronLeft from "@/src/assets/ic-chevron-right.svg";
 import styled from "styled-components";
@@ -9,6 +9,8 @@ import alphard1 from "@/src/assets/alphard-1.jpg";
 import Footer from "@/src/components/Footer";
 import Header from "@/src/components/Header";
 import { useGetApiCars, useGetApiCarsId } from "@/src/api/endpoints/cars/cars";
+import { imgView } from "@/src/utils/upload";
+import { useNavigate } from "react-router-dom";
 
 interface CarOption {
   name: string;
@@ -19,12 +21,15 @@ interface CarOption {
 
 const CalendarPage: React.FC = () => {
   const today = new Date();
-  const [currentMonth, setCurrentMonth] = useState(today);
-  const [selectedDate, setSelectedDate] = useState<Date>(today);
-  const [monthDates, setMonthDates] = useState<Date[]>([]);
+  const navigate = useNavigate();
 
   const { data: cars } = useGetApiCars();
   const { data: detailCars } = useGetApiCarsId("1");
+
+  const [currentMonth, setCurrentMonth] = useState(today);
+  const [selectedDate, setSelectedDate] = useState<Date>(today);
+  const [monthDates, setMonthDates] = useState<Date[]>([]);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   console.log("cars", cars);
   console.log("detailCars", detailCars);
@@ -54,7 +59,11 @@ const CalendarPage: React.FC = () => {
     const dates: Date[] = [];
     const startDate = new Date(baseDate);
 
-    for (let i = 0; i < 30; i++) {
+    // 현재 날짜를 기준으로 15일 전부터 시작
+    startDate.setDate(startDate.getDate() - 15);
+
+    // 총 45일 생성 (이전 15일 + 현재 + 이후 29일)
+    for (let i = 0; i < 45; i++) {
       const date = new Date(startDate);
       date.setDate(startDate.getDate() + i);
       dates.push(date);
@@ -62,9 +71,18 @@ const CalendarPage: React.FC = () => {
     return dates;
   };
 
-  // 초기 날짜 생성
+  // 초기 날짜 생성 및 스크롤 위치 설정
   useEffect(() => {
     setMonthDates(generateDates(today));
+
+    // 스크롤 위치 설정 (현재 날짜가 왼쪽에 오도록)
+    setTimeout(() => {
+      if (scrollContainerRef.current) {
+        const dayWidth = 56; // DayColumn의 flex-basis 값
+        const scrollPosition = 15 * dayWidth; // 15일치 스크롤
+        scrollContainerRef.current.scrollLeft = scrollPosition;
+      }
+    }, 100);
   }, []);
 
   // 월 변경 시 날짜 업데이트
@@ -112,6 +130,22 @@ const CalendarPage: React.FC = () => {
     return `${year}-${month}-${day}(${weekDay})`;
   };
 
+  const handleCarSelect = (car) => {
+    if (car.status === "AVAILABLE") {
+      navigate("/reservation", {
+        state: {
+          selectedCar: {
+            id: car.id,
+            name: car.name,
+            seatCapacity: car.seat_capacity,
+            maxSeats: car.seats,
+            image: car.image,
+          },
+        },
+      });
+    }
+  };
+
   return (
     <Container>
       <Header />
@@ -138,7 +172,7 @@ const CalendarPage: React.FC = () => {
             </NavButton>
           </CalendarHeader>
 
-          <ScrollContainer>
+          <ScrollContainer ref={scrollContainerRef}>
             <DaysContainer>
               {monthDates.map((date) => (
                 <DayColumn key={date.toISOString()}>
@@ -158,15 +192,18 @@ const CalendarPage: React.FC = () => {
           <DateBlock>{formatDate(selectedDate)}</DateBlock>
 
           <CarList>
-            {carOptions.map((car, index) => (
-              <CarItem key={index}>
-                <CarImage src={car.image} alt={car.name} />
+            {cars?.result?.map((car, index) => (
+              <CarItem key={index} onClick={() => handleCarSelect(car)}>
+                <CarImage src={imgView(car.image)} alt={car.name} />
                 <CarInfo>
                   <CarTitle>{car.name}</CarTitle>
-                  <CarSeats>{car.seats}</CarSeats>
+                  <CarSeats>
+                    {car.seat_capacity} Seats &#40;최대 {car.seats || 0}
+                    인&#41;
+                  </CarSeats>
                 </CarInfo>
-                <Button $disabled={!car.available}>
-                  {car.available ? "1 Ticket" : "마감"}
+                <Button $disabled={car.status !== "AVAILABLE"}>
+                  {car.status === "AVAILABLE" ? "1 Ticket" : "마감"}
                 </Button>
               </CarItem>
             ))}
@@ -318,7 +355,7 @@ const CarItem = styled.div`
 `;
 
 const CarImage = styled.img`
-  width: 96px;
+  width: 92px;
   height: 64px;
   object-fit: cover;
   border-radius: 4px;
