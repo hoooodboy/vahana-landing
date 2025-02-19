@@ -1,30 +1,25 @@
 import styled from "styled-components";
 
 import MainBanner1 from "@/src/assets/main-banner-1.png";
-import MainBanner2 from "@/src/assets/main-banner-2.png";
-import MainBanner3 from "@/src/assets/main-banner-3.png";
-import MainBanner4 from "@/src/assets/main-banner-4.png";
 
 import VideoThumbImg from "@/src/assets/video-thumb.png";
 
 import CompanyImg from "@/src/assets/img-company-2.png";
-import LmImg from "@/src/assets/img-lm500h.png";
-import ServiceImg from "@/src/assets/img-service.png";
-import Hc1Img from "@/src/assets/main-hc-1.png";
-import Hc2Img from "@/src/assets/main-hc-2.png";
 import Customer1Img from "@/src/assets/img-customer-1.png";
 import Customer2Img from "@/src/assets/img-customer-2.png";
 import Customer3Img from "@/src/assets/img-customer-3.png";
 import Customer4Img from "@/src/assets/img-customer-4.png";
 import Customer5Img from "@/src/assets/img-customer-5.png";
+import LmImg from "@/src/assets/img-lm500h.png";
+import ServiceImg from "@/src/assets/img-service.png";
+import Hc1Img from "@/src/assets/main-hc-1.png";
+import Hc2Img from "@/src/assets/main-hc-2.png";
 
 import { CarouselProvider, Dot, Slide, Slider } from "pure-react-carousel";
 import "pure-react-carousel/dist/react-carousel.es.css";
 import "./styles/style.css";
 
-import Footer from "@/src/components/Footer";
 import Header from "@/src/components/Header";
-import { useEffect } from "react";
 import ScrollContainer from "react-indiana-drag-scroll";
 import { Link } from "react-router-dom";
 
@@ -33,8 +28,7 @@ const HomePage = () => {
     {
       img: MainBanner1,
       title: "당신만을 위한 품격 있는\n이동 서비스.",
-      contents:
-        "고급스러움, 역동성, 맞춤형.\n바하나는 도로 위의 시간을 특별한 순간으로 만듭니다.",
+      contents: "고급스러움, 역동성, 맞춤형.\n바하나는 도로 위의 시간을 특별한 순간으로 만듭니다.",
     },
     // {
     //   img: MainBanner2,
@@ -63,8 +57,7 @@ const HomePage = () => {
     {
       img: Hc2Img,
       author: "황희찬",
-      contents:
-        "인터뷰라서 하는 말이 아니라, 가족들이 의전 서비스를 정말 많이 만족하고 있고 저도 그런 모습을 보면서 안정감을 느껴요.",
+      contents: "인터뷰라서 하는 말이 아니라, 가족들이 의전 서비스를 정말 많이 만족하고 있고 저도 그런 모습을 보면서 안정감을 느껴요.",
     },
   ];
 
@@ -90,16 +83,6 @@ const HomePage = () => {
       author: "트럼프 주니어",
     },
   ];
-
-  useEffect(() => {
-    const searchParams = new URLSearchParams(window.location.search);
-    const accessToken = searchParams.get("accessToken");
-    const refreshToken = searchParams.get("refreshToken");
-    if (accessToken && refreshToken) {
-      localStorage.setItem("accessToken", accessToken);
-      localStorage.setItem("refreshToken", refreshToken);
-    }
-  }, []);
 
   return (
     <Container>

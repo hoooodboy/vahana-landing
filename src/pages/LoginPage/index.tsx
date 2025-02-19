@@ -1,11 +1,7 @@
-import {
-  PostApiAuthLoginMutationResult,
-  usePostApiAuthLogin,
-} from "@/src/api/endpoints/auth/auth";
+import { PostApiAuthLoginMutationResult, usePostApiAuthLogin } from "@/src/api/endpoints/auth/auth";
 import IcKakao from "@/src/assets/ic-kakao.png";
-import Footer from "@/src/components/Footer";
 import Header from "@/src/components/Header";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import styled from "styled-components";
@@ -61,6 +57,17 @@ const LoginPage = () => {
     window.location.href = "/api/auth/kakao";
   };
 
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const accessToken = searchParams.get("accessToken");
+    const refreshToken = searchParams.get("refreshToken");
+    if (accessToken && refreshToken) {
+      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("refreshToken", refreshToken);
+      navigate("/");
+    }
+  }, []);
+
   return (
     <Container>
       <Header />
@@ -76,24 +83,12 @@ const LoginPage = () => {
       <Form onSubmit={handleSubmit}>
         <InputGroup>
           <Label>아이디</Label>
-          <Input
-            type="text"
-            name="id"
-            value={formData.id}
-            onChange={handleChange}
-            placeholder="아이디를 입력해주세요."
-          />
+          <Input type="text" name="id" value={formData.id} onChange={handleChange} placeholder="아이디를 입력해주세요." />
         </InputGroup>
 
         <InputGroup>
           <Label>비밀번호</Label>
-          <Input
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            placeholder="비밀번호를 입력해주세요."
-          />
+          <Input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="비밀번호를 입력해주세요." />
         </InputGroup>
       </Form>
 
