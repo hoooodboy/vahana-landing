@@ -16,4 +16,6 @@ export type AvailableCarResponseDto = {
   seats: number;
   /** 차량 좌석 용량 */
   seat_capacity: number;
+  /** 예약 가능한 상태 */
+  is_available: boolean;
 };

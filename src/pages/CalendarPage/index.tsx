@@ -13,6 +13,7 @@ import { imgView } from "@/src/utils/upload";
 import { useNavigate } from "react-router-dom";
 import tokens from "@/src/tokens";
 import { toast } from "react-toastify";
+import { useGetApiReservationsAvailable } from "@/src/api/endpoints/reservations/reservations";
 
 interface CarOption {
   name: string;
@@ -25,9 +26,6 @@ const CalendarPage: React.FC = () => {
   const today = new Date();
   const navigate = useNavigate();
 
-  const { data: cars } = useGetApiCars();
-  const { data: detailCars } = useGetApiCarsId("1");
-
   const [currentMonth, setCurrentMonth] = useState(today);
   const [selectedDate, setSelectedDate] = useState<Date>(today);
   const [monthDates, setMonthDates] = useState<Date[]>([]);
@@ -36,29 +34,22 @@ const CalendarPage: React.FC = () => {
   const { accessToken } = tokens;
   const isLoggedIn = !!accessToken;
 
+  const { data: cars } = useGetApiReservationsAvailable(
+    {
+      year: selectedDate.getFullYear(),
+      month: selectedDate.getMonth() + 1,
+      day: selectedDate.getDate(),
+    },
+    {
+      query: {
+        enabled: !!selectedDate,
+      },
+    }
+  );
+  const { data: detailCars } = useGetApiCarsId("1");
+
   console.log("cars", cars);
   console.log("detailCars", detailCars);
-
-  const carOptions: CarOption[] = [
-    {
-      name: "LM 500h ROYAL",
-      seats: "2 Seats",
-      image: royal1,
-      available: false,
-    },
-    {
-      name: "LM 500h EXECUTIVE",
-      seats: "2 Seats (최대 4인)",
-      image: executive1,
-      available: true,
-    },
-    {
-      name: "ALPHARD",
-      seats: "2 Seats (최대 4인)",
-      image: alphard1,
-      available: true,
-    },
-  ];
 
   const generateDates = (baseDate: Date) => {
     const dates: Date[] = [];
@@ -136,7 +127,7 @@ const CalendarPage: React.FC = () => {
   };
 
   const handleCarSelect = (car) => {
-    if (car.status === "AVAILABLE") {
+    if (car.is_available) {
       navigate("/reservation/first", {
         state: {
           selectedCar: {
@@ -215,8 +206,8 @@ const CalendarPage: React.FC = () => {
                     인&#41;
                   </CarSeats>
                 </CarInfo>
-                <Button $disabled={car.status !== "AVAILABLE"}>
-                  {car.status === "AVAILABLE" ? "1 Ticket" : "마감"}
+                <Button $disabled={!car.is_available}>
+                  {car.is_available ? "1 Ticket" : "마감"}
                 </Button>
               </CarItem>
             ))}

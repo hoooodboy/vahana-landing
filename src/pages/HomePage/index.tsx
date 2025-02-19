@@ -28,7 +28,8 @@ const HomePage = () => {
     {
       img: MainBanner1,
       title: "당신만을 위한 품격 있는\n이동 서비스.",
-      contents: "고급스러움, 역동성, 맞춤형.\n바하나는 도로 위의 시간을 특별한 순간으로 만듭니다.",
+      contents:
+        "고급스러움, 역동성, 맞춤형.\n바하나는 도로 위의 시간을 특별한 순간으로 만듭니다.",
     },
     // {
     //   img: MainBanner2,
@@ -57,7 +58,8 @@ const HomePage = () => {
     {
       img: Hc2Img,
       author: "황희찬",
-      contents: "인터뷰라서 하는 말이 아니라, 가족들이 의전 서비스를 정말 많이 만족하고 있고 저도 그런 모습을 보면서 안정감을 느껴요.",
+      contents:
+        "인터뷰라서 하는 말이 아니라, 가족들이 의전 서비스를 정말 많이 만족하고 있고 저도 그런 모습을 보면서 안정감을 느껴요.",
     },
   ];
 
@@ -170,7 +172,7 @@ const HomePage = () => {
           </Title>
           VAHANA Ambassador
         </TitleConteiner>
-        <ScrollContainer>
+        <StyledScrollContainer>
           <FilterWrapper>
             {AmbassadorData?.map((data, i) => (
               <AmbassadorCard key={i}>
@@ -184,7 +186,7 @@ const HomePage = () => {
               </AmbassadorCard>
             ))}
           </FilterWrapper>
-        </ScrollContainer>
+        </StyledScrollContainer>
 
         <VideoContainer>
           <VideoBlock onClick={() => window.open("https://www.youtube.com/")}>
@@ -202,7 +204,7 @@ const HomePage = () => {
           </Title>
           VAHANA Customer
         </TitleConteiner>
-        <ScrollContainer>
+        <StyledScrollContainer>
           <FilterWrapper>
             {CustomerData?.map((data, i) => (
               <AmbassadorCard2 key={i}>
@@ -214,7 +216,7 @@ const HomePage = () => {
               </AmbassadorCard2>
             ))}
           </FilterWrapper>
-        </ScrollContainer>
+        </StyledScrollContainer>
       </FourthSection>
 
       <ThirdSection>
@@ -454,10 +456,9 @@ const FourthSection = styled.section`
 `;
 
 const FilterWrapper = styled.div`
-  width: 100%;
   display: flex;
   gap: 16px;
-  padding: 42px 16px;
+  padding: 42px 0;
 `;
 
 const AmbassadorCard = styled.div`
@@ -471,11 +472,12 @@ const AmbassadorCard = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  filter: drop-shadow(0px 0px 4px rgba(0, 0, 0, 0.25));
+  box-shadow: 0px 0px 4px 2px rgba(0, 0, 0, 0.1);
 `;
 
 const AmbassadorCard2 = styled(AmbassadorCard)`
   background: transparent;
+  box-shadow: none;
 `;
 
 const AmbassadorImg = styled.div`
@@ -497,12 +499,14 @@ const AmbassadorImg2 = styled.div`
   /* min-height: 220px; */
   overflow: hidden;
   border-radius: 16px;
+  box-shadow: 0px 0px 4px 2px rgba(0, 0, 0, 0.1);
   & > img {
     width: 100%;
     height: 100%;
     position: absolute;
     top: 0;
     left: 0;
+    box-shadow: 0px 0px 4px 2px rgba(0, 0, 0, 0.1);
   }
 `;
 
@@ -597,6 +601,8 @@ const MenuContents = styled.div`
   margin: 12px 0 20px 0;
 `;
 
-const MenuButton = styled(Link)``;
+const StyledScrollContainer = styled(ScrollContainer)`
+  padding: 0 16px;
+`;
 
 export default HomePage;
