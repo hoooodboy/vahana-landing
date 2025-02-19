@@ -171,8 +171,8 @@ const ReservationFirstStep: React.FC<FirstStepProps> = ({
             type="text"
             name="phone"
             value={formData.phone}
-            onChange={handleChange}
-            // onChange={handlePhoneChange}
+            // onChange={handleChange}
+            onChange={handlePhoneChange}
             maxLength={13} // 하이픈 포함 최대 길이 (02-xxxx-xxxx 또는 010-xxxx-xxxx)
             placeholder="전화번호를 입력해주세요."
           />
