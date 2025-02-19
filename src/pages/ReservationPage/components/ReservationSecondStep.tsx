@@ -4,6 +4,7 @@ import styled from "styled-components";
 import tokens from "@/src/tokens";
 import { usePostApiUsersIdReservations } from "@/src/api/endpoints/users/users";
 import { CreateReservationDto } from "@/src/api/model";
+import { toast } from "react-toastify";
 
 interface FirstStepProps {
   formData: CreateReservationDto;
@@ -25,7 +26,7 @@ const ReservationSecondStep: React.FC<FirstStepProps> = ({
         navigate("/reservation/third");
       },
       onError: (error) => {
-        console.error("예약 실패:", error);
+        toast("예약 실패");
       },
     },
   });

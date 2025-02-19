@@ -7,6 +7,7 @@ import Footer from "@/src/components/Footer";
 import Header from "@/src/components/Header";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import styled from "styled-components";
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -33,7 +34,7 @@ const LoginPage = () => {
         return;
       },
       onError: (error) => {
-        // toast("로그인 실패");
+        toast("아이디 / 비밀번호를 확인해주세요.");
       },
     },
   });
@@ -124,6 +125,7 @@ const Container = styled.div`
   position: relative;
   padding-top: 56px;
   min-height: 100vh;
+  padding-bottom: 215px;
 `;
 
 const TitleContainer = styled.div`
@@ -190,7 +192,7 @@ const SubmitButton = styled.button`
 `;
 
 const Devider = styled.div`
-  height: 150px;
+  height: 152px;
 `;
 
 const ButtonWrapper = styled.div`

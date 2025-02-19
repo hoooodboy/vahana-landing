@@ -44,7 +44,7 @@ const toastOptions: ToastOptions = {
 // }
 
 export default function Toast() {
-  return createPortal(
+  return (
     <Container
       position="top-center"
       autoClose={2500}
@@ -55,8 +55,7 @@ export default function Toast() {
       pauseOnFocusLoss={true}
       closeButton={false}
       limit={1}
-    />,
-    document.body
+    />
   );
 }
 

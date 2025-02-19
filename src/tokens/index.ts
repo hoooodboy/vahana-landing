@@ -68,7 +68,7 @@ const setAccessToken = async function setAccessToken(token: string | null) {
 
       if (parsedJwt) {
         const userInfo = {
-          id: parsedJwt.user_id,
+          id: parsedJwt.sub,
           name: parsedJwt.name,
           phone: parsedJwt.phone,
           role: parsedJwt.role,

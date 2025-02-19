@@ -98,7 +98,8 @@ const PricingPage = () => {
 
   const renderValue = (value: string | boolean) => {
     if (typeof value === "boolean") {
-      return value ? <CheckIcon>✓</CheckIcon> : <XIcon>×</XIcon>;
+      return value ? "O" : "X";
+      // return value ? <CheckIcon>✓</CheckIcon> : <XIcon>×</XIcon>;
     }
     return value;
   };

@@ -11,6 +11,8 @@ import Header from "@/src/components/Header";
 import { useGetApiCars, useGetApiCarsId } from "@/src/api/endpoints/cars/cars";
 import { imgView } from "@/src/utils/upload";
 import { useNavigate } from "react-router-dom";
+import tokens from "@/src/tokens";
+import { toast } from "react-toastify";
 
 interface CarOption {
   name: string;
@@ -30,6 +32,9 @@ const CalendarPage: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(today);
   const [monthDates, setMonthDates] = useState<Date[]>([]);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  const { accessToken } = tokens;
+  const isLoggedIn = !!accessToken;
 
   console.log("cars", cars);
   console.log("detailCars", detailCars);
@@ -194,7 +199,14 @@ const CalendarPage: React.FC = () => {
 
           <CarList>
             {cars?.result?.map((car, index) => (
-              <CarItem key={index} onClick={() => handleCarSelect(car)}>
+              <CarItem
+                key={index}
+                onClick={() =>
+                  isLoggedIn
+                    ? handleCarSelect(car)
+                    : toast("로그인 후 이용할 수 있습니다.")
+                }
+              >
                 <CarImage src={imgView(car.image)} alt={car.name} />
                 <CarInfo>
                   <CarTitle>{car.name}</CarTitle>

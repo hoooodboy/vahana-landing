@@ -5,10 +5,12 @@ import BaseLayout from "./layouts/BaseLayout";
 
 import LocalStorage from "../local-storage";
 import PCLayout from "./layouts/PCLayout";
+import tokens from "../tokens";
 
 function AllRoutes() {
   // const { isLoggedIn } = useAppSelector((st) => st.auth.session);
-  const isLoggedIn = LocalStorage.get("accessToken");
+  const { accessToken } = tokens;
+  const isLoggedIn = !!accessToken;
   const path = window.location.pathname;
   const loginRoutes: RouteObject[] = [
     {
@@ -31,7 +33,7 @@ function AllRoutes() {
           element: <Pages.LoginPage />,
         },
         {
-          path: "/join",
+          path: "/signup",
           element: <Pages.JoinPage />,
         },
         {
@@ -118,7 +120,7 @@ function AllRoutes() {
     },
   ];
 
-  return useRoutes(!!isLoggedIn ? Routes : loginRoutes);
+  return useRoutes(isLoggedIn ? Routes : loginRoutes);
 }
 
 export default AllRoutes;
