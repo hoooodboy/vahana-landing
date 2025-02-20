@@ -8,4 +8,5 @@ export { default as CalendarPage } from "./CalendarPage";
 export { default as ReservationPage } from "./ReservationPage";
 export { default as TermsPage } from "./TermsPage";
 export { default as PrivacyPage } from "./PrivacyPage";
+export { default as ScheduleOperationPage } from "./ScheduleOperationPage";
 export * from "./Admin";

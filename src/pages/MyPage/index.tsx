@@ -7,11 +7,34 @@ import IcBook from "@/src/assets/ic-book.svg";
 import IcProfile from "@/src/assets/ic-profile.svg";
 import IcWallet from "@/src/assets/ic-wallet.svg";
 import IcChevronRight from "@/src/assets/ic-chevron-right.svg";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import LocalStorage from "@/src/local-storage";
+import tokens from "@/src/tokens";
+import { useGetApiUsersIdReservationsLatest } from "@/src/api/endpoints/users/users";
 
 const MyPage = () => {
   const LINKS = [
+    {
+      title: "서비스",
+      contents: [
+        {
+          title: "쿠폰 발행",
+          link: "",
+        },
+        {
+          title: "신원 인증",
+          link: "",
+        },
+        // {
+        //   title: "로그아웃",
+        //   link: "/logout",
+        // },
+        // {
+        //   title: "회원탈퇴",
+        //   link: "/currency",
+        // },
+      ],
+    },
     {
       title: "고객센터",
       contents: [
@@ -48,6 +71,33 @@ const MyPage = () => {
     },
   ];
 
+  const navigate = useNavigate();
+  const { userInfo } = tokens;
+
+  const { data: latestReservation } = useGetApiUsersIdReservationsLatest(
+    userInfo.id,
+    {
+      query: {
+        enabled: !!userInfo?.id,
+      },
+    }
+  );
+
+  // latestReservation.result를 통해 데이터 접근
+  const reservationData = latestReservation?.result;
+
+  const formatPickupTime = (pickupTime: string) => {
+    if (!pickupTime) return "-";
+
+    const date = new Date(pickupTime);
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const hours = date.getHours().toString().padStart(2, "0");
+    const minutes = date.getMinutes().toString().padStart(2, "0");
+
+    return `${month}/${day} ${hours}:${minutes}`;
+  };
+
   const logout = () => {
     localStorage.clear();
     location.reload();
@@ -78,17 +128,21 @@ const MyPage = () => {
           회원정보{" "}
         </QuickMenuBlock>
       </QuickMenuWrapper>
-      <HorizontalContainer>
-        <SectionTitle>운행 예약</SectionTitle>
-        <OperationBlock>
-          <OperationInfo>
-            <OperationTime>3/13 14:28</OperationTime>
-            <Destination>서울시 구로구 경인로53길 90 </Destination>
-            <CarInfo>LM 500h EXECUTIVE</CarInfo>
-          </OperationInfo>
-          <img src={IcChevronRight} />
-        </OperationBlock>
-      </HorizontalContainer>
+      {reservationData && (
+        <HorizontalContainer onClick={() => navigate("/schedule-operation")}>
+          <SectionTitle>운행 예약</SectionTitle>
+          <OperationBlock>
+            <OperationInfo>
+              <OperationTime>
+                {formatPickupTime(reservationData?.pickup_time)}
+              </OperationTime>
+              <Destination>{reservationData?.pickup_location}</Destination>
+              <CarInfo>{reservationData?.car_name}</CarInfo>
+            </OperationInfo>
+            <img src={IcChevronRight} />
+          </OperationBlock>
+        </HorizontalContainer>
+      )}
 
       <LinksContainer>
         {LINKS.map((links) => (
@@ -221,7 +275,7 @@ const LinksContainer = styled.div`
   flex: 1 !important;
   flex-direction: column;
   gap: 28px;
-  margin-top: 32px;
+  /* margin-top: 32px; */
   padding: 24px 0;
   background: #fff;
   padding-bottom: 152px;
