@@ -71,7 +71,11 @@ const ReservationThirdStep: React.FC<ThirdStepProps> = ({ formData }) => {
         </InfoItem>
         <InfoItem>
           <Label>특이사항</Label>
-          <Value>{formData.special_requests || "-"}</Value>
+          <Value>
+            {((formData.special_requests || "-").length > 10
+              ? formData.special_requests.slice(0, 10) + "..."
+              : formData.special_requests) || "-"}
+          </Value>
         </InfoItem>
       </ReservationDetails>
 
