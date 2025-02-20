@@ -2,10 +2,6 @@ import React, { useState, useEffect, useRef } from "react";
 import IcChevronRight from "@/src/assets/ic-chevron-right.svg";
 import IcChevronLeft from "@/src/assets/ic-chevron-right.svg";
 import styled from "styled-components";
-
-import royal1 from "@/src/assets/royal-1.jpg";
-import executive1 from "@/src/assets/executive-1.jpg";
-import alphard1 from "@/src/assets/alphard-1.jpg";
 import Footer from "@/src/components/Footer";
 import Header from "@/src/components/Header";
 import { useGetApiCars, useGetApiCarsId } from "@/src/api/endpoints/cars/cars";
@@ -24,12 +20,22 @@ interface CarOption {
 
 const CalendarPage: React.FC = () => {
   const today = new Date();
+  today.setHours(0, 0, 0, 0);
   const navigate = useNavigate();
 
-  const [currentMonth, setCurrentMonth] = useState(today);
+  // 캘린더 표시를 위한 상태
+  const [displayMonth, setDisplayMonth] = useState(today);
+  const [displayDates, setDisplayDates] = useState<Date[]>([]);
+
+  // 실제 선택된 날짜 상태
   const [selectedDate, setSelectedDate] = useState<Date>(today);
-  const [monthDates, setMonthDates] = useState<Date[]>([]);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  const ScrollContainer2Ref = useRef<HTMLDivElement>(null);
+
+  // 드래그 스크롤을 위한 상태
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
 
   const { accessToken } = tokens;
   const isLoggedIn = !!accessToken;
@@ -46,20 +52,13 @@ const CalendarPage: React.FC = () => {
       },
     }
   );
-  const { data: detailCars } = useGetApiCarsId("1");
-
-  console.log("cars", cars);
-  console.log("detailCars", detailCars);
 
   const generateDates = (baseDate: Date) => {
     const dates: Date[] = [];
     const startDate = new Date(baseDate);
+    startDate.setDate(startDate.getDate());
 
-    // 현재 날짜를 기준으로 15일 전부터 시작
-    startDate.setDate(startDate.getDate() - 15);
-
-    // 총 45일 생성 (이전 15일 + 현재 + 이후 29일)
-    for (let i = 0; i < 45; i++) {
+    for (let i = 0; i < 31; i++) {
       const date = new Date(startDate);
       date.setDate(startDate.getDate() + i);
       dates.push(date);
@@ -67,51 +66,84 @@ const CalendarPage: React.FC = () => {
     return dates;
   };
 
-  // 초기 날짜 생성 및 스크롤 위치 설정
+  // 초기 날짜 및 월 변경시 날짜 생성
   useEffect(() => {
-    setMonthDates(generateDates(today));
+    setDisplayDates(generateDates(displayMonth));
+  }, [displayMonth]);
 
-    // 스크롤 위치 설정 (현재 날짜가 왼쪽에 오도록)
-    setTimeout(() => {
-      if (scrollContainerRef.current) {
-        const dayWidth = 56; // DayColumn의 flex-basis 값
-        const scrollPosition = 15 * dayWidth; // 15일치 스크롤
-        scrollContainerRef.current.scrollLeft = scrollPosition;
-      }
-    }, 100);
-  }, []);
+  // 드래그 스크롤 핸들러
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    if (ScrollContainer2Ref.current) {
+      setStartX(e.pageX - ScrollContainer2Ref.current.offsetLeft);
+      setScrollLeft(ScrollContainer2Ref.current.scrollLeft);
+    }
+  };
 
-  // 월 변경 시 날짜 업데이트
-  useEffect(() => {
-    setMonthDates(generateDates(currentMonth));
-  }, [currentMonth]);
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
 
-  useEffect(() => {
-    setCurrentMonth(selectedDate);
-  }, [selectedDate]);
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+    e.preventDefault();
+
+    if (ScrollContainer2Ref.current) {
+      const x = e.pageX - ScrollContainer2Ref.current.offsetLeft;
+      const walk = (x - startX) * 2;
+      ScrollContainer2Ref.current.scrollLeft = scrollLeft - walk;
+    }
+  };
 
   const handleDateClick = (date: Date) => {
-    setSelectedDate(date);
+    if (date.getTime() >= today.getTime()) {
+      setSelectedDate(date);
+
+      // 선택된 날짜가 현재 표시 월의 범위를 벗어나면 표시 월 업데이트
+      if (date.getMonth() !== displayMonth.getMonth()) {
+        const newDisplayDate = new Date(date);
+        newDisplayDate.setDate(1);
+        setDisplayMonth(newDisplayDate);
+
+        // 스크롤 초기화
+        if (ScrollContainer2Ref.current) {
+          ScrollContainer2Ref.current.scrollLeft = 0;
+        }
+      }
+    }
   };
 
   const handlePrevMonth = () => {
     const newDate = new Date(
-      currentMonth.getFullYear(),
-      currentMonth.getMonth() - 1,
+      displayMonth.getFullYear(),
+      displayMonth.getMonth() - 1,
       1
     );
-    setCurrentMonth(newDate);
-    setSelectedDate(newDate);
+    if (
+      newDate.getMonth() >= today.getMonth() &&
+      newDate.getFullYear() >= today.getFullYear()
+    ) {
+      setDisplayMonth(newDate);
+
+      // 스크롤 초기화
+      if (ScrollContainer2Ref.current) {
+        ScrollContainer2Ref.current.scrollLeft = 0;
+      }
+    }
   };
 
   const handleNextMonth = () => {
     const newDate = new Date(
-      currentMonth.getFullYear(),
-      currentMonth.getMonth() + 1,
+      displayMonth.getFullYear(),
+      displayMonth.getMonth() + 1,
       1
     );
-    setCurrentMonth(newDate);
-    setSelectedDate(newDate);
+    setDisplayMonth(newDate);
+
+    // 스크롤 초기화
+    if (ScrollContainer2Ref.current) {
+      ScrollContainer2Ref.current.scrollLeft = 0;
+    }
   };
 
   const weekDays = ["일", "월", "화", "수", "목", "금", "토"];
@@ -120,7 +152,6 @@ const CalendarPage: React.FC = () => {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const day = String(date.getDate()).padStart(2, "0");
-    const weekDays = ["일", "월", "화", "수", "목", "금", "토"];
     const weekDay = weekDays[date.getDay()];
 
     return `${year}-${month}-${day}(${weekDay})`;
@@ -143,6 +174,10 @@ const CalendarPage: React.FC = () => {
     }
   };
 
+  const isDateSelectable = (date: Date): boolean => {
+    return date.getTime() >= today.getTime();
+  };
+
   return (
     <Container>
       <Header />
@@ -157,27 +192,40 @@ const CalendarPage: React.FC = () => {
       <CalendarContainer>
         <CalendarBlock>
           <CalendarHeader>
-            <NavButton onClick={handlePrevMonth}>
+            <NavButton
+              onClick={handlePrevMonth}
+              disabled={
+                displayMonth.getMonth() === today.getMonth() &&
+                displayMonth.getFullYear() === today.getFullYear()
+              }
+            >
               <RotatedImage src={IcChevronLeft} alt="Previous" />
             </NavButton>
             <MonthTitle>
-              {currentMonth.getFullYear()}{" "}
-              {String(currentMonth.getMonth() + 1).padStart(2, "0")}
+              {displayMonth.getFullYear()}{" "}
+              {String(displayMonth.getMonth() + 1).padStart(2, "0")}
             </MonthTitle>
             <NavButton onClick={handleNextMonth}>
               <img src={IcChevronRight} alt="Next" />
             </NavButton>
           </CalendarHeader>
 
-          <ScrollContainer ref={scrollContainerRef}>
+          <ScrollContainer2
+            ref={ScrollContainer2Ref}
+            onMouseDown={handleMouseDown}
+            onMouseUp={handleMouseUp}
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseUp}
+          >
             <DaysContainer>
-              {monthDates.map((date) => (
+              {displayDates.map((date) => (
                 <DayColumn key={date.toISOString()}>
                   <Weekday>{weekDays[date.getDay()]}</Weekday>
                   <DateCircle
                     $isSelected={
                       selectedDate.toDateString() === date.toDateString()
                     }
+                    $isSelectable={isDateSelectable(date)}
                     onClick={() => handleDateClick(date)}
                   >
                     {date.getDate()}
@@ -185,7 +233,8 @@ const CalendarPage: React.FC = () => {
                 </DayColumn>
               ))}
             </DaysContainer>
-          </ScrollContainer>
+          </ScrollContainer2>
+
           <DateBlock>{formatDate(selectedDate)}</DateBlock>
 
           <CarList>
@@ -202,8 +251,7 @@ const CalendarPage: React.FC = () => {
                 <CarInfo>
                   <CarTitle>{car.name}</CarTitle>
                   <CarSeats>
-                    {car.seat_capacity} Seats &#40;최대 {car.seats || 0}
-                    인&#41;
+                    {car.seat_capacity} Seats &#40;최대 {car.seats || 0}인&#41;
                   </CarSeats>
                 </CarInfo>
                 <Button $disabled={!car.is_available}>
@@ -271,14 +319,15 @@ const MonthTitle = styled.h2`
   font-weight: 600;
 `;
 
-const NavButton = styled.button`
+const NavButton = styled.button<{ disabled?: boolean }>`
   padding: 8px;
   background: none;
   border: none;
-  cursor: pointer;
+  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
+  opacity: ${(props) => (props.disabled ? 0.5 : 1)};
 
   &:hover {
-    background: rgba(0, 0, 0, 0.05);
+    background: ${(props) => (props.disabled ? "none" : "rgba(0, 0, 0, 0.05)")};
     border-radius: 4px;
   }
 `;
@@ -287,11 +336,18 @@ const RotatedImage = styled.img`
   transform: rotate(180deg);
 `;
 
-const ScrollContainer = styled.div`
+const ScrollContainer2 = styled.div`
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  cursor: grab;
+  user-select: none;
+
+  &:active {
+    cursor: grabbing;
+  }
+
   &::-webkit-scrollbar {
     display: none;
   }
@@ -312,7 +368,10 @@ const Weekday = styled.div`
   margin-bottom: 4px;
 `;
 
-const DateCircle = styled.div<{ $isSelected?: boolean }>`
+const DateCircle = styled.div<{
+  $isSelected?: boolean;
+  $isSelectable?: boolean;
+}>`
   width: 32px;
   height: 32px;
   margin: 0 auto;
@@ -320,13 +379,21 @@ const DateCircle = styled.div<{ $isSelected?: boolean }>`
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  cursor: pointer;
+  cursor: ${(props) => (props.$isSelectable ? "pointer" : "not-allowed")};
   background-color: ${(props) =>
     props.$isSelected ? "#76865F" : "transparent"};
-  color: ${(props) => (props.$isSelected ? "white" : "inherit")};
+  color: ${(props) => {
+    if (!props.$isSelectable) return "#ccc";
+    return props.$isSelected ? "white" : "inherit";
+  }};
 
   &:hover {
-    background-color: ${(props) => (props.$isSelected ? "#76865F" : "#f3f4f6")};
+    background-color: ${(props) =>
+      !props.$isSelectable
+        ? "transparent"
+        : props.$isSelected
+          ? "#76865F"
+          : "#f3f4f6"};
   }
   transition: 0.2s all ease-in;
 `;
@@ -344,7 +411,6 @@ const DateBlock = styled.div`
 
 const CarList = styled.div`
   margin-top: 32px;
-
   display: flex;
   flex-direction: column;
 `;
