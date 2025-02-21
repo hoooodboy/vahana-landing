@@ -451,7 +451,9 @@ const Td = styled.td`
   border-bottom: 1px solid #e5e5e5;
   color: #333;
   vertical-align: middle;
-  white-space: nowrap;
+  /* white-space: nowrap; */
+  word-break: keep-all;
+
   &:first-child {
     font-weight: 500;
   }
