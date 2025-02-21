@@ -11,6 +11,7 @@ const JoinPage = () => {
   const [searchParams] = useSearchParams();
   const kakaoId = searchParams.get("id");
   const provider = searchParams.get("provider");
+  const referrer = searchParams.get("referrer"); // 추가: referrer 파라미터 받기
 
   const [formData, setFormData] = useState({
     name: "",
@@ -18,9 +19,11 @@ const JoinPage = () => {
     password: "",
     passwordConfirm: "",
     phone: "",
-    referrerCode: "",
+    referrerCode: referrer || "", // 초기값으로 referrer 설정
     provider: provider || "LOCAL",
   });
+
+  console.log("formData", formData);
 
   const [passwordError, setPasswordError] = useState(false);
 
@@ -77,6 +80,47 @@ const JoinPage = () => {
         provider: formData.provider,
       },
     });
+  };
+
+  const formatPhoneNumber = (value: string) => {
+    // 숫자만 추출
+    const phoneNumber = value.replace(/[^\d]/g, "");
+
+    // 02로 시작하는 경우 (서울)
+    if (phoneNumber.startsWith("02")) {
+      if (phoneNumber.length < 3) {
+        return phoneNumber;
+      } else if (phoneNumber.length < 6) {
+        return `${phoneNumber.slice(0, 2)}-${phoneNumber.slice(2)}`;
+      } else if (phoneNumber.length < 10) {
+        return `${phoneNumber.slice(0, 2)}-${phoneNumber.slice(2, 5)}-${phoneNumber.slice(5)}`;
+      } else {
+        return `${phoneNumber.slice(0, 2)}-${phoneNumber.slice(2, 6)}-${phoneNumber.slice(6, 10)}`;
+      }
+    }
+    // 휴대폰 번호인 경우
+    else {
+      if (phoneNumber.length < 4) {
+        return phoneNumber;
+      } else if (phoneNumber.length < 7) {
+        return `${phoneNumber.slice(0, 3)}-${phoneNumber.slice(3)}`;
+      } else if (phoneNumber.length < 11) {
+        return `${phoneNumber.slice(0, 3)}-${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6)}`;
+      } else {
+        return `${phoneNumber.slice(0, 3)}-${phoneNumber.slice(3, 7)}-${phoneNumber.slice(7, 11)}`;
+      }
+    }
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formattedPhone = formatPhoneNumber(e.target.value);
+    const event = {
+      target: {
+        name: "phone",
+        value: formattedPhone,
+      },
+    } as React.ChangeEvent<HTMLInputElement>;
+    handleChange(event);
   };
 
   return (
@@ -153,7 +197,7 @@ const JoinPage = () => {
             type="tel"
             name="phone"
             value={formData.phone}
-            onChange={handleChange}
+            onChange={handlePhoneChange}
             placeholder="전화번호를 입력해주세요."
           />
         </InputGroup>
@@ -166,6 +210,8 @@ const JoinPage = () => {
             value={formData.referrerCode}
             onChange={handleChange}
             placeholder="추천인 코드를 입력해주세요"
+            disabled={!!referrer}
+            style={{ background: referrer ? "#f5f5f5" : "#fff" }}
           />
         </InputGroup>
 
