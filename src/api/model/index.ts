@@ -70,6 +70,7 @@ export * from "./updateCarInventoryDtoStatus";
 export * from "./updateDriverDto";
 export * from "./updateReservationDetailDto";
 export * from "./updateReservationDto";
+export * from "./updateReservationDtoStatus";
 export * from "./updateUserDto";
 export * from "./userResponseDto";
 export * from "./verifyIdentityDto";

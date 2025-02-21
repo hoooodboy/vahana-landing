@@ -4,10 +4,11 @@
  * Vahana API
  * OpenAPI spec version: 1.0.0
  */
+import type { UpdateReservationDtoStatus } from "./updateReservationDtoStatus";
 
 export type UpdateReservationDto = {
   /** 예약 상태 */
-  status: string;
+  status: UpdateReservationDtoStatus;
   /** 운전자 아이디 */
   driver_id: number;
   /** 차량 인벤토리 아이디 */

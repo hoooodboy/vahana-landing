@@ -18,4 +18,6 @@ export type UserResponseDto = {
   ticket_expired_at: string;
   /** 신원 상태 */
   identity_status: string;
+  /** 신원 파일 */
+  identity_file: string;
 };

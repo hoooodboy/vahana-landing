@@ -14,25 +14,24 @@ import IcCheck from "@/src/assets/ic-check.svg";
 import IcCancle from "@/src/assets/ic-cancle.svg";
 import IcPending from "@/src/assets/ic-pending.svg";
 import Modal from "@/src/components/Modal";
+import { imgView } from "@/src/utils/upload";
+import { toast } from "react-toastify";
 
 const IdentifyPage = () => {
   const { userInfo } = tokens;
   const [isInfoOpen, setIsInfoOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [previewUrl, setPreviewUrl] = useState("");
+  const [uploadedImageUrl, setUploadedImageUrl] = useState(""); // New state for storing the uploaded image URL
   const [error, setError] = useState("");
   const { data: userData, refetch } = useGetApiUsersId(userInfo.id);
   const fileInputRef = useRef(null);
+
   const uploadMutation = usePostApiUpload({
     mutation: {
-      onSuccess: () => {
+      onSuccess: (response: any) => {
         setError("");
-        identifyMutation.mutate({
-          id: userInfo.id,
-          data: {
-            identity_file: previewUrl,
-          },
-        });
+        setUploadedImageUrl(response.result); // Store the returned URL
       },
       onError: () => {
         setError("이미지 업로드에 실패했습니다.");
@@ -44,7 +43,8 @@ const IdentifyPage = () => {
     mutation: {
       onSuccess: () => {
         setError("");
-        // Handle successful identification
+        refetch(); // Refresh user data after successful identification
+        toast("심사 신청이 완료되었습니다.");
       },
       onError: () => {
         setError("신원 인증에 실패했습니다.");
@@ -56,7 +56,6 @@ const IdentifyPage = () => {
     const file = event.target.files[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        // 5MB limit
         setError("파일 크기는 5MB 이하여야 합니다.");
         return;
       }
@@ -67,18 +66,26 @@ const IdentifyPage = () => {
         setPreviewUrl(reader.result as string);
       };
       reader.readAsDataURL(file);
+
+      // Upload the image immediately after selection
+      uploadMutation.mutate({
+        data: {
+          image: file,
+        },
+      });
     }
   };
 
-  const handleUpload = () => {
-    if (!selectedImage) {
-      setError("이미지를 선택해주세요.");
+  const handleSubmit = () => {
+    if (!uploadedImageUrl) {
+      setError("이미지를 먼저 업로드해주세요.");
       return;
     }
 
-    uploadMutation.mutate({
+    identifyMutation.mutate({
+      id: userInfo.id,
       data: {
-        image: selectedImage,
+        identity_file: uploadedImageUrl,
       },
     });
   };
@@ -101,7 +108,6 @@ const IdentifyPage = () => {
             {userData?.result?.identity_status === "PENDING" && "인증 필요"}
             {userData?.result?.identity_status === "APPROVED" && "인증 됨"}
             {userData?.result?.identity_status === "REJECTED" && "인증 보류"}
-
             <img src={icInfo} />
           </Remain>
           -
@@ -127,6 +133,11 @@ const IdentifyPage = () => {
         <ImageUploadContainer onClick={() => fileInputRef.current?.click()}>
           {previewUrl ? (
             <PreviewImage src={previewUrl} alt="Selected" />
+          ) : userData?.result?.identity_file ? (
+            <PreviewImage
+              src={imgView(userData?.result?.identity_file)}
+              alt="Selected"
+            />
           ) : (
             <PlaceholderContent></PlaceholderContent>
           )}
@@ -139,12 +150,14 @@ const IdentifyPage = () => {
         </ImageUploadContainer>
 
         <Notice>
-          자신을 가장 잘 표현할 수 있는 서류/사진 한장을 첨부해주세요.
+          자신을 잘 표현할 수 있는 서류/사진 한장을 첨부해주세요.
           <br />
           명함, 재직증명서, 소득금액증명원, 부동산 소유확인서, 실물증 (등)
         </Notice>
 
-        <SubmitButton onClick={handleUpload}>등록하기</SubmitButton>
+        {error && <ErrorMessage>{error}</ErrorMessage>}
+
+        <SubmitButton onClick={handleSubmit}>등록하기</SubmitButton>
       </ContentContainer>
 
       <Modal isOpen={isInfoOpen} setIsOpen={setIsInfoOpen}>
@@ -157,7 +170,6 @@ const IdentifyPage = () => {
             <br />
             인증 방식은 내규에 따름을 알려드립니다.
           </ModalContents>
-
           <InviteButton onClick={() => setIsInfoOpen(false)}>닫기</InviteButton>
         </ModalContent>
       </Modal>
@@ -339,6 +351,20 @@ const ModalContents = styled.div`
   text-align: center;
   font-size: 16px;
   font-weight: 400;
+`;
+
+const ErrorMessage = styled.div`
+  color: #ff0000;
+  font-size: 14px;
+  margin-top: 8px;
+  text-align: center;
+`;
+
+const UploadStatus = styled.div`
+  color: #666;
+  font-size: 14px;
+  margin-top: 8px;
+  text-align: center;
 `;
 
 export default IdentifyPage;
