@@ -275,6 +275,7 @@ const ContentsContainer = styled.div`
   border-radius: 20px;
   background: #fff;
   box-shadow: 0px 0px 15px 4px rgba(0, 0, 0, 0.1);
+  width: 155px;
   min-width: 155px;
   height: 230px;
 `;
