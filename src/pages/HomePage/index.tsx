@@ -66,23 +66,23 @@ const HomePage = () => {
   const CustomerData = [
     {
       img: Customer1Img,
-      author: "홍수아",
+      author: "배우 홍수아",
     },
     {
       img: Customer2Img,
-      author: "김태균",
+      author: "스포츠스타 김태균",
     },
     {
       img: Customer3Img,
-      author: "티에리 앙리",
+      author: "스포츠스타 티에리 앙리",
     },
     {
       img: Customer4Img,
-      author: "호나우두",
+      author: "스포츠스타 호나우두",
     },
     {
       img: Customer5Img,
-      author: "트럼프 주니어",
+      author: "정치인 트럼프 주니어",
     },
   ];
 
@@ -189,8 +189,13 @@ const HomePage = () => {
         </StyledScrollContainer>
 
         <VideoContainer>
-          <VideoBlock onClick={() => window.open("https://www.youtube.com/")}>
-            <VideoThumb src={VideoThumbImg} />
+          <VideoBlock>
+            <VideoIframe
+              src="https://www.youtube.com/embed/7mRPzrI79AA"
+              title="YouTube video player"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
           </VideoBlock>
         </VideoContainer>
       </FourthSection>
@@ -200,7 +205,7 @@ const HomePage = () => {
           <Title>
             바하나와 함께한
             <br />
-            유명인들
+            VVIP
           </Title>
           VAHANA Customer
         </TitleConteiner>
@@ -212,7 +217,7 @@ const HomePage = () => {
                   <img src={data.img} />
                 </AmbassadorImg2>
 
-                <Author2>-{data.author}-</Author2>
+                <Author2>{data.author}</Author2>
               </AmbassadorCard2>
             ))}
           </FilterWrapper>
@@ -553,13 +558,20 @@ const VideoContainer = styled.div`
 
 const VideoBlock = styled.div`
   width: 100%;
-  padding-top: 56%;
+  padding-top: 56.25%;
   position: relative;
   border-radius: 16px;
   overflow: hidden;
-  cursor: pointer;
 `;
 
+const VideoIframe = styled.iframe`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+`;
 const VideoThumb = styled.img`
   width: 100%;
   position: absolute;

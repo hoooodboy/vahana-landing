@@ -121,6 +121,10 @@ function AllRoutes() {
           element: <Pages.CouponPage />,
         },
         {
+          path: "/identify",
+          element: <Pages.IdentifyPage />,
+        },
+        {
           path: "/*",
           element: <Pages.HomePage />,
         },

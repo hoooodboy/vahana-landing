@@ -5,8 +5,16 @@ import styled from "styled-components";
 import TicketPremium from "@/src/assets/ic-ticket-premium.png";
 import TicketMore from "@/src/assets/ic-ticket-more.png";
 
+import CardImg1 from "@/src/assets/price-card-1.png";
+import CardImg2 from "@/src/assets/price-card-2.png";
+import CardImg3 from "@/src/assets/price-card-3.png";
+import CardImg4 from "@/src/assets/price-card-4.png";
+import CardImg5 from "@/src/assets/price-card-5.png";
+import CardImg6 from "@/src/assets/price-card-6.png";
+
 import ScrollContainer from "react-indiana-drag-scroll";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const PricingPage = () => {
   const mainData = [
@@ -16,7 +24,7 @@ const PricingPage = () => {
       price: 1000000,
       priceForOne: 1000000,
       labels: [{ title: "학생할인 적용", bg: "#3E4730" }],
-      icon: TicketPremium,
+      icon: CardImg1,
     },
     {
       title: "6 TICKET",
@@ -24,7 +32,7 @@ const PricingPage = () => {
       price: 5000000,
       priceForOne: 833333,
       labels: [{ title: "학생할인 적용", bg: "#3E4730" }],
-      icon: TicketPremium,
+      icon: CardImg2,
     },
     {
       title: "42 TICKET",
@@ -32,7 +40,7 @@ const PricingPage = () => {
       price: 30000000,
       priceForOne: 714286,
       labels: [{ title: "학생할인 적용", bg: "#3E4730" }],
-      icon: TicketPremium,
+      icon: CardImg3,
     },
     {
       title: "150 TICKET",
@@ -40,26 +48,26 @@ const PricingPage = () => {
       price: 100000000,
       priceForOne: 666667,
       labels: [{ title: "학생할인 적용", bg: "#3E4730" }],
-      icon: TicketPremium,
+      icon: CardImg4,
     },
   ];
 
   const mainData2 = [
     {
-      title: "365 TICKET",
+      title: "BLACK",
       amount: 365,
       price: 300000000,
       priceForOne: 821918,
       labels: [{ title: "학생할인 적용", bg: "#3E4730" }],
-      icon: TicketMore,
+      icon: CardImg5,
     },
     {
-      title: "365 TICKET",
+      title: "VAHANA",
       amount: 365,
       price: 500000000,
       priceForOne: 1369863,
       labels: [{ title: "학생할인 적용", bg: "#3E4730" }],
-      icon: TicketMore,
+      icon: CardImg6,
     },
   ];
 
@@ -118,11 +126,12 @@ const PricingPage = () => {
       <PriceContainer>
         <HorizontalContainer>
           <SectionTitle>PREMIUM</SectionTitle>
-          <ScrollContainer>
+          <StyledScrollContainer>
             <CarSection>
               {mainData.map((data, index) => (
                 <ContentsContainer>
-                  <TicketIconBlock>
+                  <Card src={data.icon} />
+                  {/* <TicketIconBlock>
                     <TicketLabel>{data.amount}</TicketLabel>
                     <TicketIcon src={data.icon} />
                   </TicketIconBlock>
@@ -130,7 +139,7 @@ const PricingPage = () => {
                   <PriceDetailWrapper>
                     <Price>{data.price.toLocaleString()}₩</Price>1티켓당{" "}
                     {data.priceForOne.toLocaleString()}₩
-                  </PriceDetailWrapper>
+                  </PriceDetailWrapper> */}
                   {/* <LabelWrapper>
                     {data.labels.map((label) => (
                       <Label bg={label.bg}>{label.title}</Label>
@@ -139,15 +148,16 @@ const PricingPage = () => {
                 </ContentsContainer>
               ))}
             </CarSection>
-          </ScrollContainer>
+          </StyledScrollContainer>
         </HorizontalContainer>
         <HorizontalContainer>
           <SectionTitle>MORE SERVICE</SectionTitle>
-          <ScrollContainer>
+          <StyledScrollContainer>
             <CarSection>
               {mainData2.map((data, index) => (
                 <ContentsContainer>
-                  <TicketIconBlock>
+                  <Card src={data.icon} />
+                  {/* <TicketIconBlock>
                     <TicketLabel>{data.amount}</TicketLabel>
                     <TicketIcon src={data.icon} />
                   </TicketIconBlock>
@@ -155,7 +165,7 @@ const PricingPage = () => {
                   <PriceDetailWrapper>
                     <Price>{data.price.toLocaleString()}₩</Price>1티켓당{" "}
                     {data.priceForOne.toLocaleString()}₩
-                  </PriceDetailWrapper>
+                  </PriceDetailWrapper> */}
                   {/* <LabelWrapper>
                     {data.labels.map((label) => (
                       <Label bg={label.bg}>{label.title}</Label>
@@ -164,7 +174,7 @@ const PricingPage = () => {
                 </ContentsContainer>
               ))}
             </CarSection>
-          </ScrollContainer>
+          </StyledScrollContainer>
         </HorizontalContainer>
         {/* <HorizontalContainer>
             <SectionTitle>
@@ -175,7 +185,6 @@ const PricingPage = () => {
             </Table>
         </HorizontalContainer> */}
       </PriceContainer>
-      <ReservationButton to="/calendar">예약하기</ReservationButton>
 
       <TableContainer>
         <TableTitle>플랜 비교</TableTitle>
@@ -198,7 +207,9 @@ const PricingPage = () => {
           </tbody>
         </Table>
       </TableContainer>
-
+      <ReservationButton onClick={() => toast("준비중입니다.")}>
+        구매 문의
+      </ReservationButton>
       <NoticeWrapper>
         <Notice>65세이상 실버 고객 인증시 50% 할인 혜택을 제공합니다.</Notice>
         <Notice>
@@ -252,18 +263,25 @@ const SectionTitle = styled.div`
 const CarSection = styled.div`
   display: flex;
   gap: 16px;
-  padding: 12px 16px;
+  padding: 12px 0;
 `;
 
 const ContentsContainer = styled.div`
-  min-width: 290px;
+  /* min-width: 290px;
   display: flex;
   flex-direction: column;
-  /* gap: 32px; */
-  padding: 64px 24px 54px;
+  padding: 64px 24px 54px; */
+
   border-radius: 20px;
   background: #fff;
   box-shadow: 0px 0px 15px 4px rgba(0, 0, 0, 0.1);
+  min-width: 155px;
+  height: 230px;
+`;
+
+const Card = styled.img`
+  width: 100%;
+  height: 100%;
 `;
 
 const TicketAmount = styled.div`
@@ -326,7 +344,7 @@ const PriceContainer = styled.div`
   gap: 82px;
 `;
 
-const ReservationButton = styled(Link)`
+const ReservationButton = styled.div`
   width: 152px;
   height: 48px;
   display: flex;
@@ -340,6 +358,7 @@ const ReservationButton = styled(Link)`
   font-weight: 700;
   margin: 16px 24px;
   text-decoration: none;
+  cursor: pointer;
 `;
 
 const NoticeWrapper = styled.ul`
@@ -446,6 +465,10 @@ const CheckIcon = styled.span`
 const XIcon = styled.span`
   color: #c7c7c7;
   font-size: 16px;
+`;
+
+const StyledScrollContainer = styled(ScrollContainer)`
+  padding: 0 16px;
 `;
 
 export default PricingPage;

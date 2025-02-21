@@ -23,7 +23,7 @@ const MyPage = () => {
         },
         {
           title: "신원 인증",
-          link: "",
+          link: "/identify",
         },
         // {
         //   title: "로그아웃",
