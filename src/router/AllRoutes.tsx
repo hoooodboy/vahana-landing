@@ -117,6 +117,10 @@ function AllRoutes() {
           element: <Pages.ScheduleOperationPage />,
         },
         {
+          path: "/coupon",
+          element: <Pages.CouponPage />,
+        },
+        {
           path: "/*",
           element: <Pages.HomePage />,
         },

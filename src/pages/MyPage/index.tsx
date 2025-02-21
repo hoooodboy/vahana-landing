@@ -19,7 +19,7 @@ const MyPage = () => {
       contents: [
         {
           title: "쿠폰 발행",
-          link: "",
+          link: "/coupon",
         },
         {
           title: "신원 인증",
