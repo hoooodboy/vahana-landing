@@ -125,6 +125,10 @@ function AllRoutes() {
           element: <Pages.IdentifyPage />,
         },
         {
+          path: "/qna",
+          element: <Pages.QnAPage />,
+        },
+        {
           path: "/*",
           element: <Pages.HomePage />,
         },
