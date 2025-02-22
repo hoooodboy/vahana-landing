@@ -63,7 +63,8 @@ const JoinPage = () => {
         navigate("/login");
       },
       onError: (error: any) => {
-        toast(error.err);
+        console.log(error);
+        toast(error);
       },
     },
   });
