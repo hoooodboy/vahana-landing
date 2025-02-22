@@ -55,6 +55,7 @@ export * from "./loginDto";
 export * from "./loginResponseDto";
 export * from "./postApiAuthLoginHeaders";
 export * from "./postApiUploadBody";
+export * from "./postApiUsersIdInviteHeaders";
 export * from "./referrerResponseDto";
 export * from "./referrerResponseWithLimitDto";
 export * from "./reservationDetailResponseDto";

@@ -34,6 +34,7 @@ import type {
   CreateReservationDto,
   GetApiUsersIdReservationsParams,
   InviteUserDto,
+  PostApiUsersIdInviteHeaders,
   UpdateUserDto,
   VerifyIdentityDto,
 } from "../../model";
@@ -183,12 +184,13 @@ export function useGetApiUsersId<
 export const postApiUsersIdInvite = (
   id: string,
   inviteUserDto: InviteUserDto,
+  headers: PostApiUsersIdInviteHeaders,
   signal?: AbortSignal,
 ) => {
   return customAxios<APIResponseBoolean>({
     url: `/api/users/${id}/invite`,
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...headers },
     data: inviteUserDto,
     signal,
   });
@@ -201,13 +203,13 @@ export const getPostApiUsersIdInviteMutationOptions = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postApiUsersIdInvite>>,
     TError,
-    { id: string; data: InviteUserDto },
+    { id: string; data: InviteUserDto; headers: PostApiUsersIdInviteHeaders },
     TContext
   >;
 }): UseMutationOptions<
   Awaited<ReturnType<typeof postApiUsersIdInvite>>,
   TError,
-  { id: string; data: InviteUserDto },
+  { id: string; data: InviteUserDto; headers: PostApiUsersIdInviteHeaders },
   TContext
 > => {
   const mutationKey = ["postApiUsersIdInvite"];
@@ -221,11 +223,11 @@ export const getPostApiUsersIdInviteMutationOptions = <
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof postApiUsersIdInvite>>,
-    { id: string; data: InviteUserDto }
+    { id: string; data: InviteUserDto; headers: PostApiUsersIdInviteHeaders }
   > = (props) => {
-    const { id, data } = props ?? {};
+    const { id, data, headers } = props ?? {};
 
-    return postApiUsersIdInvite(id, data);
+    return postApiUsersIdInvite(id, data, headers);
   };
 
   return { mutationFn, ...mutationOptions };
@@ -249,13 +251,13 @@ export const usePostApiUsersIdInvite = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof postApiUsersIdInvite>>,
     TError,
-    { id: string; data: InviteUserDto },
+    { id: string; data: InviteUserDto; headers: PostApiUsersIdInviteHeaders },
     TContext
   >;
 }): UseMutationResult<
   Awaited<ReturnType<typeof postApiUsersIdInvite>>,
   TError,
-  { id: string; data: InviteUserDto },
+  { id: string; data: InviteUserDto; headers: PostApiUsersIdInviteHeaders },
   TContext
 > => {
   const mutationOptions = getPostApiUsersIdInviteMutationOptions(options);

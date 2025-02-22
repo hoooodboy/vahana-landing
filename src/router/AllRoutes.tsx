@@ -113,7 +113,7 @@ function AllRoutes() {
           element: <Pages.PrivacyPage />,
         },
         {
-          path: "/schedule-operation",
+          path: "/schedule-operation/:id",
           element: <Pages.ScheduleOperationPage />,
         },
         {

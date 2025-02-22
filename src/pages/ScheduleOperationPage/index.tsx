@@ -1,20 +1,21 @@
-import React, { useState } from "react";
+import React from "react";
 import styled from "styled-components";
+import { useParams } from "react-router-dom";
 
 import Header from "@/src/components/Header";
-
 import tokens from "@/src/tokens";
-
-import { useGetApiUsersIdReservationsLatest } from "@/src/api/endpoints/users/users";
+import { useGetApiUsersIdReservationsReservationId } from "@/src/api/endpoints/users/users";
 
 const ScheduleOperationPage = () => {
   const { userInfo } = tokens;
+  const params = useParams();
 
-  const { data: latestReservation } = useGetApiUsersIdReservationsLatest(
+  const { data: reservationDetail } = useGetApiUsersIdReservationsReservationId(
     userInfo.id,
+    params.id,
     {
       query: {
-        enabled: !!userInfo?.id,
+        enabled: !!(userInfo?.id && params.id),
       },
     }
   );
@@ -32,8 +33,8 @@ const ScheduleOperationPage = () => {
     return `${year}-${month}-${day} ${hours}:${minutes}`;
   };
 
-  // latestReservation.result를 통해 데이터 접근
-  const reservationData = latestReservation?.result;
+  // reservationDetail.result를 통해 데이터 접근
+  const reservationData = reservationDetail?.result as any;
 
   return (
     <Container>
@@ -52,11 +53,12 @@ const ScheduleOperationPage = () => {
         <ContentBlock>
           <ContentWrapper>
             <ContentTitle>이름</ContentTitle>
-            {reservationData?.car_name}
+            {reservationData?.name}
           </ContentWrapper>
 
           <ContentWrapper>
             <ContentTitle>전화번호</ContentTitle>
+            {reservationData?.phone}
           </ContentWrapper>
 
           <ContentWrapper>
@@ -71,22 +73,27 @@ const ScheduleOperationPage = () => {
 
           <ContentWrapper>
             <ContentTitle>목적지</ContentTitle>
+            {reservationData?.dropoff_location}
           </ContentWrapper>
 
           <ContentWrapper>
             <ContentTitle>사용목적</ContentTitle>
+            {reservationData?.ride_purpose}
           </ContentWrapper>
 
           <ContentWrapper>
             <ContentTitle>짐 개수</ContentTitle>
+            {reservationData?.luggage_count}개
           </ContentWrapper>
 
           <ContentWrapper>
             <ContentTitle>인원 수</ContentTitle>
+            {reservationData?.passenger_count}명
           </ContentWrapper>
 
           <ContentWrapper>
             <ContentTitle>특이사항</ContentTitle>
+            {reservationData?.special_requests || "-"}
           </ContentWrapper>
         </ContentBlock>
       </ContentContainer>
@@ -99,7 +106,6 @@ const ScheduleOperationPage = () => {
 
 const Container = styled.div`
   width: 100%;
-  /* height: 100%; */
   display: flex;
   flex-direction: column;
   flex: 1 !important;
@@ -152,7 +158,6 @@ const ContentTitle = styled.div`
 const ContentWrapper = styled.div`
   display: flex;
   align-items: center;
-
   color: #000;
   font-size: 16px;
   font-weight: 400;
@@ -161,7 +166,6 @@ const ContentWrapper = styled.div`
 const Notice = styled.div`
   margin-top: 68px;
   padding: 0 16px 152px 16px;
-
   color: #666;
   font-size: 12px;
   font-weight: 500;

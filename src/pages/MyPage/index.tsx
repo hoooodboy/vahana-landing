@@ -129,7 +129,9 @@ const MyPage = () => {
         </QuickMenuBlock>
       </QuickMenuWrapper>
       {reservationData && (
-        <HorizontalContainer onClick={() => navigate("/schedule-operation")}>
+        <HorizontalContainer
+          onClick={() => navigate(`/schedule-operation/${reservationData.id}`)}
+        >
           <SectionTitle>운행 예약</SectionTitle>
           <OperationBlock>
             <OperationInfo>
