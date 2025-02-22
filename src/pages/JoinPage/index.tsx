@@ -64,7 +64,8 @@ const JoinPage = () => {
       },
       onError: (error: any) => {
         console.log(error);
-        toast(error);
+        console.log("AAAAA", error.response);
+        toast(error.response.data.err);
       },
     },
   });
