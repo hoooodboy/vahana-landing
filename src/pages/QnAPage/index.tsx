@@ -69,9 +69,9 @@ const QnAPage = () => {
       <Header />
       <TitleContainer>
         <Title>
-          FREQUENT
+          Q&A
           <br />
-          QUESTIONS
+          LIST
         </Title>
         자주 묻는 질문
       </TitleContainer>

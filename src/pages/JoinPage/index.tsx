@@ -62,8 +62,8 @@ const JoinPage = () => {
         toast("회원가입 성공");
         navigate("/login");
       },
-      onError: (error) => {
-        toast("회원가입 실패");
+      onError: (error: any) => {
+        toast(error.err);
       },
     },
   });
