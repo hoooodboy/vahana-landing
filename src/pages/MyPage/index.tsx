@@ -115,17 +115,17 @@ const MyPage = () => {
         마이페이지
       </TitleContainer>
       <QuickMenuWrapper>
-        <QuickMenuBlock>
+        <QuickMenuBlock to="/reservation-detail">
           <img src={IcBook} />
           예약내역
         </QuickMenuBlock>
-        <QuickMenuBlock>
+        <QuickMenuBlock to="/payment-detail">
           <img src={IcWallet} />
           결제내역
         </QuickMenuBlock>
-        <QuickMenuBlock>
+        <QuickMenuBlock to="/user">
           <img src={IcProfile} />
-          회원정보{" "}
+          회원정보
         </QuickMenuBlock>
       </QuickMenuWrapper>
       {reservationData && (
@@ -207,7 +207,7 @@ const QuickMenuWrapper = styled.div`
   padding: 16px;
 `;
 
-const QuickMenuBlock = styled.div`
+const QuickMenuBlock = styled(Link)`
   width: 100%;
   height: 84px;
   display: flex;
@@ -219,7 +219,7 @@ const QuickMenuBlock = styled.div`
   box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.1);
   gap: 8px;
   cursor: pointer;
-
+  text-decoration: none;
   color: #666;
   text-align: center;
   font-size: 12px;

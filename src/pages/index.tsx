@@ -12,4 +12,5 @@ export { default as ScheduleOperationPage } from "./ScheduleOperationPage";
 export { default as CouponPage } from "./CouponPage";
 export { default as IdentifyPage } from "./IdentifyPage";
 export { default as QnAPage } from "./QnAPage";
+export { default as ReservationDetailPage } from "./ReservationDetailPage";
 export * from "./Admin";

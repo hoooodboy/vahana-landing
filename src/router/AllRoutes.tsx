@@ -129,6 +129,10 @@ function AllRoutes() {
           element: <Pages.QnAPage />,
         },
         {
+          path: "/reservation-detail",
+          element: <Pages.ReservationDetailPage />,
+        },
+        {
           path: "/*",
           element: <Pages.HomePage />,
         },
