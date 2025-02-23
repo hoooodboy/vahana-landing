@@ -119,9 +119,9 @@ const MyPage = () => {
           <img src={IcBook} />
           예약내역
         </QuickMenuBlock>
-        <QuickMenuBlock to="/payment-detail">
+        <QuickMenuBlock to="/coupon">
           <img src={IcWallet} />
-          결제내역
+          쿠폰발행
         </QuickMenuBlock>
         <QuickMenuBlock to="/user">
           <img src={IcProfile} />

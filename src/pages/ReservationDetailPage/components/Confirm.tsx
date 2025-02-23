@@ -144,7 +144,7 @@ const ReservationDetails = styled.div<{ isOpen: boolean }>`
 
 const DetailRow = styled.div`
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   padding: 8px 0;
 `;
 
