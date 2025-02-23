@@ -46,11 +46,11 @@ const UserPage = () => {
       <Header />
       <TitleContainer>
         <Title>
-          SCHEDULED
+          USER
           <br />
-          OPERATION
+          INFO
         </Title>
-        운행 예약
+        정보 관리
       </TitleContainer>
 
       <ContentContainer>

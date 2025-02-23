@@ -124,7 +124,7 @@ const NavBlock = styled.div`
 
 const Nav = styled.div<{ isActive: boolean }>`
   width: 100%;
-  max-width: 130px;
+  /* max-width: 130px; */
   padding: 8px;
   color: ${(p) => (p.isActive ? "#3E4730" : "#C7C7C7")};
   border-bottom: 2px solid ${(p) => (p.isActive ? "#3E4730" : "transparent")};

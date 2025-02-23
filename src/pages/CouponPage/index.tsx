@@ -124,11 +124,11 @@ const CouponPage = () => {
       <Header />
       <TitleContainer>
         <Title>
-          SCHEDULED
+          COUPON
           <br />
-          OPERATION
+          PUBLISH
         </Title>
-        운행 예약
+        쿠폰 발행
       </TitleContainer>
 
       <PublishContainer>

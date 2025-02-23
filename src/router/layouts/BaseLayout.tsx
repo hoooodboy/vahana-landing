@@ -75,10 +75,12 @@ function BaseLayout() {
     // <Container style={{ maxHeight: height }}>
     <Container>
       <LogoContainer>
-        <LogoImg src={Logo} />
-        단순한 이동을 넘어,
-        <br />
-        도로 위의 시간을 더욱 가치있게
+        <LogoBlock>
+          <LogoImg src={Logo} />
+          단순한 이동을 넘어,
+          <br />
+          도로 위의 시간을 더욱 가치있게
+        </LogoBlock>
       </LogoContainer>
       <Content>
         {/* <TermsAgree /> */}
@@ -99,20 +101,39 @@ const Container = styled.div`
   overflow: scroll;
   background: #151711;
   display: flex;
-  justify-content: flex-end;
+  gap: 240px;
+  justify-content: center;
   align-items: center;
-  padding: 0 10%;
+
   @media (max-width: 768px) {
     padding: 0;
   }
 `;
 
 const LogoContainer = styled.div`
+  position: fixed; /* fixed로 변경 */
+  left: 0; /* 왼쪽에서의 위치 */
+  top: 50%; /* 상단에서 50% */
+  transform: translateY(-50%); /* 자신의 높이의 50%만큼 위로 이동 */
+  width: 400px; /* 고정 너비 설정 */
   display: flex;
   flex-direction: column;
-  max-width: 400px;
   gap: 36px;
   color: #decda7;
+
+  margin-left: calc((100% - 1080px) / 2); /* 중앙 정렬을 위한 마진 계산 */
+
+  @media (max-width: 768px) {
+    display: none;
+  }
+`;
+
+// LogoBlock에서 position: absolute 제거
+const LogoBlock = styled.div`
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
   text-align: center;
   font-size: 22px;
   font-style: normal;
@@ -120,12 +141,26 @@ const LogoContainer = styled.div`
   line-height: 32px;
   letter-spacing: 2.2px;
   padding: 42px;
-  position: fixed;
-  top: 50%;
-  left: 10%;
-  transform: translate(0, -50%);
+  gap: 36px;
+`;
+
+const Content = styled.div<{ isIos?: boolean; pcView?: boolean }>`
+  max-width: ${(p) => (p.pcView ? "none" : "480px")};
+  width: 100%;
+  height: 100%;
+  min-height: calc(var(--vh) * 100);
+  display: flex;
+  flex: 1 !important;
+  max-height: auto;
+  justify-content: flex-end;
+  box-sizing: border-box;
+  position: relative;
+  margin-left: 640px; /* LogoContainer 너비 + gap */
+  box-shadow: ${(p) => (p.pcView ? "none" : "rgba(0, 0, 0, 0.9) 0px 3px 12px")};
+
   @media (max-width: 768px) {
-    display: none;
+    max-width: 768px;
+    margin-left: 0;
   }
 `;
 
@@ -133,33 +168,6 @@ const LogoImg = styled.img`
   width: 100%;
   height: auto;
   background-size: cover;
-`;
-
-const Content = styled.div<{ isIos?: boolean; pcView?: boolean }>`
-  max-width: ${(p) => (p.pcView ? "none" : "480px")};
-  width: 100%;
-  height: 100%;
-  /* overflow-y: scroll; */
-  /* overflow-x: hidden; */
-  min-height: calc(var(--vh) * 100);
-
-  /* height: 100%; */
-  display: flex;
-  flex: 1 !important;
-  max-height: auto;
-  justify-content: flex-end;
-  /* padding-top: ${(p) => (p.pcView ? "60px" : "48px")}; */
-  /* padding-bottom: ${(p) => (p.pcView ? "60px" : "0px")}; */
-  /* padding-left: ${(p) => (p.pcView ? "300px" : "0")}; */
-  box-sizing: border-box;
-
-  position: relative;
-
-  box-shadow: ${(p) => (p.pcView ? "none" : "rgba(0, 0, 0, 0.9) 0px 3px 12px")};
-
-  @media (max-width: 768px) {
-    max-width: 768px;
-  }
 `;
 
 export default BaseLayout;
