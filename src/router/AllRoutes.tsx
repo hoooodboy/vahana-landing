@@ -85,10 +85,6 @@ function AllRoutes() {
           element: <Pages.JoinPage />,
         },
         {
-          path: "/login",
-          element: <Pages.LoginPage />,
-        },
-        {
           path: "/calendar",
           element: <Pages.CalendarPage />,
         },
@@ -131,6 +127,10 @@ function AllRoutes() {
         {
           path: "/reservation-detail",
           element: <Pages.ReservationDetailPage />,
+        },
+        {
+          path: "/user",
+          element: <Pages.UserPage />,
         },
         {
           path: "/*",

@@ -113,6 +113,9 @@ const CouponPage = () => {
         to_user_name: formData.name,
         to_user_phone: formData.phone.replace(/-/g, ""),
       },
+      headers: {
+        origin: "",
+      },
     });
   };
 
@@ -372,7 +375,7 @@ const ModalContent = styled.div`
   border-radius: 16px;
   width: 100%;
   max-width: 500px;
-  max-height: 90vh;
+  /* max-height: 90vh; */
   overflow-y: auto;
   gap: 36px;
 `;
