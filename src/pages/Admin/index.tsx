@@ -1,1 +1,2 @@
-export { default as AdminHomePage } from "./AdminHomePage";
+export { default as AdminUserPage } from "./AdminUserPage";
+export { default as AdminReservationPage } from "./AdminReservationPage";

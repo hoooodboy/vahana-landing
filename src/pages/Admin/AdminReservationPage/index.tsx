@@ -1,34 +1,14 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
-import LogoImg from "@/src/assets/ic-vahana-white.png";
-import LmImg from "@/src/assets/img-lm500h.png";
 import { Link } from "react-router-dom";
 import Confirm from "./components/Confirm";
 import Wait from "./components/Wait";
 import Cancle from "./components/Cancle";
 import { useGetApiAdminUsers } from "@/src/api/endpoints/users/users";
+import AdminSideBar from "@/src/components/AdminSideBar";
 
-const AdminHomePage = () => {
-  const menuData = [
-    {
-      title: "회원 관리",
-      link: "/admin/user",
-    },
-    {
-      title: "예약 관리",
-      link: "/admin/reservation",
-    },
-    {
-      title: "차량 관리",
-      link: "/admin/cars",
-    },
-    {
-      title: "드라이버 관리",
-      link: "/admin/driver",
-    },
-  ];
-
+const AdminReservationPage = () => {
   const NAV_LIST = [
     {
       title: "예약 확정",
@@ -51,19 +31,8 @@ const AdminHomePage = () => {
 
   return (
     <Container>
-      <SideBarContainer>
-        <Logo src={LogoImg} />
-        <MenuBlock>
-          {menuData.map((menu) => (
-            <Menu
-              to={menu.link}
-              isActive={window.location.pathname === menu.link}
-            >
-              {menu.title}
-            </Menu>
-          ))}
-        </MenuBlock>
-      </SideBarContainer>
+      <AdminSideBar />
+
       <Section>
         <SectionTitle>예약 관리</SectionTitle>
         <NavBlock>
@@ -198,4 +167,4 @@ const NavContents = styled.div<{ isActive: boolean }>`
   position: relative;
 `;
 
-export default AdminHomePage;
+export default AdminReservationPage;

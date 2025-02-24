@@ -89,14 +89,6 @@ function AllRoutes() {
           element: <Pages.CalendarPage />,
         },
         {
-          path: "/admin",
-          element: <Pages.AdminHomePage />,
-        },
-        {
-          path: "/admin/user",
-          element: <Pages.AdminHomePage />,
-        },
-        {
           path: "/reservation/:step",
           element: <Pages.ReservationPage />,
         },
@@ -132,6 +124,20 @@ function AllRoutes() {
           path: "/user",
           element: <Pages.UserPage />,
         },
+
+        {
+          path: "/admin",
+          element: <Pages.AdminUserPage />,
+        },
+        {
+          path: "/admin/user",
+          element: <Pages.AdminUserPage />,
+        },
+        {
+          path: "/admin/reservation",
+          element: <Pages.AdminReservationPage />,
+        },
+
         {
           path: "/*",
           element: <Pages.HomePage />,
