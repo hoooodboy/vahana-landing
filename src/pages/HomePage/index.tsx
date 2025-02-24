@@ -152,11 +152,12 @@ const HomePage = () => {
       <ThirdSection>
         <TitleConteiner>
           <Title>
-            샘플 텍스트
+            최상의 편안함과
             <br />
-            샘플 <b>텍스트샘플</b> 텍스트
+            완벽한 이동의 품격
           </Title>
-          전문성 있는 수행 기사와 최고급 의전 차량을 제공합니다.
+          고객 맞춤형 최첨단 기술과 프리미엄 서비스로 당신의 이동을 특별하게
+          만듭니다.
         </TitleConteiner>
         <MainImg>
           <img src={LmImg} />
@@ -424,6 +425,7 @@ const TitleConteiner = styled.div<{ padding?: string }>`
   color: #666;
   font-size: 14px;
   font-weight: 600;
+  word-break: keep-all;
 `;
 
 const Title = styled.div`
