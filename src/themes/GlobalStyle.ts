@@ -1,7 +1,10 @@
 import { createGlobalStyle } from "./themedStyledComponents";
 
 const GlobalStyle = createGlobalStyle`
-
+  :root {
+    color-scheme: light;
+  }
+  
   * {
     font-family: "Pretendard", sans-serif !important;
   }
