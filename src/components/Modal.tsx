@@ -60,59 +60,49 @@ const Modal: React.FC<{
   );
 };
 
-const Background = styled.div`
-  background: rgba(0, 0, 0, 0.5);
-  width: 100%;
-  height: 100%;
-
-  position: absolute;
-  z-index: -1;
-  cursor: pointer;
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
-`;
-
 const ModalContainer = styled.div<{ isVisible?: boolean }>`
   width: 100%;
-  max-width: 480px;
-  height: 100%;
+  height: 100vh;
+  position: fixed; // absolute에서 fixed로 변경
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 0 16px;
-  /* background: rgba(0, 0, 0, 0.5); */
-  /* position: fixed;
-  top: 0;
-  left: 50%; */
-  position: absolute;
-  top: 0;
-  left: 0;
-  /* transform: translate(-50%, 0); */
 
   opacity: ${(props) => (props.isVisible ? 1 : 0)};
   pointer-events: ${(props) => (props.isVisible ? "auto" : "none")};
   transition: opacity 0.1s ease-in-out;
 
   z-index: 100000;
-
-  /* padding: 20px; */
 `;
 
 const ModalBlock = styled(motion.div)<{ isVisible?: boolean }>`
   width: 100%;
-
   max-width: 500px;
-  /* padding: 58px 24px 20px; */
-
+  /* max-height: 80vh; */ // DaumPostcode의 경우 높이 제한을 두지 않음
   display: flex;
-  flex: 1;
   flex-direction: column;
   align-items: center;
-  /* border-radius: 40px;
-  background: #fff; */
   position: relative;
-  overflow: hidden;
+  z-index: 2;
+`;
+
+const Background = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1;
+  cursor: pointer;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
 `;
 
 const ModalInfoWrap = styled.div`

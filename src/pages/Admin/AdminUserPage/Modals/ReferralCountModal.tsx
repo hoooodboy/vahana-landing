@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import PCModal from "@/src/components/PCModal";
-import { usePatchApiAdminUsersId } from "@/src/api/endpoints/users/users";
+import {
+  useGetApiAdminUsers,
+  usePatchApiAdminUsersId,
+} from "@/src/api/endpoints/users/users";
 
 export const ReferralCountModal = ({ isOpen, setIsOpen, user }) => {
   const [inviteLimit, setInviteLimit] = useState("");
@@ -17,7 +20,7 @@ export const ReferralCountModal = ({ isOpen, setIsOpen, user }) => {
         alert("수정 중 오류가 발생했습니다.");
       },
     },
-  });
+  }) as any;
 
   useEffect(() => {
     if (user) {
@@ -25,19 +28,36 @@ export const ReferralCountModal = ({ isOpen, setIsOpen, user }) => {
     }
   }, [user]);
 
+  const { refetch: refetchUsers } = useGetApiAdminUsers({
+    query: {
+      enabled: false,
+    },
+  });
+
   const handleSubmit = async () => {
     if (!user?.id) return;
 
-    // try {
-    //   await updateUserMutation.mutateAsync({
-    //     id: user.id,
-    //     data: {
-    //       invite_limit: Number(inviteLimit),
-    //     },
-    //   });
-    // } catch (error) {
-    //   console.error("Error in handleSubmit:", error);
-    // }
+    try {
+      await updateUserMutation.mutateAsync(
+        {
+          id: user.id,
+          data: {
+            // name: user.name,
+            // phone: user.phone,
+            // role: user.role,
+            // identity_status: user.identity_status,
+            invite_limit: Number(inviteLimit),
+          },
+        },
+        {
+          onSuccess: () => {
+            refetchUsers(); // 사용자 목록 갱신
+          },
+        }
+      );
+    } catch (error) {
+      console.error("Error in handleSubmit:", error);
+    }
   };
 
   const handleChange = (e) => {
@@ -81,7 +101,6 @@ const ModalTitle = styled.div`
   color: #000;
   font-size: 20px;
   font-weight: 700;
-  text-align: center;
   margin-bottom: 24px;
 `;
 

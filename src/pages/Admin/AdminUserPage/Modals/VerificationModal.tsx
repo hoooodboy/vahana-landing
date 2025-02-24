@@ -11,7 +11,13 @@ export const VerificationModal = ({ isOpen, setIsOpen, user }) => {
       <ModalContent>
         <ModalTitle>서류 인증</ModalTitle>
         <ImageContainer>
-          <img src={imgView(user?.identity_file)} alt="Verification document" />
+          {user?.identity_file && (
+            <img
+              src={imgView(user?.identity_file)}
+              alt="Verification document"
+            />
+          )}
+          {!user?.identity_file && <NoData>이미지가 없습니다</NoData>}
         </ImageContainer>
         <StatusSelect
           value={status}
@@ -114,14 +120,22 @@ const ImageContainer = styled.div`
 const StatusSelect = styled.select`
   width: 100%;
   padding: 12px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  border: 1px solid #666;
+  border-radius: 16px;
   font-size: 14px;
   margin: 16px 0;
-  color: #333;
+  color: #666;
 
   &:focus {
     outline: none;
     border-color: #3e4730;
   }
+`;
+
+const NoData = styled.div`
+  width: 100%;
+  height: 256px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;

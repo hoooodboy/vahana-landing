@@ -112,30 +112,6 @@ export const UserInfoModal = ({ isOpen, setIsOpen, user }) => {
             ))}
           </Select>
         </InputGroup>
-        <InputGroup>
-          <Label>신원 상태</Label>
-          <Select
-            name="identity_status"
-            value={formData.identity_status}
-            onChange={handleChange}
-          >
-            {Object.entries(IDENTITY_STATUSES).map(([key, value]) => (
-              <option key={key} value={value}>
-                {key}
-              </option>
-            ))}
-          </Select>
-        </InputGroup>
-        <InputGroup>
-          <Label>잔여 추천 횟수</Label>
-          <Input
-            name="invite_limit"
-            type="number"
-            value={formData.invite_limit}
-            disabled={true}
-            min="0"
-          />
-        </InputGroup>
         <ButtonGroup>
           <CancelButton onClick={() => setIsOpen(false)}>취소</CancelButton>
           <SubmitButton onClick={handleSubmit}>적용</SubmitButton>
@@ -156,7 +132,6 @@ const ModalTitle = styled.div`
   color: #000;
   font-size: 20px;
   font-weight: 700;
-  text-align: center;
   margin-bottom: 24px;
 `;
 

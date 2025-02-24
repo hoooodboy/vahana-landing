@@ -329,9 +329,8 @@ const ModalContent = styled.div`
   padding: 20px;
   border-radius: 16px;
   width: 100%;
-  max-width: 500px;
-  max-height: 90vh;
-  overflow-y: auto;
+  height: 100%;
+  min-height: 460px;
 `;
 
 const CloseButton = styled.button`

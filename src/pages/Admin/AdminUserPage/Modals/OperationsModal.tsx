@@ -26,10 +26,10 @@ export const OperationsModal = ({ isOpen, setIsOpen, user }) => {
           <tbody>
             {operations?.result?.map((operation) => (
               <tr key={operation.id}>
-                <td>{operation.id}</td>
-                <td>{operation.pickup_location}</td>
-                <td>{operation.dropoff_location}</td>
-                {/* <td>{operation.date}</td> */}
+                <Td>{operation.id}</Td>
+                <Td>{operation.pickup_location}</Td>
+                <Td>{operation.dropoff_location}</Td>
+                <td>{operation.created_at}</td>
               </tr>
             ))}
           </tbody>
@@ -69,6 +69,10 @@ const ModalTitle = styled.div`
   color: #000;
   font-size: 20px;
   font-weight: 700;
-  text-align: center;
   margin-bottom: 16px;
+`;
+
+const Td = styled.td`
+  word-break: keep-all;
+  white-space: pre-wrap;
 `;

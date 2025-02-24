@@ -1,17 +1,61 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import PCModal from "@/src/components/PCModal";
-import { useGetApiUsersIdTickets } from "@/src/api/endpoints/users/users";
+import {
+  useGetApiUsersIdTickets,
+  useGetApiAdminUsers,
+} from "@/src/api/endpoints/users/users";
 import { usePostApiTickets } from "@/src/api/endpoints/tickets/tickets";
 
 export const TicketsModal = ({ isOpen, setIsOpen, user }) => {
   const [ticketCount, setTicketCount] = useState("");
-  const [useDate, setUseDate] = useState("");
-  const { data: tickets } = useGetApiUsersIdTickets(user?.id, {
+  const [expireDays, setExpireDays] = useState("90"); // 기본값 90일
+
+  const { data: tickets, refetch: refetchTickets } = useGetApiUsersIdTickets(
+    user?.id,
+    {
+      query: {
+        enabled: !!user?.id,
+      },
+    }
+  );
+
+  const { refetch: refetchUsers } = useGetApiAdminUsers({
     query: {
-      enabled: !!user?.id,
+      enabled: false,
     },
   });
+
+  const ticketMutation = usePostApiTickets({
+    mutation: {
+      onSuccess: () => {
+        alert("처리가 완료되었습니다.");
+        refetchTickets();
+        refetchUsers();
+        setIsOpen(false);
+      },
+      onError: (error) => {
+        console.error("Error:", error);
+        alert("처리 중 오류가 발생했습니다.");
+      },
+    },
+  });
+
+  const handleSubmit = async () => {
+    if (!user?.id) return;
+
+    try {
+      await ticketMutation.mutateAsync({
+        data: {
+          user_id: user.id,
+          amount: Number(ticketCount) || 0,
+          date: Number(expireDays),
+        },
+      });
+    } catch (error) {
+      console.error("Error in handleSubmit:", error);
+    }
+  };
 
   return (
     <PCModal isOpen={isOpen} setIsOpen={setIsOpen}>
@@ -30,12 +74,31 @@ export const TicketsModal = ({ isOpen, setIsOpen, user }) => {
 
         <TicketHistory>
           <HistoryTitle>티켓 히스토리</HistoryTitle>
-          {/* {tickets?.result?.map((ticket) => (
-            <HistoryRow key={ticket.id}>
-              <Label>{ticket.date}</Label>
-              <Value>{ticket.count} 티켓</Value>
-            </HistoryRow>
-          ))} */}
+          <Table>
+            <thead>
+              <tr>
+                <th style={{ textAlign: "left" }}>추가일자</th>
+                <th>잔여티켓</th>
+                <th>중전티켓</th>
+                <th>총 티켓</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tickets?.result?.map((ticket, index) => (
+                <tr key={index}>
+                  <td style={{ textAlign: "left" }}>{ticket.created_at}</td>
+                  <td>{ticket.prev_tickets}</td>
+                  <td>
+                    <Amount isCharge={ticket.type === "CHARGE"}>
+                      {ticket.type === "CHARGE" ? "+" : "-"}
+                      {ticket.amount}
+                    </Amount>
+                  </td>
+                  <td>{ticket.remaining_tickets}</td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
         </TicketHistory>
 
         <AddTicketSection>
@@ -44,23 +107,46 @@ export const TicketsModal = ({ isOpen, setIsOpen, user }) => {
             type="number"
             value={ticketCount}
             onChange={(e) => setTicketCount(e.target.value)}
+            min="0"
+            placeholder="0 입력시 만료일만 변경됩니다"
           />
-          <Label>사용기한</Label>
-          <Input
-            type="date"
-            value={useDate}
-            onChange={(e) => setUseDate(e.target.value)}
-          />
+          <Label>만료 기간 (일)</Label>
+          <Select
+            value={expireDays}
+            onChange={(e) => setExpireDays(e.target.value)}
+          >
+            <option value="90">90일</option>
+            <option value="365">365일</option>
+          </Select>
         </AddTicketSection>
 
         <ButtonGroup>
           <CancelButton onClick={() => setIsOpen(false)}>취소</CancelButton>
-          <SubmitButton>저장</SubmitButton>
+          <SubmitButton onClick={handleSubmit}>저장</SubmitButton>
         </ButtonGroup>
       </ModalContent>
     </PCModal>
   );
 };
+
+const Select = styled.select`
+  width: 100%;
+  height: 48px;
+  padding: 0 16px;
+  border-radius: 12px;
+  border: 1px solid #c7c7c7;
+  background: #fff;
+  color: #000;
+  font-size: 16px;
+  font-weight: 400;
+  transition: border-color 0.3s ease;
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
+    border-color: #3e4730;
+  }
+`;
 
 const ModalContent = styled.div`
   background: white;
@@ -97,12 +183,12 @@ const Input = styled.input`
   font-size: 14px;
 `;
 
-const Select = styled.select`
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-`;
+// const Select = styled.select`
+//   padding: 8px 12px;
+//   border: 1px solid #ddd;
+//   border-radius: 4px;
+//   font-size: 14px;
+// `;
 
 const ButtonGroup = styled.div`
   display: flex;
@@ -177,4 +263,61 @@ const AddTicketSection = styled.div`
   flex-direction: column;
   gap: 12px;
   margin-top: 24px;
+`;
+
+const Type = styled.span<{ isCharge?: boolean }>`
+  font-weight: 600;
+  color: ${(props) => (props.isCharge ? "#2F9E44" : "#E03131")};
+`;
+
+const DateText = styled.span`
+  color: #666;
+  font-size: 14px;
+  margin-left: 8px;
+`;
+
+const HistoryInfo = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const TicketInfo = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+`;
+
+const Amount = styled.span<{ isCharge?: boolean }>`
+  font-weight: 600;
+  color: ${(props) => (props.isCharge ? "#2F9E44" : "#E03131")};
+`;
+
+const Remaining = styled.span`
+  color: #666;
+  font-size: 14px;
+`;
+
+const Table = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+
+  th,
+  td {
+    padding: 12px;
+    text-align: right;
+    border-bottom: 1px solid #eee;
+  }
+
+  th {
+    font-weight: 600;
+    color: #666;
+    font-size: 14px;
+    background: #f8f9fa;
+  }
+
+  td {
+    font-size: 14px;
+    color: #333;
+  }
 `;
