@@ -145,7 +145,7 @@ const JoinPage = () => {
             name="name"
             value={formData.name}
             onChange={handleChange}
-            placeholder="김아무개"
+            placeholder="당신의 이름을 입력해주세요."
           />
         </InputGroup>
 
