@@ -192,8 +192,8 @@ const PricingPage = () => {
           <thead>
             <tr>
               <Th></Th>
-              <Th>프리미엄</Th>
-              <Th>VIPs</Th>
+              <Th>Premium</Th>
+              <Th>More Service</Th>
             </tr>
           </thead>
           <tbody>
