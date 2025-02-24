@@ -7,6 +7,7 @@ import MainBanner1 from "@/src/assets/main-banner-1.png";
 import MainBanner2 from "@/src/assets/main-banner-2.png";
 import MainBanner3 from "@/src/assets/main-banner-3.png";
 import IcLexus from "@/src/assets/ic-lexus.png";
+import IcToyota from "@/src/assets/ic-toyota.png";
 import royal1 from "@/src/assets/royal-1.jpg";
 import royal2 from "@/src/assets/royal-2.jpg";
 import royal3 from "@/src/assets/royal-3.jpg";
@@ -152,7 +153,13 @@ const CarPage = () => {
               <ContentsBlock>
                 <BrandWrapper>
                   <BrandIcon>
-                    <img src={IcLexus} alt="lexus" />
+                    {data.name !== "ALPHARD" && (
+                      <img src={IcLexus} alt="lexus" />
+                    )}
+
+                    {data.name === "ALPHARD" && (
+                      <img src={IcToyota} alt="lexus" />
+                    )}
                   </BrandIcon>
                   <BrandTitleWrapper>
                     <BrandTitle>{data.name}</BrandTitle>
