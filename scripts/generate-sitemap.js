@@ -1,6 +1,5 @@
-// scripts/generate-sitemap.js
-const fs = require("fs");
-const globby = require("globby");
+import fs from "fs";
+import { globby } from "globby";
 
 (async () => {
   const pages = await globby([
