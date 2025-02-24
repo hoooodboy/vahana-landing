@@ -77,9 +77,7 @@ function BaseLayout() {
       <LogoContainer>
         <LogoBlock>
           <LogoImg src={Logo} />
-          단순한 이동을 넘어,
-          <br />
-          도로 위의 시간을 더욱 가치있게
+          이동의 혁신, 품격의 진화
         </LogoBlock>
       </LogoContainer>
       <Content>
