@@ -30,12 +30,12 @@ export const TicketsModal = ({ isOpen, setIsOpen, user }) => {
 
         <TicketHistory>
           <HistoryTitle>티켓 히스토리</HistoryTitle>
-          {tickets?.result?.map((ticket) => (
+          {/* {tickets?.result?.map((ticket) => (
             <HistoryRow key={ticket.id}>
               <Label>{ticket.date}</Label>
               <Value>{ticket.count} 티켓</Value>
             </HistoryRow>
-          ))}
+          ))} */}
         </TicketHistory>
 
         <AddTicketSection>
@@ -68,6 +68,8 @@ const ModalContent = styled.div`
   padding: 24px;
   width: 100%;
   max-width: 500px;
+  max-height: 80vh;
+  overflow: scroll;
 `;
 
 const ModalTitle = styled.h3`

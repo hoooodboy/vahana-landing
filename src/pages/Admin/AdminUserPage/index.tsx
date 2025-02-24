@@ -88,7 +88,7 @@ const AdminHomePage = () => {
                 <th>ID</th>
                 <th>이름</th>
                 <th>전화번호</th>
-                <th>전여 추천 횟수</th>
+                <th>잔여 추천 횟수</th>
                 <th>추천인</th>
                 <th>운행 횟수</th>
                 <th>잔여 티켓</th>
@@ -100,37 +100,50 @@ const AdminHomePage = () => {
               {filteredUsers?.map((user) => (
                 <TableRow key={user.id}>
                   <td>{user.id}</td>
+                  {/* 이름 */}
                   <td
                     className="clickable"
                     onClick={() => openModal("userInfo", user)}
                   >
                     {user.name}
                   </td>
+
+                  {/* 전화번호 */}
                   <td>{formatPhoneNumber(user.phone)}</td>
+
+                  {/* 잔여 추천 횟수 */}
                   <td
                     className="clickable"
                     onClick={() => openModal("referralCount", user)}
                   >
                     {user.invite_limit || 0}
                   </td>
+
+                  {/* 추천인 */}
                   <td
                     className="clickable"
                     onClick={() => openModal("referees", user)}
                   >
                     {user.referrer || "-"}
                   </td>
+
+                  {/* 운행 횟수 */}
                   <td
                     className="clickable"
                     onClick={() => openModal("operations", user)}
                   >
                     {user.reservations || 0}
                   </td>
+
+                  {/* 잔여 횟수 */}
                   <td
                     className="clickable"
                     onClick={() => openModal("tickets", user)}
                   >
                     {user.tickets || 0}
                   </td>
+
+                  {/* 운행 횟수 */}
                   <td>
                     <ActionButton
                       onClick={() => openModal("verification", user)}
@@ -138,6 +151,8 @@ const AdminHomePage = () => {
                       확인하기
                     </ActionButton>
                   </td>
+
+                  {/* 운행 횟수 */}
                   <td>
                     <ActionButton
                       onClick={() => openModal("verification", user)}
@@ -160,8 +175,8 @@ const AdminHomePage = () => {
 
         <ReferralCountModal
           isOpen={isReferralCountOpen}
-          user={selectedUser}
           setIsOpen={setIsReferralCountOpen}
+          user={selectedUser}
         />
 
         <OperationsModal
