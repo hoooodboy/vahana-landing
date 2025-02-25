@@ -6,7 +6,7 @@
     },
     {
       "source": "/api/:path*",
-      "destination": "https://test2.d0hwq1.com/api/:path*"
+      "destination": "https://api.vahana.kr/api/:path*"
     },
     { "source": "/(.*)", "destination": "/" }
   ]
