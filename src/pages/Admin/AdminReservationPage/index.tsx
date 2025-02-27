@@ -1,32 +1,189 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
-
-import { Link } from "react-router-dom";
-import Confirm from "./components/Confirm";
-import Wait from "./components/Wait";
-import Cancle from "./components/Cancle";
-import { useGetApiAdminUsers } from "@/src/api/endpoints/users/users";
+import { toast } from "react-toastify";
+import { useGetApiReservations } from "@/src/api/endpoints/reservations/reservations";
+import { usePatchApiReservationsId } from "@/src/api/endpoints/reservations/reservations";
 import AdminSideBar from "@/src/components/AdminSideBar";
+import InfoChangeModal from "./Modals/InfoChangeModal";
+import VehicleChangeModal from "./Modals/VehicleChangeModal";
+import DriverChangeModal from "./Modals/DriverChangeModal";
+import ReservationDetailModal from "./Modals/ReservationDetailModal";
+import StatusChangeModal from "./Modals/StatusChangeModal";
+
+// 예약 상태 라벨 및 색상 매핑
+const STATUS_LABELS = {
+  PENDING: { label: "대기", color: "#FFA500" },
+  CONFIRMED: { label: "확정", color: "#2E8B57" },
+  CANCELLED: { label: "취소", color: "#DC3545" },
+};
 
 const AdminReservationPage = () => {
-  const NAV_LIST = [
-    {
-      title: "예약 확정",
-      contents: <Confirm />,
-    },
-    {
-      title: "확정 대기",
-      contents: <Wait />,
-    },
-    {
-      title: "취소",
-      contents: <Cancle />,
-    },
-  ];
+  const [activeTab, setActiveTab] = useState("예약 확정");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedReservation, setSelectedReservation] = useState(null);
+  const [statusModalOpen, setStatusModalOpen] = useState(false);
+  const [vehicleModalOpen, setVehicleModalOpen] = useState(false);
+  const [driverModalOpen, setDriverModalOpen] = useState(false);
+  const [reservationDetailModalOpen, setReservationDetailModalOpen] =
+    useState(false);
 
-  const [activeNav, setActiveNav] = useState("예약 확정");
-  const onActiveNav = (item: string) => {
-    setActiveNav(item);
+  // Fetch reservations with filter by status
+  const {
+    data: reservationsData,
+    isLoading,
+    refetch,
+  } = useGetApiReservations(
+    {
+      status: getStatusFilter(activeTab),
+    },
+    {
+      query: {
+        enabled: true,
+        refetchOnWindowFocus: false,
+      },
+    }
+  );
+
+  const updateReservationMutation = usePatchApiReservationsId({
+    mutation: {
+      onSuccess: () => {
+        toast.success("예약 상태가 성공적으로 변경되었습니다.");
+        refetch();
+      },
+      onError: () => {
+        toast.error("예약 상태 변경에 실패했습니다.");
+      },
+    },
+  }) as any;
+
+  function getStatusFilter(tab) {
+    switch (tab) {
+      case "예약 확정":
+        return "CONFIRMED";
+      case "확정 대기":
+        return "PENDING";
+      case "취소":
+        return "CANCELLED";
+      default:
+        return "CONFIRMED";
+    }
+  }
+
+  const filteredReservations =
+    reservationsData?.result?.filter((reservation) => {
+      return (
+        reservation.name?.includes(searchTerm) ||
+        reservation.id?.toString()?.includes(searchTerm) ||
+        reservation.phone?.includes(searchTerm)
+      );
+    }) || [];
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+  };
+
+  const openStatusModal = (reservation) => {
+    setSelectedReservation(reservation);
+    setStatusModalOpen(true);
+  };
+
+  const closeStatusModal = () => {
+    setStatusModalOpen(false);
+    setSelectedReservation(null);
+  };
+
+  const handleStatusChange = async (status) => {
+    if (!selectedReservation) return;
+
+    try {
+      await updateReservationMutation.mutateAsync({
+        id: selectedReservation.id,
+        data: { status },
+      });
+      closeStatusModal();
+    } catch (error) {
+      console.error("Failed to update reservation status:", error);
+    }
+  };
+
+  const openVehicleModal = (reservation) => {
+    setSelectedReservation(reservation);
+    setVehicleModalOpen(true);
+  };
+
+  const closeVehicleModal = () => {
+    setVehicleModalOpen(false);
+    setSelectedReservation(null);
+  };
+
+  const handleVehicleChange = async (vehicleId) => {
+    if (!selectedReservation) return;
+
+    try {
+      await updateReservationMutation.mutateAsync({
+        id: selectedReservation.id,
+        data: {
+          car_inventory_id: vehicleId,
+        },
+      });
+      closeVehicleModal();
+    } catch (error) {
+      console.error("Failed to update vehicle:", error);
+    }
+  };
+
+  const openDriverModal = (reservation) => {
+    setSelectedReservation(reservation);
+    setDriverModalOpen(true);
+  };
+
+  const closeDriverModal = () => {
+    setDriverModalOpen(false);
+    setSelectedReservation(null);
+  };
+
+  const handleDriverChange = async (driverId) => {
+    if (!selectedReservation) return;
+
+    try {
+      await updateReservationMutation.mutateAsync({
+        id: selectedReservation.id,
+        data: {
+          driver_id: driverId,
+        },
+      });
+      closeDriverModal();
+    } catch (error) {
+      console.error("Failed to update driver:", error);
+    }
+  };
+
+  const openReservationDetailModal = (reservation) => {
+    setSelectedReservation(reservation);
+    setReservationDetailModalOpen(true);
+  };
+
+  const closeReservationDetailModal = () => {
+    setReservationDetailModalOpen(false);
+    setSelectedReservation(null);
+  };
+
+  const handleSaveReservationDetail = async (formData) => {
+    if (!selectedReservation) return;
+
+    try {
+      await updateReservationMutation.mutateAsync({
+        id: selectedReservation.id,
+        data: formData,
+      });
+      closeReservationDetailModal();
+    } catch (error) {
+      console.error("Failed to update reservation details:", error);
+    }
+  };
+
+  const formatPhoneNumber = (phone) => {
+    return phone ? phone.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3") : "N/A";
   };
 
   return (
@@ -35,136 +192,331 @@ const AdminReservationPage = () => {
 
       <Section>
         <SectionTitle>예약 관리</SectionTitle>
-        <NavBlock>
-          {NAV_LIST?.map((nav: any, index: number) => (
-            <Nav
-              key={index}
-              isActive={activeNav === nav.title}
-              onClick={() => onActiveNav(nav.title)}
-            >
-              {/* {nav.value} */}
-              {/* <NavTitle isActive={activeNav === nav.title}> */}
-              {nav.title}
-              {/* </NavTitle> */}
-            </Nav>
-          ))}
-        </NavBlock>
 
-        {NAV_LIST?.map((nav: any, index: number) => (
-          <NavContents isActive={nav.title === activeNav} key={index}>
-            {nav.contents}
-          </NavContents>
-        ))}
+        <ContentWrapper>
+          <TabsContainer>
+            <Tab
+              $isActive={activeTab === "예약 확정"}
+              onClick={() => handleTabChange("예약 확정")}
+            >
+              예약 확정
+            </Tab>
+            <Tab
+              $isActive={activeTab === "확정 대기"}
+              onClick={() => handleTabChange("확정 대기")}
+            >
+              확정 대기
+            </Tab>
+            <Tab
+              $isActive={activeTab === "취소"}
+              onClick={() => handleTabChange("취소")}
+            >
+              취소
+            </Tab>
+          </TabsContainer>
+
+          <TableSection>
+            <TableHeader>
+              <div>{activeTab}</div>
+              <SearchContainer>
+                <SearchInput
+                  placeholder="아이디 or 이름을 입력해주세요."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                <SearchIconWrapper>{/* <SearchIcon /> */}</SearchIconWrapper>
+              </SearchContainer>
+            </TableHeader>
+
+            <ReservationTable>
+              <TableHead>
+                <tr>
+                  <th>ID</th>
+                  <th>예약일</th>
+                  <th>출발 시간</th>
+                  <th>출발지</th>
+                  <th>목적지</th>
+                  <th>차량</th>
+                  <th>이름</th>
+                  <th>전화번호</th>
+                  <th>기사</th>
+                  <th>상태</th>
+                  <th>수정</th>
+                </tr>
+              </TableHead>
+              <TableBody>
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={11}>로딩 중...</td>
+                  </tr>
+                ) : filteredReservations.length === 0 ? (
+                  <tr>
+                    <td colSpan={11}>예약이 없습니다.</td>
+                  </tr>
+                ) : (
+                  filteredReservations.map((reservation) => (
+                    <tr key={reservation.id}>
+                      <td>{reservation.id}</td>
+                      <td>{formatDate(reservation.reserved_date)}</td>
+                      <td>{reservation.pickup_time}</td>
+                      <td>{reservation.pickup_location}</td>
+                      <td>{reservation.dropoff_location}</td>
+                      <td
+                        onClick={() => openVehicleModal(reservation)}
+                        className="clickable"
+                      >
+                        {reservation.car_name} -{" "}
+                        {reservation.registration_number}
+                      </td>
+                      <td
+                        onClick={() => openReservationDetailModal(reservation)}
+                        className="clickable"
+                      >
+                        {reservation.name}
+                      </td>
+                      <td>{formatPhoneNumber(reservation.phone)}</td>
+                      <td
+                        onClick={() => openDriverModal(reservation)}
+                        className="clickable"
+                      >
+                        {reservation.driver || "미배정"}
+                      </td>
+                      <td
+                        onClick={() => openStatusModal(reservation)}
+                        className="clickable status"
+                      >
+                        <StatusBadge
+                          $color={
+                            STATUS_LABELS[getStatusFilter(activeTab)]?.color
+                          }
+                        >
+                          {STATUS_LABELS[getStatusFilter(activeTab)]?.label}
+                        </StatusBadge>
+                      </td>
+                      <td>
+                        <EditButton
+                          onClick={() =>
+                            openReservationDetailModal(reservation)
+                          }
+                        >
+                          수정
+                        </EditButton>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </TableBody>
+            </ReservationTable>
+          </TableSection>
+        </ContentWrapper>
       </Section>
+
+      {/* Status Change Modal */}
+      {statusModalOpen && (
+        <StatusChangeModal
+          isOpen={statusModalOpen}
+          setIsOpen={setStatusModalOpen}
+          reservation={selectedReservation}
+          status={getStatusFilter(activeTab)}
+          onCancel={closeStatusModal}
+          onSave={handleStatusChange}
+        />
+      )}
+
+      {/* Vehicle Change Modal */}
+      {vehicleModalOpen && (
+        <VehicleChangeModal
+          isOpen={vehicleModalOpen}
+          setIsOpen={setVehicleModalOpen}
+          reservation={selectedReservation}
+          onCancel={closeVehicleModal}
+          onSave={handleVehicleChange}
+        />
+      )}
+
+      {/* Driver Change Modal */}
+      {driverModalOpen && (
+        <DriverChangeModal
+          isOpen={driverModalOpen}
+          setIsOpen={setDriverModalOpen}
+          reservation={selectedReservation}
+          onCancel={closeDriverModal}
+          onSave={handleDriverChange}
+        />
+      )}
+
+      {/* Reservation Detail Modal */}
+      {reservationDetailModalOpen && (
+        <ReservationDetailModal
+          isOpen={reservationDetailModalOpen}
+          setIsOpen={setReservationDetailModalOpen}
+          reservation={selectedReservation}
+          onCancel={closeReservationDetailModal}
+          onSave={handleSaveReservationDetail}
+          formatPhoneNumber={formatPhoneNumber}
+        />
+      )}
     </Container>
   );
 };
 
+// Helper function to format date for display
+function formatDate(dateString) {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
+// Styled Components
+const StatusBadge = styled.span<{ $color?: string }>`
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  background-color: ${(props) => props.$color || "gray"};
+  color: white;
+`;
+
 const Container = styled.div`
   width: 100%;
   min-height: 100vh;
-  background: #fffbf1;
-  position: relative;
   display: flex;
-`;
-
-const SideBarContainer = styled.div`
-  width: 250px;
-  height: 100vh;
-  position: sticky;
-  top: 0;
-  left: 0;
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  background: #151711;
-  padding: 50px 0;
-`;
-
-const MenuBlock = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  margin-top: 180px;
-`;
-
-const Menu = styled(Link)<{ isActive?: boolean }>`
-  background: ${(p) => p.isActive && "rgba(255, 255, 255, 0.15)"};
-
-  width: 100%;
-  height: 46px;
-  padding: 0 32px;
-  display: flex;
-  align-items: center;
-  border-top: 1px solid #fff;
-  text-decoration: none;
-  color: #fff;
-  font-size: 18px;
-  font-weight: 300;
-
-  &:last-child {
-    border-bottom: 1px solid #fff;
-  }
-`;
-
-const Logo = styled.img`
-  width: 160px;
-  height: 28px;
+  background-color: #f8f9fa;
 `;
 
 const Section = styled.div`
+  flex: 1;
+  padding: 60px;
   display: flex;
   flex-direction: column;
-  flex: 1 !important;
-
-  min-height: 200vh;
-  padding: 60px;
 `;
 
-const SectionTitle = styled.div`
-  color: #000;
+const SectionTitle = styled.h1`
   font-size: 28px;
   font-weight: 700;
-  margin-bottom: 100px;
+  margin-bottom: 40px;
+  color: #333;
 `;
 
-const NavBlock = styled.div`
-  width: 100%;
-  display: flex;
-
-  /* padding: 0 16px; */
-  box-sizing: border-box;
-  border-bottom: 2px solid #c7c7c7;
-
-  background: #fff;
+const ContentWrapper = styled.div`
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
 `;
 
-const Nav = styled.div<{ isActive: boolean }>`
-  width: 130px;
-  padding: 8px;
-
-  color: ${(p) => (p.isActive ? "#3E4730" : "#C7C7C7")};
-  border-bottom: 2px solid ${(p) => (p.isActive ? "#3E4730" : "transparent")};
-
+const TabsContainer = styled.div`
   display: flex;
-  justify-content: center;
+  border-bottom: 2px solid #e9ecef;
+`;
 
-  text-align: center;
+const Tab = styled.div<{ $isActive?: boolean }>`
+  padding: 16px 24px;
   font-size: 16px;
-  font-weight: 700;
-
-  position: relative;
-  bottom: -2px;
-
+  font-weight: ${(props) => (props.$isActive ? "600" : "400")};
+  color: ${(props) => (props.$isActive ? "#3E4730" : "#adb5bd")};
   cursor: pointer;
-  transition: 0.1s all ease-in;
+  border-bottom: 2px solid
+    ${(props) => (props.$isActive ? "#3E4730" : "transparent")};
+  margin-bottom: -2px;
+  text-align: center;
+  min-width: 120px;
 `;
 
-const NavContents = styled.div<{ isActive: boolean }>`
-  display: ${(p) => (p.isActive ? "flex" : "none")};
-  width: 100%;
-  flex: 1;
+const TableSection = styled.div`
+  padding: 20px;
+`;
+
+const TableHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+
+  div {
+    font-size: 18px;
+    font-weight: 600;
+  }
+`;
+
+const SearchContainer = styled.div`
   position: relative;
+  width: 300px;
+`;
+
+const SearchInput = styled.input`
+  width: 100%;
+  padding: 10px 16px;
+  padding-right: 40px;
+  border: 1px solid #e9ecef;
+  border-radius: 4px;
+  font-size: 14px;
+
+  &:focus {
+    outline: none;
+    border-color: #3e4730;
+  }
+`;
+
+const SearchIconWrapper = styled.div`
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #adb5bd;
+`;
+
+const ReservationTable = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+
+  th,
+  td {
+    padding: 12px 8px;
+    text-align: center;
+    border-bottom: 1px solid #e9ecef;
+    word-break: keep-all;
+    white-space: pre-wrap;
+  }
+
+  th {
+    font-weight: 600;
+    color: #495057;
+    background-color: #f8f9fa;
+  }
+
+  td.clickable {
+    cursor: pointer;
+    color: #3e4730;
+    text-decoration: underline;
+
+    &:hover {
+      color: #2b331f;
+    }
+  }
+`;
+
+const TableHead = styled.thead`
+  background-color: #f8f9fa;
+`;
+
+const TableBody = styled.tbody`
+  tr:hover {
+    background-color: #f8f9fa;
+  }
+`;
+
+const EditButton = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #3e4730;
+
+  &:hover {
+    color: #2b331f;
+  }
 `;
 
 export default AdminReservationPage;

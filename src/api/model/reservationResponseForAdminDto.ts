@@ -20,6 +20,12 @@ export type ReservationResponseForAdminDto = {
   dropoff_location: string;
   /** 차량 이름 */
   car_name: string;
+  /** 예약 일자 */
+  reserved_date: string;
   /** 운전자 이름 */
-  driver_name: string;
+  driver: string;
+  /** 차량 등록번호 */
+  registration_number: string;
+  /** 차량 아이디 */
+  car_inventory_id: number;
 };

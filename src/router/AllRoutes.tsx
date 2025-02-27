@@ -137,6 +137,10 @@ function AllRoutes() {
           path: "/admin/reservation",
           element: <Pages.AdminReservationPage />,
         },
+        {
+          path: "/admin/cars",
+          element: <Pages.AdminCarPage />,
+        },
 
         {
           path: "/*",
