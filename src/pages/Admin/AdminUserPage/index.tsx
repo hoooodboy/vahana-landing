@@ -8,6 +8,7 @@ import { ReferralCountModal } from "./Modals/ReferralCountModal";
 import { OperationsModal } from "./Modals/OperationsModal";
 import { TicketsModal } from "./Modals/TicketsModal";
 import { VerificationModal } from "./Modals/VerificationModal";
+import { ReferrersModal } from "./Modals/ReferrersModal"; // Import the new modal
 
 const AdminHomePage = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -19,6 +20,7 @@ const AdminHomePage = () => {
   const [isOperationsOpen, setIsOperationsOpen] = useState(false);
   const [isTicketsOpen, setIsTicketsOpen] = useState(false);
   const [isVerificationOpen, setIsVerificationOpen] = useState(false);
+  const [isReferrersOpen, setIsReferrersOpen] = useState(false); // Added state for referrers modal
 
   const { data: users } = useGetApiAdminUsers({
     query: {
@@ -52,6 +54,9 @@ const AdminHomePage = () => {
         break;
       case "verification":
         setIsVerificationOpen(true);
+        break;
+      case "referrers": // Added case for referrers
+        setIsReferrersOpen(true);
         break;
     }
   };
@@ -92,7 +97,6 @@ const AdminHomePage = () => {
                 <th>추천인</th>
                 <th>운행 횟수</th>
                 <th>잔여 티켓</th>
-                <th>추천인</th>
                 <th>관리</th>
               </tr>
             </TableHeader>
@@ -122,7 +126,7 @@ const AdminHomePage = () => {
                   {/* 추천인 */}
                   <td
                     className="clickable"
-                    onClick={() => openModal("referees", user)}
+                    onClick={() => openModal("referrers", user)} // Changed from "referees" to "referrers"
                   >
                     {user.referrer || "-"}
                   </td>
@@ -135,7 +139,7 @@ const AdminHomePage = () => {
                     {user.reservations || 0}
                   </td>
 
-                  {/* 잔여 횟수 */}
+                  {/* 잔여 티켓 */}
                   <td
                     className="clickable"
                     onClick={() => openModal("tickets", user)}
@@ -143,16 +147,7 @@ const AdminHomePage = () => {
                     {user.tickets || 0}
                   </td>
 
-                  {/* 운행 횟수 */}
-                  <td>
-                    <ActionButton
-                      onClick={() => openModal("verification", user)}
-                    >
-                      확인하기
-                    </ActionButton>
-                  </td>
-
-                  {/* 운행 횟수 */}
+                  {/* 관리 */}
                   <td>
                     <ActionButton
                       onClick={() => openModal("verification", user)}
@@ -195,6 +190,13 @@ const AdminHomePage = () => {
           isOpen={isVerificationOpen}
           user={selectedUser}
           setIsOpen={setIsVerificationOpen}
+        />
+
+        {/* Added new ReferrersModal */}
+        <ReferrersModal
+          isOpen={isReferrersOpen}
+          user={selectedUser}
+          setIsOpen={setIsReferrersOpen}
         />
       </Section>
     </Container>
@@ -313,45 +315,5 @@ const ActionButton = styled.button`
     background: #2e3520;
   }
 `;
-
-const Modal = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
-const ModalContent = styled.div`
-  background: white;
-  border-radius: 8px;
-  padding: 24px;
-  min-width: 400px;
-`;
-
-const ModalHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-`;
-
-const CloseButton = styled.button`
-  background: none;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-  color: #666;
-
-  &:hover {
-    color: #333;
-  }
-`;
-
-const Td = styled.td``;
 
 export default AdminHomePage;

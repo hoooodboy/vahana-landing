@@ -274,8 +274,8 @@ const AdminReservationPage = () => {
                         {reservation.registration_number}
                       </td>
                       <td
-                        onClick={() => openReservationDetailModal(reservation)}
-                        className="clickable"
+                      // onClick={() => openReservationDetailModal(reservation)}
+                      // className="clickable"
                       >
                         {reservation.name}
                       </td>
