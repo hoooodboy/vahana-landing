@@ -1,203 +1,61 @@
 import React, { useState, useMemo } from "react";
 import styled from "styled-components";
-import {
-  useGetApiCars,
-  useDeleteApiCarsIdInventoryInventoryId,
-  useDeleteApiCarsId,
-  getGetApiCarsIdQueryOptions,
-} from "@/src/api/endpoints/cars/cars";
+import { useGetApiDrivers } from "@/src/api/endpoints/drivers/drivers";
 import AdminSideBar from "@/src/components/AdminSideBar";
-import AddCarModal from "./Modals/AddCarModal";
-import AddCarInventoryModal from "./Modals/AddCarInventoryModal";
-import { useQueries } from "@tanstack/react-query";
+import DriverAddModal from "./Modals/DriverAddModal";
+import DriverEditModal from "./Modals/DriverEditModal";
 
-const AdminCarPage = () => {
-  // 차량 목록 데이터
+const AdminDriverPage = () => {
+  // 검색어 상태
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // 드라이버 추가 모달 상태
+  const [isDriverAddModalOpen, setIsDriverAddModalOpen] = useState(false);
+
+  // 드라이버 수정 모달 상태
+  const [isDriverEditModalOpen, setIsDriverEditModalOpen] = useState(false);
+  const [selectedDriver, setSelectedDriver] = useState(null);
+
+  // 드라이버 목록 데이터 fetching
   const {
-    data: carsData,
-    isLoading: carsLoading,
-    refetch: refetchCars,
-  } = useGetApiCars({
+    data: driversData,
+    isLoading,
+    refetch,
+  } = useGetApiDrivers({
     query: {
       enabled: true,
       refetchOnWindowFocus: false,
     },
   });
 
-  // 차량 삭제 Mutation
-  const deleteCarMutation = useDeleteApiCarsId({
-    mutation: {
-      onSuccess: () => {
-        alert("차량이 성공적으로 삭제되었습니다.");
-        refetchCars();
-      },
-      onError: () => {
-        alert("차량 삭제에 실패했습니다.");
-      },
-    },
-  });
-
-  // 검색어 상태
-  const [searchTerm, setSearchTerm] = useState("");
-
-  // 확장된 차량 ID 상태
-  const [expandedCarIds, setExpandedCarIds] = useState<number[]>([]);
-
-  // 새 차량 추가 모달 상태
-  const [showAddCarModal, setShowAddCarModal] = useState(false);
-
-  // 차량 재고 추가 모달 상태
-  const [showInventoryModal, setShowInventoryModal] = useState(false);
-
-  // 선택된 차량 ID (재고 추가 시)
-  const [selectedCarId, setSelectedCarId] = useState<number | null>(null);
-
-  // 차량 재고 삭제 mutation
-  const deleteInventoryMutation = useDeleteApiCarsIdInventoryInventoryId();
-
-  // 차량 목록 필터링
-  const filteredCars = useMemo(() => {
+  // 필터링된 드라이버 목록
+  const filteredDrivers = useMemo(() => {
     return (
-      carsData?.result?.filter((car) =>
-        car.name.toLowerCase().includes(searchTerm.toLowerCase())
+      driversData?.result?.filter(
+        (driver) =>
+          driver.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          driver.phone?.includes(searchTerm)
       ) || []
     );
-  }, [carsData, searchTerm]);
+  }, [driversData, searchTerm]);
 
-  // 확장된 모든 차량 ID에 대한 쿼리 배열 생성
-  const carDetailsQueries = useQueries({
-    queries:
-      expandedCarIds.length > 0
-        ? expandedCarIds.map((id) =>
-            getGetApiCarsIdQueryOptions(id.toString(), {
-              query: {
-                enabled: true,
-                refetchOnWindowFocus: false,
-              },
-            })
-          )
-        : [],
-  });
-
-  // 차량 삭제 핸들러
-  const handleDeleteCar = (carId: number) => {
-    const confirmDelete = window.confirm("정말로 이 차량을 삭제하시겠습니까?");
-    if (confirmDelete) {
-      deleteCarMutation.mutate({
-        id: carId.toString(),
-      });
-    }
+  // 드라이버 추가 완료 핸들러
+  const handleDriverAddComplete = () => {
+    refetch();
+    setIsDriverAddModalOpen(false);
   };
 
-  // 차량 행 클릭 핸들러
-  const handleCarRowClick = (carId: number) => {
-    if (expandedCarIds.includes(carId)) {
-      setExpandedCarIds(expandedCarIds.filter((id) => id !== carId));
-    } else {
-      setExpandedCarIds([...expandedCarIds, carId]);
-    }
+  // 드라이버 수정/삭제 완료 핸들러
+  const handleDriverEditComplete = () => {
+    refetch();
+    setIsDriverEditModalOpen(false);
+    setSelectedDriver(null);
   };
 
-  // 차량 ID로 쿼리 결과 찾기
-  const findCarDetailQuery = (carId: number) => {
-    const queryIndex = expandedCarIds.findIndex((id) => id === carId);
-    if (queryIndex === -1) return null;
-    return carDetailsQueries[queryIndex];
-  };
-
-  // 차량 추가 모달 열기 핸들러
-  const handleOpenAddCarModal = () => {
-    setShowAddCarModal(true);
-  };
-
-  // 차량 추가 모달 취소 핸들러
-  const handleCancelAddCar = () => {
-    setShowAddCarModal(false);
-  };
-
-  // 차량 추가 완료 핸들러
-  const handleAddCarComplete = () => {
-    refetchCars();
-    setShowAddCarModal(false);
-  };
-
-  // 차량 재고 추가 모달 열기 핸들러
-  const handleOpenInventoryModal = (carId: number) => {
-    setSelectedCarId(carId);
-    setShowInventoryModal(true);
-  };
-
-  // 차량 재고 추가 모달 취소 핸들러
-  const handleCancelAddInventory = () => {
-    setShowInventoryModal(false);
-    setSelectedCarId(null);
-  };
-
-  // 차량 재고 추가 완료 핸들러
-  const handleAddInventoryComplete = (carId: number) => {
-    // 해당 차량 쿼리 찾기
-    const query = findCarDetailQuery(carId);
-    if (query) {
-      query.refetch();
-    }
-
-    setShowInventoryModal(false);
-    setSelectedCarId(null);
-  };
-
-  // 차량 재고 삭제 핸들러
-  const handleDeleteInventory = async (carId: number, inventoryId: number) => {
-    try {
-      await deleteInventoryMutation.mutateAsync({
-        id: carId.toString(),
-        inventoryId: inventoryId.toString(),
-      });
-
-      // 삭제 후 해당 차량 상세 정보 다시 가져오기
-      const query = findCarDetailQuery(carId);
-      if (query) {
-        query.refetch();
-      }
-    } catch (error) {
-      console.error("Failed to delete inventory:", error);
-    }
-  };
-
-  // 차량 인벤토리 렌더링
-  const renderCarInventories = (carId: number) => {
-    const query = findCarDetailQuery(carId);
-
-    if (!query) {
-      return <div>로딩 중...</div>;
-    }
-
-    const { data, isLoading } = query;
-
-    if (isLoading) {
-      return <div>로딩 중...</div>;
-    }
-
-    if (!data?.result || data.result.length === 0) {
-      return <div>등록된 차량 번호가 없습니다.</div>;
-    }
-
-    return (
-      <InventoryList>
-        {data.result.map((inventory: any) => (
-          <InventoryItem key={inventory.id}>
-            <span>{inventory.registration_number}</span>
-            <DeleteButton
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDeleteInventory(carId, inventory.id);
-              }}
-            >
-              삭제
-            </DeleteButton>
-          </InventoryItem>
-        ))}
-      </InventoryList>
-    );
+  // 드라이버 수정 모달 열기
+  const openEditModal = (driver) => {
+    setSelectedDriver(driver);
+    setIsDriverEditModalOpen(true);
   };
 
   return (
@@ -205,112 +63,87 @@ const AdminCarPage = () => {
       <AdminSideBar />
 
       <Section>
-        <SectionTitle>차량 관리</SectionTitle>
+        <SectionTitle>드라이버 관리</SectionTitle>
 
         <ContentWrapper>
           <SearchContainer>
             <SearchInput
-              placeholder="차량명을 입력해주세요."
+              placeholder="아이디 or 이름을 입력해주세요."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <AddButton onClick={handleOpenAddCarModal}>+ 차량 추가</AddButton>
+            <AddButton onClick={() => setIsDriverAddModalOpen(true)}>
+              추가
+            </AddButton>
           </SearchContainer>
 
-          <CarTable>
+          <DriverTable>
             <thead>
               <tr>
                 <th>ID</th>
-                <th>차량</th>
-                <th>추가사항</th>
-                <th>작업</th>
+                <th>이름</th>
+                <th>전화번호</th>
+                <th>자택</th>
+                <th>특이사항</th>
+                <th>수정</th>
               </tr>
             </thead>
             <tbody>
-              {carsLoading ? (
+              {isLoading ? (
                 <tr>
-                  <td colSpan={4}>로딩 중...</td>
+                  <td colSpan={6}>로딩 중...</td>
                 </tr>
-              ) : filteredCars.length === 0 ? (
+              ) : filteredDrivers.length === 0 ? (
                 <tr>
-                  <td colSpan={4}>등록된 차량이 없습니다.</td>
+                  <td colSpan={6}>등록된 드라이버가 없습니다.</td>
                 </tr>
               ) : (
-                filteredCars.map((car) => (
-                  <React.Fragment key={car.id}>
-                    <CarRow onClick={() => handleCarRowClick(car.id)}>
-                      <td>{car.id}</td>
-                      <td>{car.name}</td>
-                      <td>
-                        <ExpandIcon
-                          isExpanded={expandedCarIds.includes(car.id)}
-                        >
-                          ▾
-                        </ExpandIcon>
-                      </td>
-                      <td>
-                        <CarActionContainer>
-                          <DeleteCarButton
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDeleteCar(car.id);
-                            }}
-                          >
-                            삭제
-                          </DeleteCarButton>
-                          <AddInventoryButton
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleOpenInventoryModal(car.id);
-                            }}
-                          >
-                            + 재고
-                          </AddInventoryButton>
-                        </CarActionContainer>
-                      </td>
-                    </CarRow>
-
-                    {expandedCarIds.includes(car.id) && (
-                      <ExpandedRow>
-                        <td colSpan={4}>
-                          <ExpandedContent>
-                            <DetailHeader>
-                              <h4>{car.name}</h4>
-                            </DetailHeader>
-
-                            {renderCarInventories(car.id)}
-                          </ExpandedContent>
-                        </td>
-                      </ExpandedRow>
-                    )}
-                  </React.Fragment>
+                filteredDrivers.map((driver) => (
+                  <tr key={driver.id}>
+                    <td>{driver.id}</td>
+                    <td>{driver.name}</td>
+                    <td>{formatPhoneNumber(driver.phone)}</td>
+                    <td>{driver.address}</td>
+                    <td>{driver.note || "-"}</td>
+                    <td>
+                      <EditButton onClick={() => openEditModal(driver)}>
+                        수정
+                      </EditButton>
+                    </td>
+                  </tr>
                 ))
               )}
             </tbody>
-          </CarTable>
+          </DriverTable>
         </ContentWrapper>
       </Section>
 
-      {/* 차량 추가 모달 */}
-      {showAddCarModal && (
-        <AddCarModal
-          isOpen={showAddCarModal}
-          onCancel={handleCancelAddCar}
-          onComplete={handleAddCarComplete}
+      {/* 드라이버 추가 모달 */}
+      {isDriverAddModalOpen && (
+        <DriverAddModal
+          isOpen={isDriverAddModalOpen}
+          onClose={() => setIsDriverAddModalOpen(false)}
+          onComplete={handleDriverAddComplete}
         />
       )}
 
-      {/* 차량 재고 추가 모달 */}
-      {showInventoryModal && selectedCarId && (
-        <AddCarInventoryModal
-          isOpen={showInventoryModal}
-          carId={selectedCarId}
-          onCancel={handleCancelAddInventory}
-          onComplete={() => handleAddInventoryComplete(selectedCarId)}
+      {/* 드라이버 수정 모달 */}
+      {isDriverEditModalOpen && selectedDriver && (
+        <DriverEditModal
+          isOpen={isDriverEditModalOpen}
+          onClose={() => setIsDriverEditModalOpen(false)}
+          driver={selectedDriver}
+          onComplete={handleDriverEditComplete}
         />
       )}
     </Container>
   );
+};
+
+// 전화번호 포맷팅 헬퍼 함수
+const formatPhoneNumber = (phone?: string) => {
+  if (!phone) return "N/A";
+  return phone.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3");
 };
 
 // Styled Components
@@ -379,15 +212,17 @@ const AddButton = styled.button`
   }
 `;
 
-const CarTable = styled.table`
+const DriverTable = styled.table`
   width: 100%;
   border-collapse: collapse;
 
   th,
   td {
     padding: 12px 16px;
-    text-align: left;
+    text-align: center;
     border-bottom: 1px solid #e9ecef;
+    white-space: pre-wrap;
+    text-align: left;
   }
 
   th {
@@ -395,109 +230,22 @@ const CarTable = styled.table`
     font-weight: 600;
     color: #495057;
   }
-`;
 
-const CarRow = styled.tr`
-  cursor: pointer;
-  transition: background-color 0.2s;
-
-  &:hover {
+  tr:hover {
     background-color: #f8f9fa;
   }
 `;
 
-const ExpandIcon = styled.span<{ isExpanded: boolean }>`
-  display: inline-block;
-  transform: ${(props) => (props.isExpanded ? "rotate(180deg)" : "rotate(0)")};
-  transition: transform 0.2s;
-`;
-
-const ExpandedRow = styled.tr`
-  background-color: #f8f9fa;
-`;
-
-const ExpandedContent = styled.div`
-  padding: 16px;
-`;
-
-const DetailHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-
-  h4 {
-    margin: 0;
-    font-size: 16px;
-    color: #495057;
-  }
-`;
-
-const AddInventoryButton = styled.button`
-  padding: 6px 12px;
-  background-color: #3e4730;
-  color: white;
+const EditButton = styled.button`
+  background: none;
   border: none;
-  border-radius: 4px;
-  font-size: 13px;
   cursor: pointer;
-  transition: all 0.2s;
+  color: #3e4730;
+  text-decoration: underline;
 
   &:hover {
-    background-color: #2b331f;
+    color: #2b331f;
   }
 `;
 
-const InventoryList = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 12px;
-`;
-
-const InventoryItem = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px;
-  background-color: white;
-  border: 1px solid #e9ecef;
-  border-radius: 4px;
-  font-size: 14px;
-`;
-
-const DeleteButton = styled.button`
-  padding: 4px 8px;
-  background-color: #dc3545;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 12px;
-  cursor: pointer;
-  transition: all 0.2s;
-
-  &:hover {
-    background-color: #c82333;
-  }
-`;
-
-const CarActionContainer = styled.div`
-  display: flex;
-  gap: 8px;
-`;
-
-const DeleteCarButton = styled.button`
-  padding: 4px 8px;
-  background-color: #dc3545;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 12px;
-  cursor: pointer;
-  transition: all 0.2s;
-
-  &:hover {
-    background-color: #c82333;
-  }
-`;
-
-export default AdminCarPage;
+export default AdminDriverPage;
