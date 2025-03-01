@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import PCModal from "@/src/components/PCModal";
+import {
+  useGetApiReservationsId,
+  usePatchApiReservationsIdDetail,
+} from "@/src/api/endpoints/reservations/reservations";
 import { useGetApiDrivers } from "@/src/api/endpoints/drivers/drivers";
+import { toast } from "react-toastify";
 
 interface ReservationDetailModalProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
-  reservation: any;
-  onCancel: () => void;
-  onSave: (formData: any) => void;
+  reservationId: string;
+  onSuccess: () => void;
   formatPhoneNumber: (phone: string) => string;
 }
 
@@ -26,9 +30,8 @@ interface FormState {
 const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
   isOpen,
   setIsOpen,
-  reservation,
-  onCancel,
-  onSave,
+  reservationId,
+  onSuccess,
   formatPhoneNumber,
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -43,16 +46,17 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
     passenger_count: 0,
   });
 
-  // 원본 데이터를 저장하는 상태 추가
-  const [originalData, setOriginalData] = useState<FormState>({
-    name: "",
-    phone: "",
-    pickup_time: "",
-    pickup_location: "",
-    dropoff_location: "",
-    ride_purpose: "",
-    luggage_count: 0,
-    passenger_count: 0,
+  // 예약 상세 정보 조회 API
+  const {
+    data: reservationDetailData,
+    isLoading: reservationLoading,
+    refetch: refetchReservation,
+    error: reservationError,
+  } = useGetApiReservationsId(reservationId, {
+    query: {
+      enabled: isOpen && !!reservationId, // Only fetch when modal is open and reservationId exists
+      refetchOnWindowFocus: false,
+    },
   });
 
   // 기사 데이터 가져오기
@@ -67,26 +71,55 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
     },
   });
 
+  // 예약 상세 정보 수정 API
+  const { mutate: updateReservationDetail, isPending: isUpdating } =
+    usePatchApiReservationsIdDetail({
+      mutation: {
+        onSuccess: () => {
+          toast.success("예약 정보가 성공적으로 업데이트되었습니다.");
+          setIsSubmitting(false);
+          setIsOpen(false);
+          onSuccess();
+        },
+        onError: (error) => {
+          toast.error("예약 정보 업데이트에 실패했습니다.");
+          console.error("예약 상세 정보 수정 실패:", error);
+          setIsSubmitting(false);
+        },
+      },
+    });
+
   // 모달이 열릴 때마다 폼 데이터 초기화 및 기사 목록 새로고침
   useEffect(() => {
-    if (isOpen && reservation) {
+    if (isOpen && reservationId) {
+      console.log("모달 열림, 예약 ID:", reservationId);
+      refetchReservation();
+      refetchDrivers();
+    }
+  }, [isOpen, reservationId, refetchReservation, refetchDrivers]);
+
+  // 예약 상세 데이터가 로드되면 폼 데이터 초기화
+  useEffect(() => {
+    if (reservationDetailData?.result) {
+      console.log("예약 상세 데이터 로드됨:", reservationDetailData.result);
+      const reservation = reservationDetailData.result;
       const initialData = {
         name: reservation.name || "",
-        phone: formatPhoneNumber(reservation.phone) || "",
+        phone: reservation.phone || "",
         pickup_time: formatDateTimeForInput(reservation.pickup_time) || "",
         pickup_location: reservation.pickup_location || "",
         dropoff_location: reservation.dropoff_location || "",
-        driver: reservation.driver || "",
         ride_purpose: reservation.ride_purpose || "",
         luggage_count: reservation.luggage_count || 0,
         passenger_count: reservation.passenger_count || 0,
       };
 
       setFormData(initialData);
-      setOriginalData(initialData);
-      refetchDrivers(); // Refetch drivers when modal opens
+    } else if (reservationError) {
+      console.error("예약 상세 데이터 로드 실패:", reservationError);
+      toast.error("예약 정보를 불러오는데 실패했습니다.");
     }
-  }, [isOpen, reservation, refetchDrivers, formatPhoneNumber]);
+  }, [reservationDetailData, reservationError]);
 
   // 입력 필드 변경 처리
   const handleChange = (
@@ -114,74 +147,34 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
   const handleSave = async () => {
     setIsSubmitting(true);
     try {
-      // 변경된 필드만 추출
-      const changedFields: Record<string, any> = {};
-
-      // reservation_detail API에 필요한 필드 매핑
-      const fieldMapping: { [key: string]: string } = {
-        // 예: formData의 'key' => API가 원하는 'key'
-        pickup_time: "pickup_time",
-        pickup_location: "pickup_location",
-        dropoff_location: "dropoff_location",
-        ride_purpose: "ride_purpose",
-        luggage_count: "luggage_count",
-        passenger_count: "passenger_count",
+      // 백엔드에 보낼 전체 데이터 준비
+      const dataToSend = {
+        name: formData.name,
+        phone: formData.phone,
+        pickup_time: formatBackendDateTime(formData.pickup_time),
+        pickup_location: formData.pickup_location,
+        dropoff_location: formData.dropoff_location,
+        ride_purpose: formData.ride_purpose,
+        luggage_count: formData.luggage_count,
+        passenger_count: formData.passenger_count,
       };
 
-      // 필드 매핑에 있는 키만 확인
-      Object.keys(fieldMapping).forEach((key) => {
-        // 숫자 타입인 경우
-        if (typeof formData[key as keyof FormState] === "number") {
-          if (
-            formData[key as keyof FormState] !==
-            originalData[key as keyof FormState]
-          ) {
-            changedFields[fieldMapping[key]] = formData[key as keyof FormState];
-          }
-        }
-        // 문자열 타입인 경우
-        else if (typeof formData[key as keyof FormState] === "string") {
-          // pickup_time 특별 처리 (포맷 변환)
-          if (key === "pickup_time") {
-            const formattedTime = formatBackendDateTime(formData.pickup_time);
-            if (
-              formattedTime !== formatBackendDateTime(originalData.pickup_time)
-            ) {
-              changedFields[fieldMapping[key]] = formattedTime;
-            }
-          } else if (
-            formData[key as keyof FormState] !==
-            originalData[key as keyof FormState]
-          ) {
-            changedFields[fieldMapping[key]] = formData[key as keyof FormState];
-          }
-        }
+      console.log("전체 데이터 전송:", dataToSend);
+
+      // 데이터 보내기
+      updateReservationDetail({
+        id: reservationId,
+        data: dataToSend,
       });
-
-      // driver_id는 별도로 처리 (driver 이름이 아닌 ID를 보내야 할 수 있음)
-      //   if (formData.driver !== originalData.driver) {
-      //     const driverObj = driversData?.result?.find(d => d.name === formData.driver);
-      //     if (driverObj) {
-      //       changedFields['driver_id'] = driverObj.id;
-      //     } else if (formData.driver === "") {
-      //       // 기사 선택 해제 시 null로 처리
-      //       changedFields['driver_id'] = null;
-      //     }
-      //   }
-
-      console.log("변경된 필드만 전송:", changedFields);
-
-      // 변경된 필드가 있을 때만 저장 요청
-      if (Object.keys(changedFields).length > 0) {
-        await onSave(changedFields);
-      } else {
-        // 변경된 필드가 없으면 취소와 동일하게 처리
-        onCancel();
-      }
     } catch (error) {
       console.error("예약 정보 저장 중 오류 발생:", error);
+      toast.error("예약 정보 저장 중 오류가 발생했습니다.");
       setIsSubmitting(false);
     }
+  };
+
+  const handleCancel = () => {
+    setIsOpen(false);
   };
 
   // 백엔드가 원하는 형식으로 날짜/시간 포맷 변환
@@ -195,130 +188,131 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
   // 탑승 목적 옵션
   const ridePurposeOptions = [
     { value: "", label: "선택해주세요" },
-    { value: "영업", label: "영업" },
-    { value: "출장", label: "출장" },
-    { value: "관광", label: "관광" },
-    { value: "행사", label: "행사" },
-    { value: "공항", label: "공항" },
-    { value: "기타", label: "기타" },
+    { value: "hospital", label: "병원" },
+    { value: "golf", label: "골프" },
+    { value: "school", label: "통학" },
+    { value: "vip", label: "의전" },
+    { value: "private", label: "프라이빗" },
+    { value: "moving", label: "이동" },
+    { value: "airport", label: "공항" },
+    { value: "hotel", label: "호텔" },
+    { value: "wedding", label: "웨딩" },
+    { value: "etc", label: "기타" },
   ];
+
+  const isLoading = reservationLoading || driversLoading || isUpdating;
 
   return (
     <PCModal isOpen={isOpen} setIsOpen={setIsOpen}>
       <ModalContent wide>
         <ModalTitle>예약 정보 수정</ModalTitle>
-        <FormGrid>
-          <FormGroup>
-            <Label htmlFor="name">이름</Label>
-            <ReadOnlyInput value={formData.name} disabled={true} readOnly />
-            <FieldNote>이름은 변경할 수 없습니다.</FieldNote>
-          </FormGroup>
-          <FormGroup>
-            <Label htmlFor="phone">전화번호</Label>
-            <ReadOnlyInput value={formData.phone} disabled={true} readOnly />
-            <FieldNote>전화번호는 변경할 수 없습니다.</FieldNote>
-          </FormGroup>
-          <FormGroup>
-            <Label htmlFor="pickup_time">출발 시간</Label>
-            <Input
-              id="pickup_time"
-              type="datetime-local"
-              value={formData.pickup_time}
-              onChange={handleChange}
-              placeholder="출발 시간을 입력하세요"
-              disabled={isSubmitting}
-            />
-          </FormGroup>
-          <FormGroup>
-            <Label htmlFor="pickup_location">출발지</Label>
-            <Input
-              id="pickup_location"
-              value={formData.pickup_location}
-              onChange={handleChange}
-              placeholder="출발지를 입력해주세요."
-              disabled={isSubmitting}
-            />
-          </FormGroup>
-          <FormGroup>
-            <Label htmlFor="dropoff_location">도착지</Label>
-            <Input
-              id="dropoff_location"
-              value={formData.dropoff_location}
-              onChange={handleChange}
-              placeholder="도착지를 입력해주세요"
-              disabled={isSubmitting}
-            />
-          </FormGroup>
-          {/* <FormGroup>
-            <Label htmlFor="driver">기사</Label>
-            <Select 
-              id="driver" 
-              value={formData.driver}
-              onChange={handleChange}
-              disabled={driversLoading || isSubmitting}
-            >
-              <option value="">선택해주세요</option>
-              {driversData?.result?.map((driver) => (
-                <option key={driver.id} value={driver.name}>
-                  {driver.name}
-                </option>
-              )) || (
-                <>
-                  <option value="홍길동">홍길동</option>
-                  <option value="김기사">김기사</option>
-                  <option value="이기사">이기사</option>
-                </>
-              )}
-            </Select>
-          </FormGroup> */}
-          <FormGroup>
-            <Label htmlFor="ride_purpose">탑승 목적</Label>
-            <Select
-              id="ride_purpose"
-              value={formData.ride_purpose}
-              onChange={handleChange}
-              disabled={isSubmitting}
-            >
-              {ridePurposeOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </Select>
-          </FormGroup>
-          <FormGroup>
-            <Label htmlFor="passenger_count">승객 수</Label>
-            <Input
-              id="passenger_count"
-              type="number"
-              min="1"
-              max="20"
-              value={formData.passenger_count}
-              onChange={handleChange}
-              disabled={isSubmitting}
-            />
-          </FormGroup>
-          <FormGroup>
-            <Label htmlFor="luggage_count">수하물 수</Label>
-            <Input
-              id="luggage_count"
-              type="number"
-              min="0"
-              max="20"
-              value={formData.luggage_count}
-              onChange={handleChange}
-              disabled={isSubmitting}
-            />
-          </FormGroup>
-        </FormGrid>
-        <ModalButtons>
-          <CancelButton onClick={onCancel} disabled={isSubmitting}>
-            취소
-          </CancelButton>
-          <ConfirmButton onClick={handleSave} disabled={isSubmitting}>
-            {isSubmitting ? "저장 중..." : "적용"}
-          </ConfirmButton>
-        </ModalButtons>
+        {isLoading && !formData.name ? (
+          <LoadingMessage>데이터를 불러오는 중입니다...</LoadingMessage>
+        ) : (
+          <>
+            <FormGrid>
+              <FormGroup>
+                <Label htmlFor="name">이름</Label>
+                <Input
+                  id="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  placeholder="이름을 입력하세요"
+                  disabled={isSubmitting}
+                />
+              </FormGroup>
+              <FormGroup>
+                <Label htmlFor="phone">전화번호</Label>
+                <Input
+                  id="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  placeholder="전화번호를 입력하세요"
+                  disabled={isSubmitting}
+                />
+              </FormGroup>
+              <FormGroup>
+                <Label htmlFor="pickup_time">출발 시간</Label>
+                <Input
+                  id="pickup_time"
+                  type="datetime-local"
+                  value={formData.pickup_time}
+                  onChange={handleChange}
+                  placeholder="출발 시간을 입력하세요"
+                  disabled={isSubmitting}
+                />
+              </FormGroup>
+              <FormGroup>
+                <Label htmlFor="pickup_location">출발지</Label>
+                <Input
+                  id="pickup_location"
+                  value={formData.pickup_location}
+                  onChange={handleChange}
+                  placeholder="출발지를 입력해주세요."
+                  disabled={isSubmitting}
+                />
+              </FormGroup>
+              <FormGroup>
+                <Label htmlFor="dropoff_location">도착지</Label>
+                <Input
+                  id="dropoff_location"
+                  value={formData.dropoff_location}
+                  onChange={handleChange}
+                  placeholder="도착지를 입력해주세요"
+                  disabled={isSubmitting}
+                />
+              </FormGroup>
+
+              <FormGroup>
+                <Label htmlFor="ride_purpose">탑승 목적</Label>
+                <Select
+                  id="ride_purpose"
+                  value={formData.ride_purpose}
+                  onChange={handleChange}
+                  disabled={isSubmitting}
+                >
+                  {ridePurposeOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </Select>
+              </FormGroup>
+              <FormGroup>
+                <Label htmlFor="passenger_count">승객 수</Label>
+                <Input
+                  id="passenger_count"
+                  type="number"
+                  min="1"
+                  max="20"
+                  value={formData.passenger_count}
+                  onChange={handleChange}
+                  disabled={isSubmitting}
+                />
+              </FormGroup>
+              <FormGroup>
+                <Label htmlFor="luggage_count">수하물 수</Label>
+                <Input
+                  id="luggage_count"
+                  type="number"
+                  min="0"
+                  max="20"
+                  value={formData.luggage_count}
+                  onChange={handleChange}
+                  disabled={isSubmitting}
+                />
+              </FormGroup>
+            </FormGrid>
+            <ModalButtons>
+              <CancelButton onClick={handleCancel} disabled={isSubmitting}>
+                취소
+              </CancelButton>
+              <ConfirmButton onClick={handleSave} disabled={isSubmitting}>
+                {isSubmitting ? "저장 중..." : "적용"}
+              </ConfirmButton>
+            </ModalButtons>
+          </>
+        )}
       </ModalContent>
     </PCModal>
   );
@@ -330,8 +324,7 @@ function formatDateTimeForInput(dateTimeString: string | undefined): string {
 
   // Check if the string is already in ISO format or has a 'T' separator
   if (dateTimeString.includes("T")) {
-    const date = new Date(dateTimeString);
-    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}T${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+    return dateTimeString;
   }
 
   // Parse string like "2025-02-24 16:13"
@@ -393,15 +386,13 @@ const Input = styled.input`
   }
 `;
 
-const ReadOnlyInput = styled(Input)`
-  background-color: #f8f9fa;
+const LoadingMessage = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
   color: #6c757d;
-`;
-
-const FieldNote = styled.span`
-  font-size: 12px;
-  color: #6c757d;
-  margin-top: 4px;
+  font-size: 16px;
 `;
 
 const Select = styled.select`

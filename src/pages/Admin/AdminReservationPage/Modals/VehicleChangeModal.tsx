@@ -9,7 +9,7 @@ interface VehicleChangeModalProps {
   setIsOpen: (isOpen: boolean) => void;
   reservation: any;
   onCancel: () => void;
-  onSave: (car_inventory_id: number) => void;
+  onSave: any;
 }
 
 interface CombinedVehicle {

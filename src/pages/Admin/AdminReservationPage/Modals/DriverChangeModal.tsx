@@ -8,7 +8,7 @@ interface DriverChangeModalProps {
   setIsOpen: (isOpen: boolean) => void;
   reservation: any;
   onCancel: () => void;
-  onSave: (driverId: number) => void;
+  onSave: any;
 }
 
 const DriverChangeModal: React.FC<DriverChangeModalProps> = ({

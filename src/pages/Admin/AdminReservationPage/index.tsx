@@ -20,7 +20,7 @@ const STATUS_LABELS = {
 const AdminReservationPage = () => {
   const [activeTab, setActiveTab] = useState("예약 확정");
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedReservation, setSelectedReservation] = useState(null);
+  const [selectedReservation, setSelectedReservation] = useState<any>(null);
   const [statusModalOpen, setStatusModalOpen] = useState(false);
   const [vehicleModalOpen, setVehicleModalOpen] = useState(false);
   const [driverModalOpen, setDriverModalOpen] = useState(false);
@@ -56,7 +56,7 @@ const AdminReservationPage = () => {
     },
   }) as any;
 
-  function getStatusFilter(tab) {
+  function getStatusFilter(tab: string) {
     switch (tab) {
       case "예약 확정":
         return "CONFIRMED";
@@ -78,11 +78,11 @@ const AdminReservationPage = () => {
       );
     }) || [];
 
-  const handleTabChange = (tab) => {
+  const handleTabChange = (tab: string) => {
     setActiveTab(tab);
   };
 
-  const openStatusModal = (reservation) => {
+  const openStatusModal = (reservation: any) => {
     setSelectedReservation(reservation);
     setStatusModalOpen(true);
   };
@@ -92,7 +92,7 @@ const AdminReservationPage = () => {
     setSelectedReservation(null);
   };
 
-  const handleStatusChange = async (status) => {
+  const handleStatusChange = async (status: string) => {
     if (!selectedReservation) return;
 
     try {
@@ -106,7 +106,7 @@ const AdminReservationPage = () => {
     }
   };
 
-  const openVehicleModal = (reservation) => {
+  const openVehicleModal = (reservation: any) => {
     setSelectedReservation(reservation);
     setVehicleModalOpen(true);
   };
@@ -116,7 +116,7 @@ const AdminReservationPage = () => {
     setSelectedReservation(null);
   };
 
-  const handleVehicleChange = async (vehicleId) => {
+  const handleVehicleChange = async (vehicleId: string) => {
     if (!selectedReservation) return;
 
     try {
@@ -132,7 +132,7 @@ const AdminReservationPage = () => {
     }
   };
 
-  const openDriverModal = (reservation) => {
+  const openDriverModal = (reservation: any) => {
     setSelectedReservation(reservation);
     setDriverModalOpen(true);
   };
@@ -142,7 +142,7 @@ const AdminReservationPage = () => {
     setSelectedReservation(null);
   };
 
-  const handleDriverChange = async (driverId) => {
+  const handleDriverChange = async (driverId: string) => {
     if (!selectedReservation) return;
 
     try {
@@ -158,7 +158,7 @@ const AdminReservationPage = () => {
     }
   };
 
-  const openReservationDetailModal = (reservation) => {
+  const openReservationDetailModal = (reservation: any) => {
     setSelectedReservation(reservation);
     setReservationDetailModalOpen(true);
   };
@@ -168,7 +168,7 @@ const AdminReservationPage = () => {
     setSelectedReservation(null);
   };
 
-  const handleSaveReservationDetail = async (formData) => {
+  const handleSaveReservationDetail = async (formData: any) => {
     if (!selectedReservation) return;
 
     try {
@@ -182,8 +182,13 @@ const AdminReservationPage = () => {
     }
   };
 
-  const formatPhoneNumber = (phone) => {
+  const formatPhoneNumber = (phone: string) => {
     return phone ? phone.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3") : "N/A";
+  };
+
+  const handleReservationDetailSuccess = () => {
+    refetch(); // 예약 상세 정보가 업데이트된 후 예약 목록을 새로고침
+    toast.success("예약 정보가 성공적으로 업데이트되었습니다.");
   };
 
   return (
@@ -346,13 +351,12 @@ const AdminReservationPage = () => {
       )}
 
       {/* Reservation Detail Modal */}
-      {reservationDetailModalOpen && (
+      {reservationDetailModalOpen && selectedReservation && (
         <ReservationDetailModal
           isOpen={reservationDetailModalOpen}
           setIsOpen={setReservationDetailModalOpen}
-          reservation={selectedReservation}
-          onCancel={closeReservationDetailModal}
-          onSave={handleSaveReservationDetail}
+          reservationId={selectedReservation.id.toString()}
+          onSuccess={handleReservationDetailSuccess}
           formatPhoneNumber={formatPhoneNumber}
         />
       )}
@@ -361,7 +365,7 @@ const AdminReservationPage = () => {
 };
 
 // Helper function to format date for display
-function formatDate(dateString) {
+function formatDate(dateString: string | undefined) {
   if (!dateString) return "";
   const date = new Date(dateString);
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
