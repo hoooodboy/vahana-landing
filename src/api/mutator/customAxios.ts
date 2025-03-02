@@ -1,9 +1,5 @@
 import LocalStorage from "@/src/local-storage";
-import tokens, {
-  KEY_ACCESS_TOKEN,
-  KEY_REFRESH_TOKEN,
-  setRefreshToken,
-} from "@/src/tokens";
+import tokens, { KEY_ACCESS_TOKEN, KEY_REFRESH_TOKEN, setRefreshToken } from "@/src/tokens";
 import { refreshToken } from "@/src/utils/tokenRefresh";
 import Axios, { AxiosRequestConfig } from "axios";
 
@@ -43,23 +39,24 @@ axiosInstance.interceptors.request.use(
     console.log(config.headers, "config.headers");
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 // 응답 인터셉터
 axiosInstance.interceptors.response.use(
   async (response) => {
+    console.log("RESPONSE", response);
     const newAccessToken = response.headers["authorization"];
     const newRefreshToken = response.headers["refresh"];
 
     if (newAccessToken || newRefreshToken) {
       try {
         if (newAccessToken) {
-          await tokens.setAccessToken(newAccessToken);
+          await tokens.setAccessToken(newAccessToken.split(" ")[1]);
         }
         if (newRefreshToken) {
-          await setRefreshToken(newRefreshToken);
-          refreshToken(newAccessToken);
+          await setRefreshToken(newRefreshToken.split(" ")[1]);
+          refreshToken(newAccessToken.split(" ")[1]);
         }
         console.info("토큰이 갱신되었습니다.");
       } catch (err) {
@@ -72,38 +69,40 @@ axiosInstance.interceptors.response.use(
     return response;
   },
   async (error) => {
+    console.log("ERR", error);
     // 토큰 관련 에러 처리
     // 401 Unauthorized: 액세스 토큰이 유효하지 않거나 만료됨
     // 403 Forbidden: 권한 없음 (리프레시 토큰 문제일 수 있음)
-    if (
-      error.response?.status === 401 ||
-      error.response?.status === 403 ||
-      error.response?.data?.message?.includes("token") ||
-      error.response?.data?.message?.includes("Token") ||
-      error.response?.data?.message?.includes("refresh")
-    ) {
-      console.error(
-        "인증 오류 발생:",
-        error.response?.data?.message || error.message
-      );
+    // if (
+    //   error.response?.status === 401 ||
+    //   error.response?.status === 403 ||
+    //   error.response?.data?.message?.includes("token") ||
+    //   error.response?.data?.message?.includes("Token") ||
+    //   error.response?.data?.message?.includes("refresh")
+    // ) {
+    //   console.error("인증 오류 발생:", error.response?.data?.message || error.message);
 
-      // 리프레시 토큰 관련 에러인 경우 로그아웃 처리
-      if (
-        error.response?.data?.message?.includes("refresh") ||
-        error.response?.data?.message?.includes("Refresh") ||
-        error.response?.status === 403
-      ) {
-        console.error("리프레시 토큰 오류로 로그아웃 처리합니다.");
-        await handleLogout();
-      } else if (error.response?.status === 401) {
-        // 401 에러는 일단 리프레시 토큰만 제거
-        console.error("인증되지 않았습니다. - 401 STATUS");
-        await setRefreshToken("");
-      }
+    //   // 리프레시 토큰 관련 에러인 경우 로그아웃 처리
+    //   if (error.response?.data?.message?.includes("refresh") || error.response?.data?.message?.includes("Refresh") || error.response?.status === 403) {
+    //     console.error("리프레시 토큰 오류로 로그아웃 처리합니다.");
+    //     await handleLogout();
+    //   } else if (error.response?.status === 401) {
+    //     // 401 에러는 일단 리프레시 토큰만 제거
+    //     console.error("인증되지 않았습니다. - 401 STATUS");
+    //     await setRefreshToken("");
+    //   }
+    // }
+    if (error.response.status === 401) {
+      // 로컬 스토리지에서 사용자 관련 정보 제거
+      LocalStorage.remove(KEY_ACCESS_TOKEN);
+      LocalStorage.remove(KEY_REFRESH_TOKEN);
+
+      // 로그인 페이지로 이동
+      // return (window.location.href = "/login");
+    } else {
+      return Promise.reject(error);
     }
-
-    return Promise.reject(error);
-  }
+  },
 );
 
 export const customAxios = <T>(config: AxiosRequestConfig): Promise<T> => {
