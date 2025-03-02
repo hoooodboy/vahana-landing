@@ -4,7 +4,7 @@ import PCModal from "@/src/components/PCModal";
 import { imgView } from "@/src/utils/upload";
 import { usePatchApiAdminUsersId } from "@/src/api/endpoints/users/users";
 
-export const VerificationModal = ({ isOpen, setIsOpen, user, onSuccess }) => {
+export const VerificationModal = ({ isOpen, setIsOpen, user }) => {
   const [identityStatus, setIdentityStatus] = useState(
     user?.identity_status || "PENDING"
   );
@@ -21,11 +21,6 @@ export const VerificationModal = ({ isOpen, setIsOpen, user, onSuccess }) => {
       onSuccess: () => {
         alert("처리가 완료되었습니다.");
         setIsOpen(false);
-
-        // Call the onSuccess callback if provided
-        if (typeof onSuccess === "function") {
-          onSuccess();
-        }
       },
       onError: (error) => {
         console.error("Error:", error);
