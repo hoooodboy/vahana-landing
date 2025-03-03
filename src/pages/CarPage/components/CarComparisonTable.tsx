@@ -102,8 +102,8 @@ const CarComparisonTable = () => {
     {
       title: "모니터 크기",
       royal: '48"',
-      executive: '12"',
-      alphard: '12"',
+      executive: '14"',
+      alphard: '14"',
     },
     {
       title: "리클라이닝 각도",

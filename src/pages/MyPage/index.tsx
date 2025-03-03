@@ -83,6 +83,7 @@ const MyPage = () => {
     }
   );
 
+  console.log("userInfo", userInfo);
   // latestReservation.result를 통해 데이터 접근
   const reservationData = latestReservation?.result;
 
@@ -156,18 +157,25 @@ const MyPage = () => {
                 <img src={IcChevronRight} />
               </LinkWrapper>
             ))}
+            {userInfo.role === "ADMIN" && (
+              <LinkWrapper to="/admin/user">
+                관리자 페이지
+                <img src={IcChevronRight} />
+              </LinkWrapper>
+            )}
             {links.title === "고객센터" && (
               <LinkWrapper to="" onClick={logout}>
                 {"로그아웃"}
                 <img src={IcChevronRight} />
               </LinkWrapper>
             )}
-            {links.title === "고객센터" && (
+
+            {/* {links.title === "고객센터" && (
               <LinkWrapper to="">
                 {"회원 탈퇴"}
                 <img src={IcChevronRight} />
               </LinkWrapper>
-            )}
+            )} */}
           </LinkBlock>
         ))}
       </LinksContainer>

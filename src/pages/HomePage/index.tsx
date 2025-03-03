@@ -4,7 +4,7 @@ import MainBanner1 from "@/src/assets/main-banner-1.png";
 
 import VideoThumbImg from "@/src/assets/video-thumb.png";
 
-import CompanyImg from "@/src/assets/img-company-2.png";
+import CompanyImg from "@/src/assets/img-company-3.png";
 import Customer1Img from "@/src/assets/img-customer-1.png";
 import Customer2Img from "@/src/assets/img-customer-2.png";
 import Customer3Img from "@/src/assets/img-customer-3.png";
