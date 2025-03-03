@@ -222,8 +222,8 @@ const AdminCarPage = () => {
               <tr>
                 <th>ID</th>
                 <th>차량</th>
-                <th>추가사항</th>
-                <th>작업</th>
+                {/* <th>작업</th> */}
+                <th style={{ textAlign: "right" }}>추가사항</th>
               </tr>
             </thead>
             <tbody>
@@ -241,32 +241,16 @@ const AdminCarPage = () => {
                     <CarRow onClick={() => handleCarRowClick(car.id)}>
                       <td>{car.id}</td>
                       <td>{car.name}</td>
-                      <td>
+
+                      {/* <td>
+                      
+                      </td> */}
+                      <td style={{ textAlign: "right" }}>
                         <ExpandIcon
                           isExpanded={expandedCarIds.includes(car.id)}
                         >
                           ▾
                         </ExpandIcon>
-                      </td>
-                      <td>
-                        <CarActionContainer>
-                          <DeleteCarButton
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDeleteCar(car.id);
-                            }}
-                          >
-                            삭제
-                          </DeleteCarButton>
-                          <AddInventoryButton
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleOpenInventoryModal(car.id);
-                            }}
-                          >
-                            + 재고
-                          </AddInventoryButton>
-                        </CarActionContainer>
                       </td>
                     </CarRow>
 
@@ -280,6 +264,24 @@ const AdminCarPage = () => {
 
                             {renderCarInventories(car.id)}
                           </ExpandedContent>
+                          <CarActionContainer>
+                            <DeleteCarButton
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteCar(car.id);
+                              }}
+                            >
+                              삭제
+                            </DeleteCarButton>
+                            <AddInventoryButton
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleOpenInventoryModal(car.id);
+                              }}
+                            >
+                              + 재고
+                            </AddInventoryButton>
+                          </CarActionContainer>
                         </td>
                       </ExpandedRow>
                     )}
@@ -481,8 +483,10 @@ const DeleteButton = styled.button`
 `;
 
 const CarActionContainer = styled.div`
+  width: 100%;
   display: flex;
   gap: 8px;
+  justify-content: flex-end;
 `;
 
 const DeleteCarButton = styled.button`

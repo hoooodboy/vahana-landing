@@ -4,6 +4,7 @@ import { useGetApiDrivers } from "@/src/api/endpoints/drivers/drivers";
 import AdminSideBar from "@/src/components/AdminSideBar";
 import DriverAddModal from "./Modals/DriverAddModal";
 import DriverEditModal from "./Modals/DriverEditModal";
+import IcEdit from "@/src/assets/ic-edit.svg";
 
 const AdminDriverPage = () => {
   // 검색어 상태
@@ -106,9 +107,13 @@ const AdminDriverPage = () => {
                     <td>{driver.address}</td>
                     <td>{driver.note || "-"}</td>
                     <td>
-                      <EditButton onClick={() => openEditModal(driver)}>
+                      <Icon
+                        src={IcEdit}
+                        onClick={() => openEditModal(driver)}
+                      />
+                      {/* <EditButton onClick={() => openEditModal(driver)}>
                         수정
-                      </EditButton>
+                      </EditButton> */}
                     </td>
                   </tr>
                 ))
@@ -247,5 +252,7 @@ const EditButton = styled.button`
     color: #2b331f;
   }
 `;
+
+const Icon = styled.img``;
 
 export default AdminDriverPage;

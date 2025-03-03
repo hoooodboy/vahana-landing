@@ -69,6 +69,21 @@ const AdminHomePage = () => {
     );
   });
 
+  const getStatusLabel = (status) => {
+    switch (status) {
+      case "APPROVED":
+        return "확정";
+      case "PENDING":
+        return "대기";
+      case "REJECTED":
+        return "보류";
+      case "NOT_SUBMITTED":
+        return "미신청";
+      default:
+        return status;
+    }
+  };
+
   return (
     <Container>
       <AdminSideBar />
@@ -149,11 +164,17 @@ const AdminHomePage = () => {
 
                   {/* 관리 */}
                   <td>
-                    <ActionButton
+                    <StatusBadge
+                      status={user?.identity_status}
                       onClick={() => openModal("verification", user)}
                     >
+                      {getStatusLabel(user?.identity_status)}
+                    </StatusBadge>
+                    {/* <ActionButton
+                      
+                    >
                       확인하기
-                    </ActionButton>
+                    </ActionButton> */}
                   </td>
                 </TableRow>
               ))}
@@ -314,6 +335,41 @@ const ActionButton = styled.button`
   &:hover {
     background: #2e3520;
   }
+`;
+
+const StatusBadge = styled.span<{ status?: any }>`
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  background-color: ${(props) => {
+    switch (props.status) {
+      case "APPROVED":
+        return "#e6f7ee";
+      case "PENDING":
+        return "#fff9db";
+      case "REJECTED":
+        return "#ffe3e3";
+      case "NOT_SUBMITTED":
+        return "#e9ecef";
+      default:
+        return "#e9ecef";
+    }
+  }};
+  color: ${(props) => {
+    switch (props.status) {
+      case "APPROVED":
+        return "#0ca678";
+      case "PENDING":
+        return "#f59f00";
+      case "REJECTED":
+        return "#fa5252";
+      case "NOT_SUBMITTED":
+        return "#868e96";
+      default:
+        return "#868e96";
+    }
+  }};
 `;
 
 export default AdminHomePage;

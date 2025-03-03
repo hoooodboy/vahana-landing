@@ -9,6 +9,7 @@ import VehicleChangeModal from "./Modals/VehicleChangeModal";
 import DriverChangeModal from "./Modals/DriverChangeModal";
 import ReservationDetailModal from "./Modals/ReservationDetailModal";
 import StatusChangeModal from "./Modals/StatusChangeModal";
+import IcEdit from "@/src/assets/ic-edit.svg";
 
 // 예약 상태 라벨 및 색상 매핑
 const STATUS_LABELS = {
@@ -299,13 +300,17 @@ const AdminReservationPage = () => {
                         </StatusBadge>
                       </td>
                       <td>
-                        <EditButton
+                        <Icon
+                          src={IcEdit}
                           onClick={() =>
                             openReservationDetailModal(reservation)
                           }
+                        />
+                        {/* <EditButton
+                          
                         >
                           수정
-                        </EditButton>
+                        </EditButton> */}
                       </td>
                     </tr>
                   ))
@@ -522,5 +527,7 @@ const EditButton = styled.button`
     color: #2b331f;
   }
 `;
+
+const Icon = styled.img``;
 
 export default AdminReservationPage;
