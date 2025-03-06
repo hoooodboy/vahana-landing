@@ -155,6 +155,7 @@ const ReservationSecondStep: React.FC<FirstStepProps> = ({
       </Form>
 
       <ButtonContainer>
+        <Button onClick={() => navigate(-1)}>이전</Button>
         <NextButton
           onClick={isFormValid() ? onNext : undefined}
           $isActive={isFormValid()}
@@ -248,10 +249,26 @@ const NextButton = styled.div<{ $isActive: boolean }>`
   transition: background-color 0.3s ease;
 `;
 
+const Button = styled.div`
+  width: 100%;
+  height: 48px;
+  border-radius: 22px;
+  border: 1px solid #3e4730;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #000;
+  font-size: 16px;
+  font-weight: 700;
+  transition: background-color 0.3s ease;
+`;
+
 const ButtonContainer = styled.div`
   width: 100%;
   display: flex;
   justify-content: flex-end;
+  gap: 16px;
 `;
 
 export default ReservationSecondStep;
