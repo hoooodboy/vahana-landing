@@ -118,7 +118,7 @@ const AdminHomePage = () => {
             <TableBody>
               {filteredUsers?.map((user) => (
                 <TableRow key={user.id}>
-                  <td>{user.id}</td>
+                  <td>{user.user_id}</td>
                   {/* 이름 */}
                   <td
                     className="clickable"
