@@ -11,7 +11,7 @@ const Footer = () => {
         <FooterContents>상호명 | 비티오랩 주식회사</FooterContents>
         <FooterContents>대표 | 김해</FooterContents>
         <FooterContents>사업자등록번호 | 691-87-02329</FooterContents>
-        <FooterContents>유선번호 | 010-8481-3888</FooterContents>
+        <FooterContents>유선번호 | 031-8042-2038</FooterContents>
         <FooterContents>대표문의 | vahana.sun@gmail.com</FooterContents>
         <FooterContents>
           주소 | 서울시 구로구 경인로53길 90, 11층 1104호
