@@ -8,6 +8,11 @@ import MainBanner2 from "@/src/assets/main-banner-2.png";
 import MainBanner3 from "@/src/assets/main-banner-3.png";
 import IcLexus from "@/src/assets/ic-lexus.png";
 import IcToyota from "@/src/assets/ic-toyota.png";
+
+import IcGene from "@/src/assets/ic-gene.png";
+import IcFerarri from "@/src/assets/ic-ferarri.png";
+import IcTesla from "@/src/assets/ic-tesla.png";
+
 import royal1 from "@/src/assets/royal-1.jpg";
 import royal2 from "@/src/assets/royal-2.jpg";
 import royal3 from "@/src/assets/royal-3.jpg";
@@ -19,6 +24,9 @@ import alphard1 from "@/src/assets/alphard-1.jpg";
 import alphard2 from "@/src/assets/alphard-2.jpg";
 import alphard3 from "@/src/assets/alphard-3.jpg";
 import IcChevronDown from "@/src/assets/ic-chevron-down.svg";
+import Gv90 from "@/src/assets/gv90.png";
+import Purosan from "@/src/assets/purosan.png";
+import Cyber from "@/src/assets/cyber.png";
 
 import { CarouselProvider, Dot, Slide, Slider } from "pure-react-carousel";
 import "pure-react-carousel/dist/react-carousel.es.css";
@@ -33,7 +41,7 @@ const CarPage = () => {
     {
       img: [royal1, royal2, royal3, royal4],
       name: "LM 500h ROYAL",
-      subName: "Automaticㆍ 4WD",
+      subName: "Hybrid ㆍ 4WD",
       label: "4 Seats",
       bg: "#3E4730",
       contents: [
@@ -54,7 +62,7 @@ const CarPage = () => {
     {
       img: [executive1, executive2, executive3],
       name: "LM 500h EXECUTIVE",
-      subName: "Automaticㆍ 4WD",
+      subName: "Hybrid ㆍ 4WD",
       label: "6 Seats",
       bg: "#76865F",
       contents: [
@@ -70,8 +78,63 @@ const CarPage = () => {
     {
       img: [alphard1, alphard2, alphard3],
       name: "ALPHARD",
-      subName: "Automaticㆍ 4WD",
+      subName: "Hybrid ㆍ 4WD",
       label: "7 Seats",
+      bg: "#76865F",
+      contents: [
+        "ㆍ이중접합유리",
+        "ㆍ오디오 스피커 14개",
+        'ㆍ14" 모니터',
+        "ㆍ160º 리클라이닝",
+        "ㆍ파트타임 4륜",
+        "ㆍJBL 오디오",
+      ],
+    },
+  ];
+
+  const comeingData = [
+    {
+      img: [Gv90],
+      name: "GV90",
+      subName: "Automaticㆍ 4WD",
+      label: "4 Seats",
+      bg: "#76865F",
+      contents: [
+        "ㆍ노이즈켄슬링",
+        "ㆍ파티션 글라스",
+        "ㆍ이중접합유리",
+        "ㆍ리어 컴포트 모드",
+        "ㆍ오디오 스피커 28개",
+        "ㆍ냉장고",
+        "ㆍ와이파이",
+        'ㆍ48" 모니터',
+        "ㆍ180º 리클라이닝",
+        "ㆍ체온 추적 에어컨디셔닝",
+        "ㆍ4륜",
+        "ㆍ마크레빈슨 오디오",
+      ],
+    },
+    {
+      img: [Purosan],
+      name: "PUROSANGUE",
+      subName: "Automaticㆍ 4WD",
+      label: "4 Seats",
+      bg: "#76865F",
+      contents: [
+        "ㆍ이중접합유리",
+        "ㆍ리어 컴포트 모드",
+        "ㆍ오디오 스피커 23개",
+        'ㆍ14" 모니터',
+        "ㆍ165º 리클라이닝",
+        "ㆍ4륜",
+        "ㆍ마크레빈슨 오디오",
+      ],
+    },
+    {
+      img: [Cyber],
+      name: "CYBER TRUCK",
+      subName: "Electricㆍ 4WD",
+      label: "4 Seats",
       bg: "#76865F",
       contents: [
         "ㆍ이중접합유리",
@@ -184,6 +247,35 @@ const CarPage = () => {
                     />
                   )}
                 </ExpandButton>
+              </ContentsBlock>
+            </CarBlock>
+          ))}
+          {comeingData.map((data, index) => (
+            <CarBlock key={index}>
+              {data.img?.map((img, i) => (
+                <ImgContainer>
+                  <img src={img} alt="car" />
+                </ImgContainer>
+              ))}
+
+              <ContentsBlock>
+                <BrandWrapper>
+                  <BrandIcon>
+                    {data.name === "GV90" && <img src={IcGene} alt="Genesis" />}
+
+                    {data.name === "PUROSANGUE" && (
+                      <img src={IcFerarri} alt="Ferarri" />
+                    )}
+                    {data.name === "CYBER TRUCK" && (
+                      <img src={IcTesla} alt="Tesla" />
+                    )}
+                  </BrandIcon>
+                  <BrandTitleWrapper>
+                    <BrandTitle>{data.name}</BrandTitle>
+                    {data.subName}
+                  </BrandTitleWrapper>
+                </BrandWrapper>
+                <SeatButton bg={data.bg}>{data.label}</SeatButton>
               </ContentsBlock>
             </CarBlock>
           ))}
