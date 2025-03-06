@@ -149,7 +149,7 @@ const Container = styled.div`
   position: relative;
   padding-top: 56px;
   min-height: 100vh;
-  padding-bottom: 215px;
+  padding-bottom: 261px;
 `;
 
 const TitleContainer = styled.div`

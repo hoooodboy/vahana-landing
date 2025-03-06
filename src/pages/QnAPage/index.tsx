@@ -122,13 +122,14 @@ const QnAPage = () => {
 
 const Container = styled.div`
   width: 100%;
+  /* height: 100%; */
   display: flex;
   flex-direction: column;
   flex: 1 !important;
   background: #fff;
   position: relative;
   padding-top: 56px;
-  padding-bottom: 215px;
+  padding-bottom: 261px;
 `;
 
 const TitleContainer = styled.div`
@@ -147,6 +148,8 @@ const Title = styled.div`
 
 const AccordionContainer = styled.div`
   padding: 0 16px;
+  height: 100%;
+  padding-bottom: 152px;
 `;
 
 const CategoryButton = styled.button<{ isActive?: boolean }>`

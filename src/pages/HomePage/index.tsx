@@ -281,7 +281,7 @@ const Container = styled.div`
   height: 100%;
   background: #fffbf1;
   position: relative;
-  padding-bottom: 215px;
+  padding-bottom: 261px;
 `;
 
 const Section = styled.section`

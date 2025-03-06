@@ -230,7 +230,7 @@ const Container = styled.div`
   background: #fff;
   position: relative;
   padding-top: 56px;
-  padding-bottom: 215px;
+  padding-bottom: 261px;
 `;
 
 const TitleContainer = styled.div`
