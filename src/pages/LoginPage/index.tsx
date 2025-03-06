@@ -1,16 +1,21 @@
-import { PostApiAuthLoginMutationResult, usePostApiAuthLogin } from "@/src/api/endpoints/auth/auth";
+import {
+  PostApiAuthLoginMutationResult,
+  usePostApiAuthLogin,
+} from "@/src/api/endpoints/auth/auth";
 import IcKakao from "@/src/assets/ic-kakao.png";
 import Header from "@/src/components/Header";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import styled from "styled-components";
+
 const LoginPage = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     id: "",
     password: "",
   });
+  const [showPassword, setShowPassword] = useState(false);
 
   const loginMutation = usePostApiAuthLogin({
     mutation: {
@@ -53,6 +58,10 @@ const LoginPage = () => {
     });
   };
 
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   const handleKakaoLogin = () => {
     window.location.href = "/api/auth/kakao";
   };
@@ -83,17 +92,37 @@ const LoginPage = () => {
       <Form onSubmit={handleSubmit}>
         <InputGroup>
           <Label>아이디</Label>
-          <Input type="text" name="id" value={formData.id} onChange={handleChange} placeholder="아이디를 입력해주세요." />
+          <Input
+            type="text"
+            name="id"
+            value={formData.id}
+            onChange={handleChange}
+            placeholder="아이디를 입력해주세요."
+          />
         </InputGroup>
 
         <InputGroup>
           <Label>비밀번호</Label>
-          <Input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="비밀번호를 입력해주세요." />
+          <PasswordInputWrapper>
+            <PasswordInput
+              type={showPassword ? "text" : "password"}
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="비밀번호를 입력해주세요."
+            />
+            <TogglePasswordButton
+              type="button"
+              onClick={togglePasswordVisibility}
+            >
+              {showPassword ? "숨기기" : "보기"}
+            </TogglePasswordButton>
+          </PasswordInputWrapper>
         </InputGroup>
       </Form>
 
       <UtilWrapper>
-        <Util to="/forgot-password">비밀번호 찾기</Util>
+        <Util to="/find-account">계정 찾기</Util>
         <Util to="/signup">회원가입</Util>
       </UtilWrapper>
 
@@ -154,7 +183,6 @@ const Label = styled.label`
   color: #666;
   font-size: 14px;
   font-weight: 600;
-
   padding: 8px;
 `;
 
@@ -165,12 +193,41 @@ const Input = styled.input`
   border-radius: 12px;
   border: 1px solid #c7c7c7;
   background: #fff;
-
   color: #000;
   font-size: 16px;
   font-weight: 400;
   &::placeholder {
     color: #666;
+  }
+`;
+
+const PasswordInputWrapper = styled.div`
+  position: relative;
+  display: flex;
+  width: 100%;
+`;
+
+const PasswordInput = styled(Input)`
+  width: 100%;
+  padding-right: 70px; /* 버튼 공간 확보 */
+`;
+
+const TogglePasswordButton = styled.button`
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+
+  &:hover {
+    background-color: #f1f3ed;
   }
 `;
 

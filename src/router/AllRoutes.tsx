@@ -53,6 +53,10 @@ function AllRoutes() {
           element: <Pages.TermsPage />,
         },
         {
+          path: "/find-account",
+          element: <Pages.FindAccountPage />,
+        },
+        {
           path: "/*",
           element: <Pages.HomePage />,
         },
@@ -149,7 +153,10 @@ function AllRoutes() {
           path: "/admin/*",
           element: <Pages.AdminUserPage />,
         },
-
+        {
+          path: "/find-account",
+          element: <Pages.FindAccountPage />,
+        },
         {
           path: "/*",
           element: <Pages.HomePage />,

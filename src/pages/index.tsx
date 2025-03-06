@@ -14,4 +14,5 @@ export { default as IdentifyPage } from "./IdentifyPage";
 export { default as QnAPage } from "./QnAPage";
 export { default as ReservationDetailPage } from "./ReservationDetailPage";
 export { default as UserPage } from "./UserPage";
+export { default as FindAccountPage } from "./FindAccountPage";
 export * from "./Admin";
