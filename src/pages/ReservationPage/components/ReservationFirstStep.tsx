@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import styled from "styled-components";
 import DaumPostcode from "react-daum-postcode";
 import Modal from "@/src/components/Modal";
+import styled from "styled-components";
 
 interface FirstStepProps {
   formData: {
@@ -33,7 +33,21 @@ const ReservationFirstStep: React.FC<FirstStepProps> = ({
   const [isPickupAddressOpen, setIsPickupAddressOpen] = useState(false);
   const [isDropoffAddressOpen, setIsDropoffAddressOpen] = useState(false);
   const [isTimePickerOpen, setIsTimePickerOpen] = useState(false);
+
+  // 직접 입력 텍스트 상태
+  const [customPickupLocation, setCustomPickupLocation] = useState("");
+  const [customDropoffLocation, setCustomDropoffLocation] = useState("");
+
+  // 주소 검색 모드 (일반 주소 검색 또는 직접 입력)
+  const [pickupSearchMode, setPickupSearchMode] = useState<
+    "address" | "direct"
+  >("address");
+  const [dropoffSearchMode, setDropoffSearchMode] = useState<
+    "address" | "direct"
+  >("address");
+
   console.log("selectedCar.seats", selectedCar.seats);
+
   const onNext = () => {
     if (isFormValid()) {
       navigate("/reservation/second", {
@@ -73,6 +87,33 @@ const ReservationFirstStep: React.FC<FirstStepProps> = ({
     } as React.ChangeEvent<HTMLInputElement>;
     handleChange(event);
     setIsDropoffAddressOpen(false);
+  };
+
+  // 직접 입력한 장소 저장 처리
+  const handleCustomLocationConfirm = (isPickup: boolean) => {
+    const location = isPickup ? customPickupLocation : customDropoffLocation;
+
+    if (!location.trim()) {
+      alert("장소를 입력해주세요.");
+      return;
+    }
+
+    const event = {
+      target: {
+        name: isPickup ? "pickup_location" : "dropoff_location",
+        value: location,
+      },
+    } as React.ChangeEvent<HTMLInputElement>;
+
+    handleChange(event);
+
+    if (isPickup) {
+      setIsPickupAddressOpen(false);
+      setCustomPickupLocation("");
+    } else {
+      setIsDropoffAddressOpen(false);
+      setCustomDropoffLocation("");
+    }
   };
 
   const isFormValid = () => {
@@ -149,8 +190,6 @@ const ReservationFirstStep: React.FC<FirstStepProps> = ({
     handleChange(event);
   };
 
-  console.log("selectedCar", selectedCar);
-
   return (
     <Container>
       <Form>
@@ -171,9 +210,8 @@ const ReservationFirstStep: React.FC<FirstStepProps> = ({
             type="text"
             name="phone"
             value={formData.phone}
-            // onChange={handleChange}
             onChange={handlePhoneChange}
-            maxLength={13} // 하이픈 포함 최대 길이 (02-xxxx-xxxx 또는 010-xxxx-xxxx)
+            maxLength={13}
             placeholder="전화번호를 입력해주세요."
           />
         </InputGroup>
@@ -195,7 +233,7 @@ const ReservationFirstStep: React.FC<FirstStepProps> = ({
           <Input
             type="time"
             name="pickup_time"
-            value={formData.pickup_time.split(" ")[1] || ""} // HH:mm 부분만 표시
+            value={formData.pickup_time.split(" ")[1] || ""}
             onChange={handleTimeChange}
             placeholder="출발 시간을 입력해주세요."
           />
@@ -214,29 +252,103 @@ const ReservationFirstStep: React.FC<FirstStepProps> = ({
         </InputGroup>
       </Form>
 
+      {/* 출발지 주소 검색 모달 */}
       <Modal isOpen={isPickupAddressOpen} setIsOpen={setIsPickupAddressOpen}>
         <ModalContent>
-          <DaumPostcode
-            onComplete={handlePickupComplete}
-            autoClose={false}
-            onClose={() => setIsPickupAddressOpen(false)}
-          />
-          {/* <CloseButton onClick={() => setIsPickupAddressOpen(false)}>
-            닫기
-          </CloseButton> */}
+          <ModalHeader>
+            <ModalTitle>출발지 주소 검색</ModalTitle>
+            <CloseButton onClick={() => setIsPickupAddressOpen(false)}>
+              ×
+            </CloseButton>
+          </ModalHeader>
+
+          <SearchTypeContainer>
+            <SearchTypeButton
+              onClick={() => setPickupSearchMode("address")}
+              $active={pickupSearchMode === "address"}
+            >
+              주소로 검색
+            </SearchTypeButton>
+            <SearchTypeButton
+              onClick={() => setPickupSearchMode("direct")}
+              $active={pickupSearchMode === "direct"}
+            >
+              직접 입력
+            </SearchTypeButton>
+          </SearchTypeContainer>
+
+          {pickupSearchMode === "direct" ? (
+            <DirectInputContainer>
+              <KeywordInput
+                type="text"
+                value={customPickupLocation}
+                onChange={(e) => setCustomPickupLocation(e.target.value)}
+                placeholder="출발지를 직접 입력하세요"
+              />
+              <ConfirmButton
+                onClick={() => handleCustomLocationConfirm(true)}
+                disabled={!customPickupLocation.trim()}
+              >
+                확인
+              </ConfirmButton>
+            </DirectInputContainer>
+          ) : (
+            <DaumPostcode
+              onComplete={handlePickupComplete}
+              autoClose={false}
+              onClose={() => setIsPickupAddressOpen(false)}
+            />
+          )}
         </ModalContent>
       </Modal>
 
+      {/* 목적지 주소 검색 모달 */}
       <Modal isOpen={isDropoffAddressOpen} setIsOpen={setIsDropoffAddressOpen}>
         <ModalContent>
-          <DaumPostcode
-            onComplete={handleDropoffComplete}
-            autoClose={false}
-            onClose={() => setIsDropoffAddressOpen(false)}
-          />
-          {/* <CloseButton onClick={() => setIsDropoffAddressOpen(false)}>
-            닫기
-          </CloseButton> */}
+          <ModalHeader>
+            <ModalTitle>목적지 주소 검색</ModalTitle>
+            <CloseButton onClick={() => setIsDropoffAddressOpen(false)}>
+              ×
+            </CloseButton>
+          </ModalHeader>
+
+          <SearchTypeContainer>
+            <SearchTypeButton
+              onClick={() => setDropoffSearchMode("address")}
+              $active={dropoffSearchMode === "address"}
+            >
+              주소로 검색
+            </SearchTypeButton>
+            <SearchTypeButton
+              onClick={() => setDropoffSearchMode("direct")}
+              $active={dropoffSearchMode === "direct"}
+            >
+              직접 입력
+            </SearchTypeButton>
+          </SearchTypeContainer>
+
+          {dropoffSearchMode === "direct" ? (
+            <DirectInputContainer>
+              <KeywordInput
+                type="text"
+                value={customDropoffLocation}
+                onChange={(e) => setCustomDropoffLocation(e.target.value)}
+                placeholder="목적지를 직접 입력하세요"
+              />
+              <ConfirmButton
+                onClick={() => handleCustomLocationConfirm(false)}
+                disabled={!customDropoffLocation.trim()}
+              >
+                확인
+              </ConfirmButton>
+            </DirectInputContainer>
+          ) : (
+            <DaumPostcode
+              onComplete={handleDropoffComplete}
+              autoClose={false}
+              onClose={() => setIsDropoffAddressOpen(false)}
+            />
+          )}
         </ModalContent>
       </Modal>
 
@@ -319,29 +431,173 @@ const NextButton = styled.div<{ $isActive: boolean }>`
 
 const ButtonContainer = styled.div`
   width: 100%;
-
   display: flex;
   justify-content: flex-end;
 `;
 
 const ModalContent = styled.div`
   background-color: white;
-  padding: 20px;
   border-radius: 16px;
   width: 100%;
   height: 100%;
   min-height: 460px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+`;
+
+const ModalHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e9ecef;
+`;
+
+const ModalTitle = styled.h3`
+  margin: 0;
+  font-size: 18px;
+  color: #333;
 `;
 
 const CloseButton = styled.button`
-  width: 100%;
-  padding: 10px;
-  margin-top: 10px;
-  background-color: #3e4730;
-  color: white;
+  background: none;
   border: none;
-  border-radius: 4px;
+  font-size: 24px;
   cursor: pointer;
+  color: #adb5bd;
+  line-height: 1;
+
+  &:hover {
+    color: #495057;
+  }
+`;
+
+const SearchTypeContainer = styled.div`
+  display: flex;
+  border-bottom: 1px solid #e9ecef;
+`;
+
+const SearchTypeButton = styled.button<{ $active: boolean }>`
+  flex: 1;
+  padding: 12px;
+  background: ${(props) => (props.$active ? "#3e4730" : "#f8f9fa")};
+  color: ${(props) => (props.$active ? "#ffffff" : "#495057")};
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: ${(props) => (props.$active ? "600" : "400")};
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: ${(props) => (props.$active ? "#3e4730" : "#e9ecef")};
+  }
+`;
+
+const KeywordSearchContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  gap: 16px;
+  flex: 1;
+  overflow: hidden;
+`;
+
+const DirectInputContainer = styled.div`
+  /* height: 100%; */
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 16px;
+  gap: 16px;
+`;
+
+const SearchInputContainer = styled.div`
+  display: flex;
+  gap: 8px;
+`;
+
+const KeywordInput = styled.input`
+  width: 100%;
+  height: 48px;
+  padding: 10px 16px;
+  border: 1px solid #ced4da;
+  border-radius: 8px;
+  font-size: 14px;
+
+  &:focus {
+    outline: none;
+    border-color: #3e4730;
+  }
+`;
+
+const SearchButton = styled.button`
+  padding: 0 16px;
+  background: #3e4730;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+
+  &:hover {
+    background: #2b331f;
+  }
+`;
+
+const ConfirmButton = styled.button<{ disabled?: boolean }>`
+  width: 100%;
+  padding: 12px;
+  margin-top: 8px;
+  background: ${(props) => (props.disabled ? "#c7c7c7" : "#3e4730")};
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+  align-self: flex-end;
+  &:hover {
+    background: ${(props) => (props.disabled ? "#c7c7c7" : "#2b331f")};
+  }
+`;
+
+const ResultsContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  flex: 1;
+`;
+
+const ResultItem = styled.div`
+  padding: 12px;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: #f8f9fa;
+  }
+`;
+
+const ResultTitle = styled.div`
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: #212529;
+`;
+
+const ResultAddress = styled.div`
+  font-size: 14px;
+  color: #6c757d;
+`;
+
+const NoResults = styled.div`
+  padding: 16px;
+  text-align: center;
+  color: #6c757d;
 `;
 
 export default ReservationFirstStep;
