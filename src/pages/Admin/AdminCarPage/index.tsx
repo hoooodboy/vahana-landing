@@ -9,7 +9,9 @@ import {
 import AdminSideBar from "@/src/components/AdminSideBar";
 import AddCarModal from "./Modals/AddCarModal";
 import AddCarInventoryModal from "./Modals/AddCarInventoryModal";
+import EditCarModal from "./Modals/EditCarModal";
 import { useQueries } from "@tanstack/react-query";
+import { imgView } from "@/src/utils/upload";
 
 const AdminCarPage = () => {
   // 차량 목록 데이터
@@ -49,8 +51,14 @@ const AdminCarPage = () => {
   // 차량 재고 추가 모달 상태
   const [showInventoryModal, setShowInventoryModal] = useState(false);
 
+  // 차량 수정 모달 상태
+  const [showEditCarModal, setShowEditCarModal] = useState(false);
+
   // 선택된 차량 ID (재고 추가 시)
   const [selectedCarId, setSelectedCarId] = useState<number | null>(null);
+
+  // 수정할 차량 정보
+  const [selectedCar, setSelectedCar] = useState(null);
 
   // 차량 재고 삭제 mutation
   const deleteInventoryMutation = useDeleteApiCarsIdInventoryInventoryId();
@@ -145,6 +153,25 @@ const AdminCarPage = () => {
     setSelectedCarId(null);
   };
 
+  // 차량 수정 모달 열기 핸들러
+  const handleOpenEditCarModal = (car) => {
+    setSelectedCar(car);
+    setShowEditCarModal(true);
+  };
+
+  // 차량 수정 모달 취소 핸들러
+  const handleCancelEditCar = () => {
+    setShowEditCarModal(false);
+    setSelectedCar(null);
+  };
+
+  // 차량 수정 완료 핸들러
+  const handleEditCarComplete = () => {
+    refetchCars();
+    setShowEditCarModal(false);
+    setSelectedCar(null);
+  };
+
   // 차량 재고 삭제 핸들러
   const handleDeleteInventory = async (carId: number, inventoryId: number) => {
     try {
@@ -160,6 +187,20 @@ const AdminCarPage = () => {
       }
     } catch (error) {
       console.error("Failed to delete inventory:", error);
+    }
+  };
+
+  // 차량 상태 표시 헬퍼 함수
+  const getStatusLabel = (status) => {
+    switch (status) {
+      case "AVAILABLE":
+        return "사용 가능";
+      case "UNAVAILABLE":
+        return "사용 불가";
+      case "MAINTENANCE":
+        return "정비 중";
+      default:
+        return status;
     }
   };
 
@@ -222,7 +263,7 @@ const AdminCarPage = () => {
               <tr>
                 <th>ID</th>
                 <th>차량</th>
-                {/* <th>작업</th> */}
+                <th style={{ textAlign: "right" }}>상태</th>
                 <th style={{ textAlign: "right" }}>추가사항</th>
               </tr>
             </thead>
@@ -241,10 +282,11 @@ const AdminCarPage = () => {
                     <CarRow onClick={() => handleCarRowClick(car.id)}>
                       <td>{car.id}</td>
                       <td>{car.name}</td>
-
-                      {/* <td>
-                      
-                      </td> */}
+                      <td style={{ textAlign: "right" }}>
+                        <StatusBadge status={car.status}>
+                          {getStatusLabel(car.status)}
+                        </StatusBadge>
+                      </td>
                       <td style={{ textAlign: "right" }}>
                         <ExpandIcon
                           isExpanded={expandedCarIds.includes(car.id)}
@@ -258,10 +300,20 @@ const AdminCarPage = () => {
                       <ExpandedRow>
                         <td colSpan={4}>
                           <ExpandedContent>
-                            <DetailHeader>
+                            <CarInfoSection>
                               <h4>{car.name}</h4>
-                            </DetailHeader>
 
+                              {car.image && (
+                                <CarImageContainer>
+                                  <CarImage
+                                    src={imgView(car.image)}
+                                    alt={car.name}
+                                  />
+                                </CarImageContainer>
+                              )}
+                            </CarInfoSection>
+
+                            {/* <SectionTitle>차량 재고</SectionTitle> */}
                             {renderCarInventories(car.id)}
                           </ExpandedContent>
                           <CarActionContainer>
@@ -273,6 +325,14 @@ const AdminCarPage = () => {
                             >
                               삭제
                             </DeleteCarButton>
+                            <EditCarButton
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleOpenEditCarModal(car);
+                              }}
+                            >
+                              수정
+                            </EditCarButton>
                             <AddInventoryButton
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -309,6 +369,16 @@ const AdminCarPage = () => {
           carId={selectedCarId}
           onCancel={handleCancelAddInventory}
           onComplete={() => handleAddInventoryComplete(selectedCarId)}
+        />
+      )}
+
+      {/* 차량 수정 모달 */}
+      {showEditCarModal && selectedCar && (
+        <EditCarModal
+          isOpen={showEditCarModal}
+          car={selectedCar}
+          onCancel={handleCancelEditCar}
+          onComplete={handleEditCarComplete}
         />
       )}
     </Container>
@@ -408,6 +478,38 @@ const CarRow = styled.tr`
   }
 `;
 
+const StatusBadge = styled.span<{ status: string }>`
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  background-color: ${(props) => {
+    switch (props.status) {
+      case "AVAILABLE":
+        return "#e6f7ee";
+      case "UNAVAILABLE":
+        return "#fff3bf";
+      case "MAINTENANCE":
+        return "#ffe3e3";
+      default:
+        return "#e9ecef";
+    }
+  }};
+  color: ${(props) => {
+    switch (props.status) {
+      case "AVAILABLE":
+        return "#0ca678";
+      case "UNAVAILABLE":
+        return "#f08c00";
+      case "MAINTENANCE":
+        return "#fa5252";
+      default:
+        return "#868e96";
+    }
+  }};
+`;
+
 const ExpandIcon = styled.span<{ isExpanded: boolean }>`
   display: inline-block;
   transform: ${(props) => (props.isExpanded ? "rotate(180deg)" : "rotate(0)")};
@@ -422,17 +524,55 @@ const ExpandedContent = styled.div`
   padding: 16px;
 `;
 
-const DetailHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
+const CarInfoSection = styled.div`
+  margin-bottom: 24px;
 
   h4 {
-    margin: 0;
-    font-size: 16px;
-    color: #495057;
+    margin: 0 0 16px 0;
+    font-size: 18px;
+    color: #343a40;
   }
+`;
+
+const CarImageContainer = styled.div`
+  width: 100%;
+  max-width: 300px;
+  margin-bottom: 16px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+`;
+
+const CarImage = styled.img`
+  width: 100%;
+  height: 200px;
+  height: auto;
+  display: block;
+`;
+
+const InfoGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+`;
+
+const InfoItem = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const InfoLabel = styled.span`
+  font-size: 14px;
+  color: #6c757d;
+  margin-right: 8px;
+  white-space: nowrap;
+`;
+
+const InfoValue = styled.span`
+  font-size: 14px;
+  color: #343a40;
+  font-weight: 500;
 `;
 
 const AddInventoryButton = styled.button`
@@ -447,6 +587,21 @@ const AddInventoryButton = styled.button`
 
   &:hover {
     background-color: #2b331f;
+  }
+`;
+
+const EditCarButton = styled.button`
+  padding: 6px 12px;
+  background-color: #666;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background-color: #666;
   }
 `;
 
