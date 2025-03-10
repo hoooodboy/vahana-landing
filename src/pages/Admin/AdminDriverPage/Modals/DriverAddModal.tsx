@@ -19,11 +19,11 @@ const DriverAddModal: React.FC<DriverAddModalProps> = ({
   const addDriverMutation = usePostApiDrivers({
     mutation: {
       onSuccess: () => {
-        toast.success("드라이버가 성공적으로 추가되었습니다.");
+        toast("드라이버가 성공적으로 추가되었습니다.");
         onComplete();
       },
       onError: () => {
-        toast.error("드라이버 추가에 실패했습니다.");
+        toast("드라이버 추가에 실패했습니다.");
       },
     },
   });
@@ -54,12 +54,12 @@ const DriverAddModal: React.FC<DriverAddModalProps> = ({
   const handleAddDriver = async () => {
     // 유효성 검사
     if (!formData.name) {
-      toast.error("이름을 입력해주세요.");
+      toast("이름을 입력해주세요.");
       return;
     }
 
     if (!formData.phone) {
-      toast.error("전화번호를 입력해주세요.");
+      toast("전화번호를 입력해주세요.");
       return;
     }
 

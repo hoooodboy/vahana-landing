@@ -27,10 +27,10 @@ const EditCarModal = ({ isOpen, car, onCancel, onComplete }) => {
           ...prev,
           image: response.result,
         }));
-        toast.success("이미지가 업로드되었습니다.");
+        toast("이미지가 업로드되었습니다.");
       },
       onError: () => {
-        toast.error("이미지 업로드에 실패했습니다.");
+        toast("이미지 업로드에 실패했습니다.");
       },
     },
   });
@@ -39,12 +39,12 @@ const EditCarModal = ({ isOpen, car, onCancel, onComplete }) => {
   const updateCarMutation = usePatchApiCarsId({
     mutation: {
       onSuccess: () => {
-        toast.success("차량 정보가 성공적으로 수정되었습니다.");
+        toast("차량 정보가 성공적으로 수정되었습니다.");
         onComplete();
       },
       onError: (error) => {
         console.error("차량 수정 실패:", error);
-        toast.error("차량 정보 수정에 실패했습니다.");
+        toast("차량 정보 수정에 실패했습니다.");
         setLoading(false);
       },
     },
@@ -67,7 +67,7 @@ const EditCarModal = ({ isOpen, car, onCancel, onComplete }) => {
     if (file) {
       // 파일 크기 제한 (5MB)
       if (file.size > 5 * 1024 * 1024) {
-        toast.error("파일 크기는 5MB 이하여야 합니다.");
+        toast("파일 크기는 5MB 이하여야 합니다.");
         return;
       }
 
@@ -83,7 +83,7 @@ const EditCarModal = ({ isOpen, car, onCancel, onComplete }) => {
   const handleSubmit = async () => {
     // 유효성 검사
     if (!formData.name.trim()) {
-      toast.error("차량명을 입력해주세요.");
+      toast("차량명을 입력해주세요.");
       return;
     }
 

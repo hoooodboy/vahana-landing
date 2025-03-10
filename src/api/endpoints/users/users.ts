@@ -1472,6 +1472,85 @@ export const usePatchApiAdminUsersId = <
   return useMutation(mutationOptions);
 };
 /**
+ * [어드민] 유저 삭제
+ * @summary [어드민] 유저 삭제
+ */
+export const deleteApiAdminUsersId = (id: string) => {
+  return customAxios<APIResponseBoolean>({
+    url: `/api/admin/users/${id}`,
+    method: "DELETE",
+  });
+};
+
+export const getDeleteApiAdminUsersIdMutationOptions = <
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteApiAdminUsersId>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteApiAdminUsersId>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ["deleteApiAdminUsersId"];
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteApiAdminUsersId>>,
+    { id: string }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return deleteApiAdminUsersId(id);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DeleteApiAdminUsersIdMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteApiAdminUsersId>>
+>;
+
+export type DeleteApiAdminUsersIdMutationError =
+  | APIResponseUnauthorizedDto
+  | APIResponseForbiddenDto;
+
+/**
+ * @summary [어드민] 유저 삭제
+ */
+export const useDeleteApiAdminUsersId = <
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteApiAdminUsersId>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof deleteApiAdminUsersId>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationOptions = getDeleteApiAdminUsersIdMutationOptions(options);
+
+  return useMutation(mutationOptions);
+};
+/**
  * [어드민] 추천인 조회
  * @summary [어드민] 추천인 조회
  */

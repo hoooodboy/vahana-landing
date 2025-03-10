@@ -28,7 +28,7 @@ const AddCarModal: React.FC<AddCarModalProps> = ({
         }));
       },
       onError: () => {
-        toast.error("이미지 업로드에 실패했습니다.");
+        toast("이미지 업로드에 실패했습니다.");
       },
     },
   });
@@ -85,7 +85,7 @@ const AddCarModal: React.FC<AddCarModalProps> = ({
     if (file) {
       // 파일 크기 제한 (5MB)
       if (file.size > 5 * 1024 * 1024) {
-        toast.error("파일 크기는 5MB 이하여야 합니다.");
+        toast("파일 크기는 5MB 이하여야 합니다.");
         return;
       }
 
@@ -102,12 +102,12 @@ const AddCarModal: React.FC<AddCarModalProps> = ({
   const handleAddCar = async () => {
     // 유효성 검사
     if (!formData.name) {
-      toast.error("차량명을 입력해주세요.");
+      toast("차량명을 입력해주세요.");
       return;
     }
 
     if (!formData.image) {
-      toast.error("차량 이미지를 업로드해주세요.");
+      toast("차량 이미지를 업로드해주세요.");
       return;
     }
 

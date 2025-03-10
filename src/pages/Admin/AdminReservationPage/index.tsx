@@ -48,11 +48,11 @@ const AdminReservationPage = () => {
   const updateReservationMutation = usePatchApiReservationsId({
     mutation: {
       onSuccess: () => {
-        toast.success("예약 상태가 성공적으로 변경되었습니다.");
+        toast("예약 상태가 성공적으로 변경되었습니다.");
         refetch();
       },
       onError: () => {
-        toast.error("예약 상태 변경에 실패했습니다.");
+        toast("예약 상태 변경에 실패했습니다.");
       },
     },
   }) as any;
@@ -189,7 +189,7 @@ const AdminReservationPage = () => {
 
   const handleReservationDetailSuccess = () => {
     refetch(); // 예약 상세 정보가 업데이트된 후 예약 목록을 새로고침
-    toast.success("예약 정보가 성공적으로 업데이트되었습니다.");
+    toast("예약 정보가 성공적으로 업데이트되었습니다.");
   };
 
   return (

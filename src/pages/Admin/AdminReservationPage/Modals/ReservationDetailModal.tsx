@@ -76,13 +76,13 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
     usePatchApiReservationsIdDetail({
       mutation: {
         onSuccess: () => {
-          toast.success("예약 정보가 성공적으로 업데이트되었습니다.");
+          toast("예약 정보가 성공적으로 업데이트되었습니다.");
           setIsSubmitting(false);
           setIsOpen(false);
           onSuccess();
         },
         onError: (error) => {
-          toast.error("예약 정보 업데이트에 실패했습니다.");
+          toast("예약 정보 업데이트에 실패했습니다.");
           console.error("예약 상세 정보 수정 실패:", error);
           setIsSubmitting(false);
         },
@@ -117,7 +117,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
       setFormData(initialData);
     } else if (reservationError) {
       console.error("예약 상세 데이터 로드 실패:", reservationError);
-      toast.error("예약 정보를 불러오는데 실패했습니다.");
+      toast("예약 정보를 불러오는데 실패했습니다.");
     }
   }, [reservationDetailData, reservationError]);
 
@@ -168,7 +168,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
       });
     } catch (error) {
       console.error("예약 정보 저장 중 오류 발생:", error);
-      toast.error("예약 정보 저장 중 오류가 발생했습니다.");
+      toast("예약 정보 저장 중 오류가 발생했습니다.");
       setIsSubmitting(false);
     }
   };

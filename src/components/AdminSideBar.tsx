@@ -15,6 +15,10 @@ const AdminSideBar = () => {
       link: "/admin/reservation",
     },
     {
+      title: "차량 예약 관리",
+      link: "/admin/car-calendar",
+    },
+    {
       title: "차량 관리",
       link: "/admin/cars",
     },

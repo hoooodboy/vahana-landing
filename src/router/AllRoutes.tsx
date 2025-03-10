@@ -150,6 +150,10 @@ function AllRoutes() {
           element: <Pages.AdminDriverPage />,
         },
         {
+          path: "/admin/car-calendar",
+          element: <Pages.AdminCalendarPage />,
+        },
+        {
           path: "/admin/*",
           element: <Pages.AdminUserPage />,
         },

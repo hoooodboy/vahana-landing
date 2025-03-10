@@ -27,6 +27,7 @@ import type {
   APIResponseUnauthorizedDto,
   GetApiReservationsAvailableParams,
   GetApiReservationsParams,
+  UpdateAvailableCarsDto,
   UpdateReservationDetailDto,
   UpdateReservationDto,
 } from "../../model";
@@ -351,6 +352,90 @@ export function useGetApiReservationsAvailable<
   return query;
 }
 
+/**
+ * [어드민] 예약 가능한 차량 상태 수정
+ * @summary [어드민] 예약 가능한 차량 상태 수정
+ */
+export const patchApiReservationsAvailable = (
+  updateAvailableCarsDto: UpdateAvailableCarsDto,
+) => {
+  return customAxios<APIResponseBoolean>({
+    url: `/api/reservations/available`,
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    data: updateAvailableCarsDto,
+  });
+};
+
+export const getPatchApiReservationsAvailableMutationOptions = <
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof patchApiReservationsAvailable>>,
+    TError,
+    { data: UpdateAvailableCarsDto },
+    TContext
+  >;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof patchApiReservationsAvailable>>,
+  TError,
+  { data: UpdateAvailableCarsDto },
+  TContext
+> => {
+  const mutationKey = ["patchApiReservationsAvailable"];
+  const { mutation: mutationOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof patchApiReservationsAvailable>>,
+    { data: UpdateAvailableCarsDto }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return patchApiReservationsAvailable(data);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type PatchApiReservationsAvailableMutationResult = NonNullable<
+  Awaited<ReturnType<typeof patchApiReservationsAvailable>>
+>;
+export type PatchApiReservationsAvailableMutationBody = UpdateAvailableCarsDto;
+export type PatchApiReservationsAvailableMutationError =
+  | APIResponseUnauthorizedDto
+  | APIResponseForbiddenDto;
+
+/**
+ * @summary [어드민] 예약 가능한 차량 상태 수정
+ */
+export const usePatchApiReservationsAvailable = <
+  TError = APIResponseUnauthorizedDto | APIResponseForbiddenDto,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof patchApiReservationsAvailable>>,
+    TError,
+    { data: UpdateAvailableCarsDto },
+    TContext
+  >;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof patchApiReservationsAvailable>>,
+  TError,
+  { data: UpdateAvailableCarsDto },
+  TContext
+> => {
+  const mutationOptions =
+    getPatchApiReservationsAvailableMutationOptions(options);
+
+  return useMutation(mutationOptions);
+};
 /**
  * [어드민] 예약 상세 정보 조회
  * @summary [어드민] 예약 상세 정보 조회

@@ -41,9 +41,9 @@ const InfoChangeModal: React.FC<StatusChangeModalProps> = ({
 
     try {
       await onSave(selectedStatus);
-      toast.success("예약 상태가 성공적으로 변경되었습니다.");
+      toast("예약 상태가 성공적으로 변경되었습니다.");
     } catch (error) {
-      toast.error("예약 상태 변경에 실패했습니다.");
+      toast("예약 상태 변경에 실패했습니다.");
       console.error("Status change error:", error);
     } finally {
       setIsSubmitting(false);

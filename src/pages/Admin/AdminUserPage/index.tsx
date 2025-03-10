@@ -1,14 +1,18 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import AdminSideBar from "@/src/components/AdminSideBar";
-import { useGetApiAdminUsers } from "@/src/api/endpoints/users/users";
+import {
+  useGetApiAdminUsers,
+  useDeleteApiAdminUsersId,
+} from "@/src/api/endpoints/users/users";
 import IcSearch from "@/src/assets/ic-search.svg";
 import { UserInfoModal } from "./Modals/UserInfoModal";
 import { ReferralCountModal } from "./Modals/ReferralCountModal";
 import { OperationsModal } from "./Modals/OperationsModal";
 import { TicketsModal } from "./Modals/TicketsModal";
 import { VerificationModal } from "./Modals/VerificationModal";
-import { ReferrersModal } from "./Modals/ReferrersModal"; // Import the new modal
+import { ReferrersModal } from "./Modals/ReferrersModal";
+import { toast } from "react-toastify";
 
 const AdminHomePage = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -20,11 +24,24 @@ const AdminHomePage = () => {
   const [isOperationsOpen, setIsOperationsOpen] = useState(false);
   const [isTicketsOpen, setIsTicketsOpen] = useState(false);
   const [isVerificationOpen, setIsVerificationOpen] = useState(false);
-  const [isReferrersOpen, setIsReferrersOpen] = useState(false); // Added state for referrers modal
+  const [isReferrersOpen, setIsReferrersOpen] = useState(false);
 
-  const { data: users } = useGetApiAdminUsers({
+  const { data: users, refetch } = useGetApiAdminUsers({
     query: {
       enabled: true,
+    },
+  });
+
+  const deleteUserMutation = useDeleteApiAdminUsersId({
+    mutation: {
+      onSuccess: () => {
+        toast("회원이 삭제되었습니다.");
+        refetch(); // 데이터 다시 불러오기
+      },
+      onError: (error) => {
+        console.error("유저 삭제 오류:", error);
+        toast("회원 삭제 중 오류가 발생했습니다.");
+      },
     },
   });
 
@@ -55,9 +72,19 @@ const AdminHomePage = () => {
       case "verification":
         setIsVerificationOpen(true);
         break;
-      case "referrers": // Added case for referrers
+      case "referrers":
         setIsReferrersOpen(true);
         break;
+    }
+  };
+
+  const handleDeleteClick = (user) => {
+    if (
+      window.confirm(
+        `정말 ${user.name} 회원을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`
+      )
+    ) {
+      deleteUserMutation.mutate({ id: user.id });
     }
   };
 
@@ -113,6 +140,7 @@ const AdminHomePage = () => {
                 <th>운행 횟수</th>
                 <th>잔여 티켓</th>
                 <th>관리</th>
+                <th>삭제</th>
               </tr>
             </TableHeader>
             <TableBody>
@@ -141,7 +169,7 @@ const AdminHomePage = () => {
                   {/* 추천인 */}
                   <td
                     className="clickable"
-                    onClick={() => openModal("referrers", user)} // Changed from "referees" to "referrers"
+                    onClick={() => openModal("referrers", user)}
                   >
                     {user.referrer || "-"}
                   </td>
@@ -170,11 +198,13 @@ const AdminHomePage = () => {
                     >
                       {getStatusLabel(user?.identity_status)}
                     </StatusBadge>
-                    {/* <ActionButton
-                      
-                    >
-                      확인하기
-                    </ActionButton> */}
+                  </td>
+
+                  {/* 삭제 */}
+                  <td>
+                    <DeleteButton onClick={() => handleDeleteClick(user)}>
+                      삭제
+                    </DeleteButton>
                   </td>
                 </TableRow>
               ))}
@@ -213,7 +243,6 @@ const AdminHomePage = () => {
           setIsOpen={setIsVerificationOpen}
         />
 
-        {/* Added new ReferrersModal */}
         <ReferrersModal
           isOpen={isReferrersOpen}
           user={selectedUser}
@@ -323,25 +352,12 @@ const TableRow = styled.tr`
   }
 `;
 
-const ActionButton = styled.button`
-  padding: 8px 16px;
-  background: #3e4730;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-
-  &:hover {
-    background: #2e3520;
-  }
-`;
-
 const StatusBadge = styled.span<{ status?: any }>`
   padding: 4px 8px;
   border-radius: 4px;
   font-size: 12px;
   font-weight: 500;
+  cursor: pointer;
   background-color: ${(props) => {
     switch (props.status) {
       case "APPROVED":
@@ -370,6 +386,22 @@ const StatusBadge = styled.span<{ status?: any }>`
         return "#868e96";
     }
   }};
+`;
+
+const DeleteButton = styled.button<{ disabled?: boolean }>`
+  padding: 4px 8px;
+  background: ${(props) => (props.disabled ? "#ffc9c9" : "#ff6b6b")};
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
+  font-size: 12px;
+  font-weight: 500;
+  min-width: 48px;
+
+  &:hover {
+    background: ${(props) => (props.disabled ? "#ffc9c9" : "#fa5252")};
+  }
 `;
 
 export default AdminHomePage;

@@ -64,6 +64,8 @@ export * from "./reservationResponseForAdminDto";
 export * from "./reserveResponse";
 export * from "./singUpDto";
 export * from "./ticketResponseDto";
+export * from "./updateAvailableCarsDto";
+export * from "./updateAvailableCarsDtoStatus";
 export * from "./updateCarDto";
 export * from "./updateCarDtoStatus";
 export * from "./updateCarInventoryDto";

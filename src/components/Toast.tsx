@@ -28,13 +28,13 @@ const toastOptions: ToastOptions = {
 //   switch (type) {
 //     case "success":
 //       // enum으로 타입 지정했을 때 가독성 상승 -> case ToastType.success:
-//       toast.success(message || "성공적으로 완료되었습니다", {
+//       toast(message || "성공적으로 완료되었습니다", {
 //         ...toastOptions,
 //         icon: <img src="/svgs/toast_success.svg" alt="success" />,
 //       });
 //       return;
 //     case "error":
-//       toast.error(message || "다시 한번 시도해주세요", {
+//       toast(message || "다시 한번 시도해주세요", {
 //         ...toastOptions,
 //         icon: <img src="/svgs/toast_error.svg" alt="error" />,
 //       });
