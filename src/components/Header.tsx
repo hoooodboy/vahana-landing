@@ -18,9 +18,12 @@ const Header = () => {
 
   const handleScroll = () => {
     const scrollY = window.scrollY;
-    const progress = Math.min(scrollY / 100, 1);
+    // 스크롤 위치가 150px 이상이면 scrolled를 true로 설정
+    setScrolled(scrollY >= 500);
+
+    // 스크롤 진행도는 0~150px 구간에서 0~1 사이 값으로 변환
+    const progress = Math.min(scrollY / 500, 1);
     setScrollProgress(progress);
-    setScrolled(scrollY > 0);
   };
 
   useEffect(() => {
