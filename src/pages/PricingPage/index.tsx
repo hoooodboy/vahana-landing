@@ -217,7 +217,7 @@ const PricingPage = () => {
           혜택을 제공합니다.
         </Notice>
         <Notice>짧은 기록은 본사의 방침에 따라 0.5로 계산됩니다.</Notice>
-        <Notice>기사가 없을때 본사의 방침에 따라 0.5로 계산됩니다.</Notice>
+        <Notice>드라이버가 없을때 본사의 방침에 따라 0.5로 계산됩니다.</Notice>
       </NoticeWrapper>
     </Container>
   );

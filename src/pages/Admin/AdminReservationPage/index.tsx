@@ -245,7 +245,7 @@ const AdminReservationPage = () => {
                   <th>출발지</th>
                   <th>목적지</th>
                   <th>차량</th>
-                  <th>기사</th>
+                  <th>드라이버</th>
                   <th>상태</th>
                   <th>수정</th>
                 </tr>

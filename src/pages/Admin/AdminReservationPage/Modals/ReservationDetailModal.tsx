@@ -61,7 +61,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
     },
   });
 
-  // 기사 데이터 가져오기
+  // 드라이버 데이터 가져오기
   const {
     data: driversData,
     isLoading: driversLoading,
@@ -91,7 +91,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
       },
     });
 
-  // 모달이 열릴 때마다 폼 데이터 초기화 및 기사 목록 새로고침
+  // 모달이 열릴 때마다 폼 데이터 초기화 및 드라이버 목록 새로고침
   useEffect(() => {
     if (isOpen && reservationId) {
       console.log("모달 열림, 예약 ID:", reservationId);

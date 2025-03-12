@@ -18,7 +18,7 @@ const DriverChangeModal: React.FC<DriverChangeModalProps> = ({
   onCancel,
   onSave,
 }) => {
-  // 선택된 기사 ID를 상태로 관리
+  // 선택된 드라이버 ID를 상태로 관리
   const [selectedDriverId, setSelectedDriverId] = useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -34,7 +34,7 @@ const DriverChangeModal: React.FC<DriverChangeModalProps> = ({
     },
   });
 
-  // 모달이 열릴 때마다 선택된 기사 초기화 및 기사 목록 새로고침
+  // 모달이 열릴 때마다 선택된 드라이버 초기화 및 드라이버 목록 새로고침
   useEffect(() => {
     if (isOpen) {
       // 기존 데이터가 있으면 해당 driver_id로 설정
@@ -43,7 +43,7 @@ const DriverChangeModal: React.FC<DriverChangeModalProps> = ({
     }
   }, [isOpen, reservation, refetch]);
 
-  // 기사 목록이 로드된 후, driver 이름으로 ID 찾기 (reservation.driver가 이름인 경우)
+  // 드라이버 목록이 로드된 후, driver 이름으로 ID 찾기 (reservation.driver가 이름인 경우)
   useEffect(() => {
     if (
       isOpen &&
@@ -65,7 +65,7 @@ const DriverChangeModal: React.FC<DriverChangeModalProps> = ({
     }
   }, [driversData, isOpen, reservation, selectedDriverId]);
 
-  // 선택한 기사가 변경될 때마다 상태 업데이트
+  // 선택한 드라이버가 변경될 때마다 상태 업데이트
   const handleDriverChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
     setSelectedDriverId(value ? parseInt(value, 10) : null);
@@ -74,23 +74,23 @@ const DriverChangeModal: React.FC<DriverChangeModalProps> = ({
   // 적용 버튼 클릭 시
   const handleSave = () => {
     if (selectedDriverId === null) {
-      // 선택된 기사가 없는 경우 처리
-      alert("기사를 선택해주세요.");
+      // 선택된 드라이버가 없는 경우 처리
+      alert("드라이버를 선택해주세요.");
       return;
     }
 
     setIsSubmitting(true);
     try {
-      // 선택된 기사 ID로 저장
+      // 선택된 드라이버 ID로 저장
       onSave(selectedDriverId);
       // onSave 함수 내에서 closeDriverModal을 호출하므로 여기선 추가 처리 불필요
     } catch (error) {
-      console.error("기사 정보 저장 중 오류 발생:", error);
+      console.error("드라이버 정보 저장 중 오류 발생:", error);
       setIsSubmitting(false);
     }
   };
 
-  // 현재 선택된 기사의 이름 찾기
+  // 현재 선택된 드라이버의 이름 찾기
   const getSelectedDriverName = () => {
     if (!selectedDriverId || !driversData?.result) return "";
 
@@ -103,10 +103,10 @@ const DriverChangeModal: React.FC<DriverChangeModalProps> = ({
   return (
     <PCModal isOpen={isOpen} setIsOpen={setIsOpen}>
       <ModalContent>
-        <ModalTitle>기사관리</ModalTitle>
+        <ModalTitle>드라이버관리</ModalTitle>
         <SelectWrapper>
           {driversLoading ? (
-            <LoadingText>기사 목록을 불러오는 중...</LoadingText>
+            <LoadingText>드라이버 목록을 불러오는 중...</LoadingText>
           ) : (
             <Select
               id="driverSelect"
@@ -114,7 +114,7 @@ const DriverChangeModal: React.FC<DriverChangeModalProps> = ({
               onChange={handleDriverChange}
               disabled={driversLoading || isSubmitting}
             >
-              <option value="">기사를 선택해주세요</option>
+              <option value="">드라이버를 선택해주세요</option>
               {driversData?.result?.map((driver) => (
                 <option key={driver.id} value={driver.id}>
                   {driver.name}
@@ -122,8 +122,8 @@ const DriverChangeModal: React.FC<DriverChangeModalProps> = ({
               )) || (
                 <>
                   <option value="1">홍길동</option>
-                  <option value="2">김기사</option>
-                  <option value="3">이기사</option>
+                  <option value="2">김드라이버</option>
+                  <option value="3">이드라이버</option>
                 </>
               )}
             </Select>
@@ -131,7 +131,7 @@ const DriverChangeModal: React.FC<DriverChangeModalProps> = ({
         </SelectWrapper>
         {selectedDriverId && (
           <SelectedInfo>
-            선택된 기사: <span>{getSelectedDriverName()}</span>
+            선택된 드라이버: <span>{getSelectedDriverName()}</span>
           </SelectedInfo>
         )}
         <ModalButtons>

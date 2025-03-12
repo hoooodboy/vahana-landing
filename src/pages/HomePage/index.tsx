@@ -143,7 +143,7 @@ const HomePage = () => {
             <br />
             나만을 위한 서비스
           </Title>
-          전문성 있는 수행 기사와 최고급 의전 차량을 제공합니다.
+          전문성 있는 수행 드라이버와 최고급 의전 차량을 제공합니다.
         </TitleConteiner>
         <MainImg>
           <img src={ServiceImg} />
