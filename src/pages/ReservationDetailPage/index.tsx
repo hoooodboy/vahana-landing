@@ -15,14 +15,14 @@ const RESERVATION_STATUS = {
 };
 
 const NAV_MAP = {
-  "예약 확정": RESERVATION_STATUS.CONFIRMED,
   "확정 대기": RESERVATION_STATUS.PENDING,
+  "예약 확정": RESERVATION_STATUS.CONFIRMED,
   취소: RESERVATION_STATUS.CANCELLED,
 };
 
 const ReservationDetailPage = () => {
   const { userInfo } = tokens;
-  const [activeNav, setActiveNav] = useState("예약 확정");
+  const [activeNav, setActiveNav] = useState("확정 대기");
 
   const { data: reservationData } = useGetApiUsersIdReservations(
     userInfo.id,
@@ -38,12 +38,12 @@ const ReservationDetailPage = () => {
 
   const NAV_LIST = [
     {
-      title: "예약 확정",
-      contents: <Confirm reservations={reservationData?.result || []} />,
-    },
-    {
       title: "확정 대기",
       contents: <Wait reservations={reservationData?.result || []} />,
+    },
+    {
+      title: "예약 확정",
+      contents: <Confirm reservations={reservationData?.result || []} />,
     },
     {
       title: "취소",

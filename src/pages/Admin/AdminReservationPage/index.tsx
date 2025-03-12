@@ -19,7 +19,7 @@ const STATUS_LABELS = {
 };
 
 const AdminReservationPage = () => {
-  const [activeTab, setActiveTab] = useState("예약 확정");
+  const [activeTab, setActiveTab] = useState("확정 대기");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedReservation, setSelectedReservation] = useState<any>(null);
   const [statusModalOpen, setStatusModalOpen] = useState(false);
@@ -202,16 +202,16 @@ const AdminReservationPage = () => {
         <ContentWrapper>
           <TabsContainer>
             <Tab
-              $isActive={activeTab === "예약 확정"}
-              onClick={() => handleTabChange("예약 확정")}
-            >
-              예약 확정
-            </Tab>
-            <Tab
               $isActive={activeTab === "확정 대기"}
               onClick={() => handleTabChange("확정 대기")}
             >
               확정 대기
+            </Tab>
+            <Tab
+              $isActive={activeTab === "예약 확정"}
+              onClick={() => handleTabChange("예약 확정")}
+            >
+              예약 확정
             </Tab>
             <Tab
               $isActive={activeTab === "취소"}
@@ -237,14 +237,14 @@ const AdminReservationPage = () => {
             <ReservationTable>
               <TableHead>
                 <tr>
-                  <th>ID</th>
+                  {/* <th>ID</th> */}
+                  <th>이름</th>
+                  <th>전화번호</th>
                   <th>예약일</th>
                   <th>출발 시간</th>
                   <th>출발지</th>
                   <th>목적지</th>
                   <th>차량</th>
-                  <th>이름</th>
-                  <th>전화번호</th>
                   <th>기사</th>
                   <th>상태</th>
                   <th>수정</th>
@@ -262,7 +262,14 @@ const AdminReservationPage = () => {
                 ) : (
                   filteredReservations.map((reservation) => (
                     <tr key={reservation.id}>
-                      <td>{reservation.id}</td>
+                      {/* <td>{reservation.id}</td> */}
+                      <td
+                      // onClick={() => openReservationDetailModal(reservation)}
+                      // className="clickable"
+                      >
+                        {reservation.name}
+                      </td>
+                      <td>{formatPhoneNumber(reservation.phone)}</td>
                       <td>{formatDate(reservation.reserved_date)}</td>
                       <td>{reservation.pickup_time}</td>
                       <td>{reservation.pickup_location}</td>
@@ -274,13 +281,6 @@ const AdminReservationPage = () => {
                         {reservation.car_name} -{" "}
                         {reservation.registration_number}
                       </td>
-                      <td
-                      // onClick={() => openReservationDetailModal(reservation)}
-                      // className="clickable"
-                      >
-                        {reservation.name}
-                      </td>
-                      <td>{formatPhoneNumber(reservation.phone)}</td>
                       <td
                         onClick={() => openDriverModal(reservation)}
                         className="clickable"

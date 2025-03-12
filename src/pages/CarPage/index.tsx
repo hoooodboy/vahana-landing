@@ -12,6 +12,7 @@ import IcToyota from "@/src/assets/ic-toyota.png";
 import IcGene from "@/src/assets/ic-gene.png";
 import IcFerarri from "@/src/assets/ic-ferarri.png";
 import IcTesla from "@/src/assets/ic-tesla.png";
+import IcHyundai from "@/src/assets/ic-hyundai.png";
 
 import royal1 from "@/src/assets/royal-1.jpg";
 import royal2 from "@/src/assets/royal-2.jpg";
@@ -20,6 +21,9 @@ import royal4 from "@/src/assets/royal-4.jpg";
 import executive1 from "@/src/assets/executive-1.jpg";
 import executive2 from "@/src/assets/executive-2.jpg";
 import executive3 from "@/src/assets/executive-3.jpg";
+import staria1 from "@/src/assets/staria-1.png";
+import staria2 from "@/src/assets/staria-2.png";
+import staria3 from "@/src/assets/staria-3.png";
 import alphard1 from "@/src/assets/alphard-1.jpg";
 import alphard2 from "@/src/assets/alphard-2.jpg";
 import alphard3 from "@/src/assets/alphard-3.jpg";
@@ -44,6 +48,7 @@ const CarPage = () => {
       subName: "Hybrid ㆍ 4WD",
       label: "4 Seats",
       bg: "#3E4730",
+      barndLogo: IcLexus,
       contents: [
         "ㆍ노이즈켄슬링",
         "ㆍ파티션 글라스",
@@ -65,6 +70,7 @@ const CarPage = () => {
       subName: "Hybrid ㆍ 4WD",
       label: "6 Seats",
       bg: "#76865F",
+      barndLogo: IcLexus,
       contents: [
         "ㆍ이중접합유리",
         "ㆍ리어 컴포트 모드",
@@ -81,6 +87,7 @@ const CarPage = () => {
       subName: "Hybrid ㆍ 4WD",
       label: "7 Seats",
       bg: "#76865F",
+      barndLogo: IcToyota,
       contents: [
         "ㆍ이중접합유리",
         "ㆍ오디오 스피커 14개",
@@ -90,13 +97,29 @@ const CarPage = () => {
         "ㆍJBL 오디오",
       ],
     },
+    // {
+    //   img: [staria1, staria2, staria3],
+    //   name: "STARIA",
+    //   subName: "Hybrid ㆍ 4WD",
+    //   label: "7 Seats",
+    //   bg: "#76865F",
+    //   barndLogo: IcHyundai,
+    //   contents: [
+    //     "ㆍ이중접합유리",
+    //     "ㆍ오디오 스피커 14개",
+    //     'ㆍ14" 모니터',
+    //     "ㆍ160º 리클라이닝",
+    //     "ㆍ파트타임 4륜",
+    //     "ㆍJBL 오디오",
+    //   ],
+    // },
   ];
 
   const comeingData = [
     {
       img: [Gv90],
       name: "GV90",
-      subName: "Automaticㆍ 4WD",
+      subName: "Full Electric ㆍ AWD",
       label: "4 Seats",
       bg: "#76865F",
       contents: [
@@ -117,7 +140,7 @@ const CarPage = () => {
     {
       img: [Purosan],
       name: "PUROSANGUE",
-      subName: "Automaticㆍ 4WD",
+      subName: "6.5L NA-V12ㆍ 4WD",
       label: "4 Seats",
       bg: "#76865F",
       contents: [
@@ -133,7 +156,7 @@ const CarPage = () => {
     {
       img: [Cyber],
       name: "CYBER TRUCK",
-      subName: "Electricㆍ 4WD",
+      subName: "Full Electricㆍ 4WD",
       label: "4 Seats",
       bg: "#76865F",
       contents: [
@@ -216,13 +239,7 @@ const CarPage = () => {
               <ContentsBlock>
                 <BrandWrapper>
                   <BrandIcon>
-                    {data.name !== "ALPHARD" && (
-                      <img src={IcLexus} alt="lexus" />
-                    )}
-
-                    {data.name === "ALPHARD" && (
-                      <img src={IcToyota} alt="lexus" />
-                    )}
+                    <img src={data.barndLogo} alt="lexus" />
                   </BrandIcon>
                   <BrandTitleWrapper>
                     <BrandTitle>{data.name}</BrandTitle>
