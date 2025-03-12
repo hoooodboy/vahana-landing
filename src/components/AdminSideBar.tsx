@@ -30,7 +30,9 @@ const AdminSideBar = () => {
 
   return (
     <SideBarContainer>
-      <Logo src={LogoImg} />
+      <Link to="/">
+        <Logo src={LogoImg} />
+      </Link>
       <MenuBlock>
         {menuData.map((menu) => (
           <Menu
