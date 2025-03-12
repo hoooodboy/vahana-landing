@@ -108,6 +108,7 @@ const ModalBlock = styled(motion.div)<{ isVisible?: boolean }>`
   flex: 1;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   /* border-radius: 40px;
   background: #fff; */
   position: relative;

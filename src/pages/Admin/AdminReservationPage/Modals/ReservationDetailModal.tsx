@@ -25,6 +25,7 @@ interface FormState {
   ride_purpose: string;
   luggage_count: number;
   passenger_count: number;
+  special_requests: string;
 }
 
 const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
@@ -44,6 +45,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
     ride_purpose: "",
     luggage_count: 0,
     passenger_count: 0,
+    special_requests: "",
   });
 
   // 예약 상세 정보 조회 API
@@ -112,6 +114,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
         ride_purpose: reservation.ride_purpose || "",
         luggage_count: reservation.luggage_count || 0,
         passenger_count: reservation.passenger_count || 0,
+        special_requests: reservation.special_requests || "",
       };
 
       setFormData(initialData);
@@ -157,6 +160,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
         ride_purpose: formData.ride_purpose,
         luggage_count: formData.luggage_count,
         passenger_count: formData.passenger_count,
+        special_requests: formData.special_requests,
       };
 
       console.log("전체 데이터 전송:", dataToSend);
@@ -204,7 +208,7 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
 
   return (
     <PCModal isOpen={isOpen} setIsOpen={setIsOpen}>
-      <ModalContent wide>
+      <ModalContent>
         <ModalTitle>예약 정보 수정</ModalTitle>
         {isLoading && !formData.name ? (
           <LoadingMessage>데이터를 불러오는 중입니다...</LoadingMessage>
@@ -303,6 +307,20 @@ const ReservationDetailModal: React.FC<ReservationDetailModalProps> = ({
                 />
               </FormGroup>
             </FormGrid>
+
+            {/* 요청사항 필드 (전체 너비 차지) */}
+            <FullWidthFormGroup>
+              <Label htmlFor="special_requests">요청사항</Label>
+              <TextArea
+                id="special_requests"
+                value={formData.special_requests}
+                // onChange={handleChange}
+                placeholder="특별 요청사항을 입력해주세요"
+                disabled={true}
+                rows={4}
+              />
+            </FullWidthFormGroup>
+
             <ModalButtons>
               <CancelButton onClick={handleCancel} disabled={isSubmitting}>
                 취소
@@ -337,10 +355,11 @@ function formatDateTimeForInput(dateTimeString: string | undefined): string {
 }
 
 const ModalContent = styled.div<{ wide?: boolean }>`
+  width: 100%;
   background-color: white;
   border-radius: 8px;
   padding: 24px;
-  width: ${(props) => (props.wide ? "700px" : "400px")};
+  /* width: ${(props) => (props.wide ? "700px" : "400px")}; */
   max-width: 90%;
 `;
 
@@ -363,6 +382,11 @@ const FormGroup = styled.div`
   flex-direction: column;
 `;
 
+const FullWidthFormGroup = styled(FormGroup)`
+  grid-column: 1 / -1;
+  margin-bottom: 24px;
+`;
+
 const Label = styled.label`
   font-size: 14px;
   margin-bottom: 8px;
@@ -374,6 +398,25 @@ const Input = styled.input`
   border: 1px solid #e9ecef;
   border-radius: 4px;
   font-size: 14px;
+
+  &:focus {
+    outline: none;
+    border-color: #3e4730;
+  }
+
+  &:disabled {
+    background-color: #f8f9fa;
+    cursor: not-allowed;
+  }
+`;
+
+const TextArea = styled.textarea`
+  padding: 12px;
+  border: 1px solid #e9ecef;
+  border-radius: 4px;
+  font-size: 14px;
+  resize: vertical;
+  min-height: 80px;
 
   &:focus {
     outline: none;

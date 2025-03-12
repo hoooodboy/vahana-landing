@@ -149,7 +149,7 @@ const ReservationSecondStep: React.FC<FirstStepProps> = ({
             name="special_requests"
             value={formData.special_requests}
             onChange={handleTextAreaChange}
-            placeholder="추가 요청사항을 입력해 주세요."
+            placeholder={`추가 요청사항을 입력해 주세요.\n ex) 골프백 2개 기내용 캐리어 1개`}
           />
         </InputGroup>
       </Form>

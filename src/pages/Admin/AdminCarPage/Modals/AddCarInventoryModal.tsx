@@ -145,7 +145,8 @@ const ModalContent = styled.div`
   background-color: white;
   border-radius: 8px;
   width: 400px;
-  max-width: 90%;
+  /* max-width: 90%; */
+  position: relative;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 `;
 

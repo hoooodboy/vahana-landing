@@ -233,8 +233,8 @@ const ModalContent = styled.div`
   background-color: white;
   border-radius: 8px;
   padding: 24px;
-  width: 400px;
-  max-width: 90%;
+  /* width: 400px; */
+  max-width: 100%;
 `;
 
 const ModalTitle = styled.h3`
