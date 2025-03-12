@@ -157,7 +157,7 @@ const MyPage = () => {
                 <img src={IcChevronRight} />
               </LinkWrapper>
             ))}
-            {userInfo.role === "ADMIN" && (
+            {userInfo.role === "ADMIN" && links.title === "서비스" && (
               <LinkWrapper to="/admin/user">
                 관리자 페이지
                 <img src={IcChevronRight} />
