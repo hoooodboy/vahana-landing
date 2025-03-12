@@ -29,19 +29,11 @@ const GlobalStyle = createGlobalStyle`
   }
 
   body {
-    -webkit-user-select:none;
-    -moz-user-select:none;
-    -ms-user-select:none;
-    user-select:none;
     user-drag: none;
     -webkit-touch-callout: none;
   }
 
   div {
-    -webkit-user-select:none;
-    -moz-user-select:none;
-    -ms-user-select:none;
-    user-select:none;
     user-drag: none;
     -webkit-touch-callout: none;
   }
@@ -103,10 +95,6 @@ const GlobalStyle = createGlobalStyle`
       box-sizing: border-box;
       -webkit-touch-callout: none;
       -webkit-tap-highlight-color: transparent;
-      -webkit-user-select: auto; 
-      -webkit-scrollbar {
-      display: none;
-      }
       -webkit-overflow-scrolling: touch;
 
       &::-webkit-scrollbar {
