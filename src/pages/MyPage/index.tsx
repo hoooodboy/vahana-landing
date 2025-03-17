@@ -42,10 +42,10 @@ const MyPage = () => {
           title: "자주 묻는 질문",
           link: "/qna",
         },
-        {
-          title: "1:1 문의",
-          link: "/transaction",
-        },
+        // {
+        //   title: "1:1 문의",
+        //   link: "",
+        // },
         // {
         //   title: "로그아웃",
         //   link: "/logout",
@@ -163,13 +163,22 @@ const MyPage = () => {
                 <img src={IcChevronRight} />
               </LinkWrapper>
             )}
+
+            {links.title === "고객센터" && (
+              <LinkWrapper
+                to=""
+                onClick={() => window.open("http://pf.kakao.com/_yxcxhVn")}
+              >
+                1:1 문의
+                <img src={IcChevronRight} />
+              </LinkWrapper>
+            )}
             {links.title === "고객센터" && (
               <LinkWrapper to="" onClick={logout}>
                 {"로그아웃"}
                 <img src={IcChevronRight} />
               </LinkWrapper>
             )}
-
             {/* {links.title === "고객센터" && (
               <LinkWrapper to="">
                 {"회원 탈퇴"}

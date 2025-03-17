@@ -13,7 +13,7 @@ import CardImg5 from "@/src/assets/price-card-5.png";
 import CardImg6 from "@/src/assets/price-card-6.png";
 
 import ScrollContainer from "react-indiana-drag-scroll";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const PricingPage = () => {
@@ -207,7 +207,9 @@ const PricingPage = () => {
           </tbody>
         </Table>
       </TableContainer>
-      <ReservationButton onClick={() => toast("준비중입니다.")}>
+      <ReservationButton
+        onClick={() => window.open("http://pf.kakao.com/_yxcxhVn")}
+      >
         구매 문의
       </ReservationButton>
       <NoticeWrapper>
