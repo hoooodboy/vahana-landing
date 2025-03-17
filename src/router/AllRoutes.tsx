@@ -3,9 +3,8 @@ import * as Pages from "../pages/index";
 
 import BaseLayout from "./layouts/BaseLayout";
 
-import LocalStorage from "../local-storage";
-import PCLayout from "./layouts/PCLayout";
 import tokens from "../tokens";
+import PCLayout from "./layouts/PCLayout";
 
 function AllRoutes() {
   // const { isLoggedIn } = useAppSelector((st) => st.auth.session);

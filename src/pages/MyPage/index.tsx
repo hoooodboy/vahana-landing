@@ -1,16 +1,13 @@
-import React, { useState } from "react";
 import Header from "@/src/components/Header";
 import styled from "styled-components";
-import Footer from "@/src/components/Footer";
 
+import { useGetApiUsersIdReservationsLatest } from "@/src/api/endpoints/users/users";
 import IcBook from "@/src/assets/ic-book.svg";
+import IcChevronRight from "@/src/assets/ic-chevron-right.svg";
 import IcProfile from "@/src/assets/ic-profile.svg";
 import IcWallet from "@/src/assets/ic-wallet.svg";
-import IcChevronRight from "@/src/assets/ic-chevron-right.svg";
-import { Link, useNavigate } from "react-router-dom";
-import LocalStorage from "@/src/local-storage";
 import tokens from "@/src/tokens";
-import { useGetApiUsersIdReservationsLatest } from "@/src/api/endpoints/users/users";
+import { Link, useNavigate } from "react-router-dom";
 
 const MyPage = () => {
   const LINKS = [
@@ -73,17 +70,14 @@ const MyPage = () => {
 
   const navigate = useNavigate();
   const { userInfo } = tokens;
-
-  const { data: latestReservation } = useGetApiUsersIdReservationsLatest(
-    userInfo.id,
-    {
-      query: {
-        enabled: !!userInfo?.id,
-      },
-    }
-  );
-
   console.log("userInfo", userInfo);
+
+  const { data: latestReservation } = useGetApiUsersIdReservationsLatest(userInfo.id, {
+    query: {
+      enabled: !!userInfo?.id,
+    },
+  });
+
   // latestReservation.result를 통해 데이터 접근
   const reservationData = latestReservation?.result;
 
@@ -130,15 +124,11 @@ const MyPage = () => {
         </QuickMenuBlock>
       </QuickMenuWrapper>
       {reservationData && (
-        <HorizontalContainer
-          onClick={() => navigate(`/schedule-operation/${reservationData.id}`)}
-        >
+        <HorizontalContainer onClick={() => navigate(`/schedule-operation/${reservationData.id}`)}>
           <SectionTitle>운행 예약</SectionTitle>
           <OperationBlock>
             <OperationInfo>
-              <OperationTime>
-                {formatPickupTime(reservationData?.pickup_time)}
-              </OperationTime>
+              <OperationTime>{formatPickupTime(reservationData?.pickup_time)}</OperationTime>
               <Destination>{reservationData?.pickup_location}</Destination>
               <CarInfo>{reservationData?.car_name}</CarInfo>
             </OperationInfo>
@@ -165,10 +155,7 @@ const MyPage = () => {
             )}
 
             {links.title === "고객센터" && (
-              <LinkWrapper
-                to=""
-                onClick={() => window.open("http://pf.kakao.com/_yxcxhVn")}
-              >
+              <LinkWrapper to="" onClick={() => window.open("http://pf.kakao.com/_yxcxhVn")}>
                 1:1 문의
                 <img src={IcChevronRight} />
               </LinkWrapper>
