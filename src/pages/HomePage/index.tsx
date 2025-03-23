@@ -70,7 +70,7 @@ const HomePage = () => {
     },
     {
       img: Customer2Img,
-      author: "스포츠스타 김태균",
+      author: "스포츠스타 김영광, 김태균",
     },
     {
       img: Customer3Img,
