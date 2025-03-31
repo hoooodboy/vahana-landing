@@ -638,6 +638,11 @@
     "@orval/core" "7.5.0"
     lodash.uniq "^4.5.0"
 
+"@portone/browser-sdk@^0.0.15":
+  version "0.0.15"
+  resolved "https://registry.yarnpkg.com/@portone/browser-sdk/-/browser-sdk-0.0.15.tgz#ab650cc949e2065d5923cf1743619576245596fb"
+  integrity sha512-0Ai6ssg0YBfI2rIJjw4bqiyaYK4zOGnQTgV4DNu95Pc93TvVJHEyqdynrP2f0HAAJlyQ6pXgp/RjoW2X7JHvEQ==
+
 "@reduxjs/toolkit@^2.5.1":
   version "2.5.1"
   resolved "https://registry.yarnpkg.com/@reduxjs/toolkit/-/toolkit-2.5.1.tgz#29ff1d6dd1cb35e57836e7ca37090063d39703ef"
@@ -3338,6 +3343,18 @@ oniguruma-to-es@^2.2.0:
     regex "^5.1.1"
     regex-recursion "^5.1.1"
 
+openapi-fetch@^0.10.6:
+  version "0.10.6"
+  resolved "https://registry.yarnpkg.com/openapi-fetch/-/openapi-fetch-0.10.6.tgz#255017e3e609c5e7be16bc1ed7a973977c085cdc"
+  integrity sha512-6xXfvIEL/POtLGOaFPsp3O+pDe+J3DZYxbD9BrsQHXOTeNK8z/gsWHT6adUy1KcpQOhmkerMzlQrJM6DbN55dQ==
+  dependencies:
+    openapi-typescript-helpers "^0.0.11"
+
+openapi-typescript-helpers@^0.0.11:
+  version "0.0.11"
+  resolved "https://registry.yarnpkg.com/openapi-typescript-helpers/-/openapi-typescript-helpers-0.0.11.tgz#d05e88216b8f3771d5df41c863ebc5c9d10e2954"
+  integrity sha512-xofUHlVFq+BMquf3nh9I8N2guHckW6mrDO/F3kaFgrL7MGbjldDnQ9TIT+rkH/+H0LiuO+RuZLnNmsJwsjwUKg==
+
 openapi3-ts@4.2.2:
   version "4.2.2"
   resolved "https://registry.yarnpkg.com/openapi3-ts/-/openapi3-ts-4.2.2.tgz#9460b6626c39f6334f876e43c8de08168d306fdb"
@@ -3482,6 +3499,13 @@ pony-cause@^1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/pony-cause/-/pony-cause-1.1.1.tgz#f795524f83bebbf1878bd3587b45f69143cbf3f9"
   integrity sha512-PxkIc/2ZpLiEzQXu5YRDOUgBlfGYBY8156HY5ZcRAwwonMk5W/MrJP2LLkG/hF7GEQzaHo2aS7ho6ZLCOvf+6g==
+
+portone@^2.1.1:
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/portone/-/portone-2.1.1.tgz#cf110d81a624a1ba62eee2d0ba198b5513e81dd4"
+  integrity sha512-R9welKE0Nvrp/ThyUpuWLlOvOd4CUCAMZKqMCUvrNv4W/Fddl28OvhRoieu6bty0a82ZeCkhuADoeyGL8TbtMg==
+  dependencies:
+    openapi-fetch "^0.10.6"
 
 possible-typed-array-names@^1.0.0:
   version "1.1.0"

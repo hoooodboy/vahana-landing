@@ -11,7 +11,7 @@ const JoinPage = () => {
   const [searchParams] = useSearchParams();
   const kakaoId = searchParams.get("id");
   const provider = searchParams.get("provider");
-  const referrer = searchParams.get("referrer"); // 추가: referrer 파라미터 받기
+  const referrer = searchParams.get("referrer");
 
   const [formData, setFormData] = useState({
     name: "",
@@ -19,19 +19,48 @@ const JoinPage = () => {
     password: "",
     passwordConfirm: "",
     phone: "",
-    referrerCode: referrer || "", // 초기값으로 referrer 설정
+    referrerCode: referrer || "",
     provider: provider || "LOCAL",
   });
 
-  console.log("formData", formData);
-
   const [passwordError, setPasswordError] = useState(false);
+  const [isVerified, setIsVerified] = useState(false);
+  const [verificationId, setVerificationId] = useState("");
+  const [isVerifying, setIsVerifying] = useState(false);
+
+  // 아임포트 스크립트 로드
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://cdn.iamport.kr/v1/iamport.js";
+    script.async = true;
+    document.body.appendChild(script);
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
 
   useEffect(() => {
     if (!kakaoId && formData.password && formData.passwordConfirm) {
       setPasswordError(formData.password !== formData.passwordConfirm);
     }
   }, [formData.password, formData.passwordConfirm, kakaoId]);
+
+  // URL 쿼리 파라미터로부터 본인인증 결과 체크
+  useEffect(() => {
+    const impSuccess = searchParams.get("imp_success");
+    const impUid = searchParams.get("imp_uid");
+
+    if (impSuccess === "true" && impUid) {
+      // 인증 성공 처리
+      setIsVerified(true);
+      setVerificationId(impUid);
+      toast("본인인증이 완료되었습니다.");
+
+      // 서버에서 인증 정보를 가져와 적용하는 부분이 필요한 경우 추가
+      // 현재 구현은 프론트엔드에서만 처리
+    }
+  }, [searchParams]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -43,7 +72,7 @@ const JoinPage = () => {
 
   const isFormValid = () => {
     if (kakaoId) {
-      return !!(formData.name && formData.id && formData.phone);
+      return !!(formData.name && formData.id && formData.phone && isVerified);
     } else {
       return !!(
         formData.name &&
@@ -51,7 +80,8 @@ const JoinPage = () => {
         formData.password &&
         formData.passwordConfirm &&
         formData.phone &&
-        !passwordError
+        !passwordError &&
+        isVerified
       );
     }
   };
@@ -70,6 +100,15 @@ const JoinPage = () => {
     },
   });
 
+  const isVerificationButtonEnabled = () => {
+    return !!(
+      formData.name.trim() && // 이름이 입력되어 있는지 확인 (공백만 있는 경우 제외)
+      formData.phone.replace(/[^0-9]/g, "").length >= 10 && // 전화번호가 최소 10자리 이상인지 확인
+      !isVerified && // 이미 인증된 상태가 아닌지 확인
+      !isVerifying // 인증 진행 중이 아닌지 확인
+    );
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     signupMutation.mutate({
@@ -80,6 +119,7 @@ const JoinPage = () => {
         phone: formData.phone,
         referrerCode: formData.referrerCode,
         provider: formData.provider,
+        // identityVerificationId: verificationId, // 본인인증 ID 추가
       },
     });
   };
@@ -125,6 +165,73 @@ const JoinPage = () => {
     handleChange(event);
   };
 
+  // 아임포트 본인인증 요청 함수
+  const requestIdentityVerification = () => {
+    if (isVerifying) return;
+
+    setIsVerifying(true);
+
+    try {
+      // window.IMP 객체가 있는지 확인
+      const { IMP } = window;
+      if (!IMP) {
+        toast("아임포트 SDK가 로드되지 않았습니다.");
+        setIsVerifying(false);
+        return;
+      }
+
+      // 아임포트 초기화
+      IMP.init("imp61282785"); // 실제 가맹점 식별코드로 변경 필요
+
+      // 전화번호 형식 변환 (하이픈 제거)
+      const phoneNumberWithoutHyphen = formData.phone.replace(/-/g, "");
+
+      // 본인인증 데이터 정의
+      const data = {
+        merchant_uid: `mid_${new Date().getTime()}`, // 주문번호
+        company: window.location.host, // 회사명 또는 URL
+        // 통신사 정보 (선택)
+        // carrier: "SKT", // 통신사 (SKT, KT, LGT, MVNO)
+        // 이름, 전화번호 (미리 입력한 경우 전달)
+        ...(formData.name && { name: formData.name }),
+        ...(phoneNumberWithoutHyphen.length > 0 && {
+          phone: phoneNumberWithoutHyphen,
+        }),
+        // 리다이렉트 URL (모바일 환경에서 필요)
+        m_redirect_url: `${window.location.origin}/join`,
+      };
+
+      // 본인인증 창 호출
+      IMP.certification(data, callback);
+    } catch (error) {
+      console.error("본인인증 오류:", error);
+      toast("본인인증 중 오류가 발생했습니다.");
+      setIsVerifying(false);
+    }
+  };
+
+  // 아임포트 콜백 함수
+  function callback(response) {
+    const { success, error_msg, imp_uid } = response;
+
+    setIsVerifying(false);
+
+    if (success) {
+      // 본인인증 성공 처리
+      setIsVerified(true);
+      setVerificationId(imp_uid);
+
+      // 서버에 인증 정보 요청 로직이 필요한 경우 추가
+      // 일반적으로 서버에서 imp_uid로 인증 정보 조회 후 제공
+      // 현재는 프론트엔드에서만 처리
+
+      toast("본인인증이 완료되었습니다.");
+    } else {
+      // 본인인증 실패 처리
+      toast(`본인인증 실패: ${error_msg}`);
+    }
+  }
+
   return (
     <Container>
       <Header />
@@ -146,6 +253,8 @@ const JoinPage = () => {
             value={formData.name}
             onChange={handleChange}
             placeholder="당신의 이름을 입력해주세요."
+            disabled={isVerified}
+            style={{ background: isVerified ? "#f5f5f5" : "#fff" }}
           />
         </InputGroup>
 
@@ -195,13 +304,27 @@ const JoinPage = () => {
 
         <InputGroup>
           <Label>전화번호</Label>
-          <Input
-            type="tel"
-            name="phone"
-            value={formData.phone}
-            onChange={handlePhoneChange}
-            placeholder="전화번호를 입력해주세요."
-          />
+          <InputWrapper>
+            <Input
+              type="tel"
+              name="phone"
+              value={formData.phone}
+              onChange={handlePhoneChange}
+              placeholder="전화번호를 입력해주세요."
+              disabled={isVerified}
+              style={{ background: isVerified ? "#f5f5f5" : "#fff" }}
+            />
+            <VerificationButton
+              type="button"
+              onClick={requestIdentityVerification}
+              disabled={!isVerificationButtonEnabled()}
+            >
+              {isVerified ? "인증완료" : isVerifying ? "인증중..." : "본인인증"}
+            </VerificationButton>
+          </InputWrapper>
+          {isVerified && (
+            <SuccessMessage>본인인증이 완료되었습니다.</SuccessMessage>
+          )}
         </InputGroup>
 
         <InputGroup>
@@ -217,7 +340,11 @@ const JoinPage = () => {
           />
         </InputGroup>
 
-        <SubmitButton type="submit" $isValid={isFormValid()}>
+        <SubmitButton
+          type="submit"
+          $isValid={isFormValid()}
+          disabled={!isFormValid()}
+        >
           {"회원가입"}
         </SubmitButton>
       </Form>
@@ -262,6 +389,11 @@ const InputGroup = styled.div`
   flex-direction: column;
 `;
 
+const InputWrapper = styled.div`
+  display: flex;
+  gap: 8px;
+`;
+
 const Label = styled.label`
   color: #666;
   font-size: 14px;
@@ -293,8 +425,37 @@ const Input = styled.input<{ $error?: boolean }>`
   }
 `;
 
+const VerificationButton = styled.button`
+  min-width: 90px;
+  height: 48px;
+  background: #3e4730;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  &:disabled {
+    background: #c6c6c6;
+    cursor: not-allowed;
+  }
+
+  &:hover:not(:disabled) {
+    background: #2e3520;
+  }
+`;
+
 const ErrorMessage = styled.span`
   color: #ff0000;
+  font-size: 12px;
+  margin-top: 4px;
+  padding-left: 8px;
+`;
+
+const SuccessMessage = styled.span`
+  color: #3e8635;
   font-size: 12px;
   margin-top: 4px;
   padding-left: 8px;
@@ -327,5 +488,12 @@ const SubmitButton = styled.button<{ $isValid: boolean }>`
 const Devider = styled.div`
   height: 150px;
 `;
+
+// TypeScript 타입 선언
+declare global {
+  interface Window {
+    IMP: any;
+  }
+}
 
 export default JoinPage;
