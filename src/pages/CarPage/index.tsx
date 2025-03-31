@@ -97,22 +97,22 @@ const CarPage = () => {
         "ㆍJBL 오디오",
       ],
     },
-    // {
-    //   img: [staria1, staria2, staria3],
-    //   name: "STARIA",
-    //   subName: "Hybrid ㆍ 4WD",
-    //   label: "7 Seats",
-    //   bg: "#76865F",
-    //   barndLogo: IcHyundai,
-    //   contents: [
-    //     "ㆍ이중접합유리",
-    //     "ㆍ오디오 스피커 14개",
-    //     'ㆍ14" 모니터',
-    //     "ㆍ160º 리클라이닝",
-    //     "ㆍ파트타임 4륜",
-    //     "ㆍJBL 오디오",
-    //   ],
-    // },
+    {
+      img: [staria1, staria2, staria3],
+      name: "STARIA",
+      subName: "Hybrid ㆍ 4WD",
+      label: "7 Seats",
+      bg: "#76865F",
+      barndLogo: IcHyundai,
+      contents: [
+        "ㆍ스타라이트",
+        "ㆍ세라믹 플로어",
+        'ㆍ24" 모니터',
+        "ㆍ180º 회전 시트",
+        "ㆍ무중력시트",
+        "ㆍ마사지시트",
+      ],
+    },
   ];
 
   const comeingData = [
@@ -204,8 +204,7 @@ const CarPage = () => {
         차량 설명
       </TitleContainer>
       <CarContainer>
-        <CarSectionTitle>LEXUS LM 500H</CarSectionTitle>
-
+        {/* <CarSectionTitle>LEXUS LM 500H</CarSectionTitle> */}
         <CarSection>
           {mainData.map((data, index) => (
             <CarBlock key={index}>
