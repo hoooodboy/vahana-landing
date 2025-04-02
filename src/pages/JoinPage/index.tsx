@@ -13,16 +13,32 @@ const JoinPage = () => {
   const provider = searchParams.get("provider");
   const referrer = searchParams.get("referrer");
 
-  const [formData, setFormData] = useState({
-    name: "",
-    id: kakaoId || "",
-    password: "",
-    passwordConfirm: "",
-    phone: "",
-    referrerCode: referrer || "",
-    provider: provider || "LOCAL",
-  });
+  // 초기 폼 데이터 구성
+  const getInitialFormData = () => {
+    // 세션 스토리지에서 저장된 값 가져오기
+    const savedFormData = sessionStorage.getItem("joinFormData");
 
+    if (savedFormData) {
+      try {
+        return JSON.parse(savedFormData);
+      } catch (e) {
+        console.error("저장된 폼 데이터 파싱 오류:", e);
+      }
+    }
+
+    // 기본값
+    return {
+      name: "",
+      id: kakaoId || "",
+      password: "",
+      passwordConfirm: "",
+      phone: "",
+      referrerCode: referrer || "",
+      provider: provider || "LOCAL",
+    };
+  };
+
+  const [formData, setFormData] = useState(getInitialFormData());
   const [passwordError, setPasswordError] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
   const [verificationId, setVerificationId] = useState("");
@@ -40,11 +56,17 @@ const JoinPage = () => {
     };
   }, []);
 
+  // 비밀번호 유효성 검사
   useEffect(() => {
     if (!kakaoId && formData.password && formData.passwordConfirm) {
       setPasswordError(formData.password !== formData.passwordConfirm);
     }
   }, [formData.password, formData.passwordConfirm, kakaoId]);
+
+  // formData가 변경될 때마다 세션 스토리지에 저장
+  useEffect(() => {
+    sessionStorage.setItem("joinFormData", JSON.stringify(formData));
+  }, [formData]);
 
   // URL 쿼리 파라미터로부터 본인인증 결과 체크
   useEffect(() => {
@@ -57,10 +79,25 @@ const JoinPage = () => {
       setVerificationId(impUid);
       toast("본인인증이 완료되었습니다.");
 
-      // 서버에서 인증 정보를 가져와 적용하는 부분이 필요한 경우 추가
-      // 현재 구현은 프론트엔드에서만 처리
+      // 세션 스토리지에 인증 완료 상태 저장
+      sessionStorage.setItem("isVerified", "true");
+      sessionStorage.setItem("verificationId", impUid);
     }
   }, [searchParams]);
+
+  // 페이지 로드 시 인증 상태 복원
+  useEffect(() => {
+    const savedVerified = sessionStorage.getItem("isVerified");
+    const savedVerificationId = sessionStorage.getItem("verificationId");
+
+    if (savedVerified === "true") {
+      setIsVerified(true);
+
+      if (savedVerificationId) {
+        setVerificationId(savedVerificationId);
+      }
+    }
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -90,6 +127,10 @@ const JoinPage = () => {
     mutation: {
       onSuccess: (data) => {
         toast("회원가입 성공");
+        // 회원가입 성공 시 저장된 폼 데이터 삭제
+        sessionStorage.removeItem("joinFormData");
+        sessionStorage.removeItem("isVerified");
+        sessionStorage.removeItem("verificationId");
         navigate("/login");
       },
       onError: (error: any) => {
@@ -186,6 +227,9 @@ const JoinPage = () => {
       // 전화번호 형식 변환 (하이픈 제거)
       const phoneNumberWithoutHyphen = formData.phone.replace(/-/g, "");
 
+      // 현재 URL에서 쿼리 파라미터 제거한 기본 경로 가져오기
+      const currentUrl = window.location.href.split("?")[0];
+
       // 본인인증 데이터 정의
       const data = {
         merchant_uid: `mid_${new Date().getTime()}`, // 주문번호
@@ -198,7 +242,8 @@ const JoinPage = () => {
           phone: phoneNumberWithoutHyphen,
         }),
         // 리다이렉트 URL (모바일 환경에서 필요)
-        m_redirect_url: `${window.location.href}`,
+        // 원래 URL로 돌아오도록 설정
+        m_redirect_url: currentUrl,
       };
 
       // 본인인증 창 호출
@@ -221,9 +266,9 @@ const JoinPage = () => {
       setIsVerified(true);
       setVerificationId(imp_uid);
 
-      // 서버에 인증 정보 요청 로직이 필요한 경우 추가
-      // 일반적으로 서버에서 imp_uid로 인증 정보 조회 후 제공
-      // 현재는 프론트엔드에서만 처리
+      // 세션 스토리지에 인증 정보 저장
+      sessionStorage.setItem("isVerified", "true");
+      sessionStorage.setItem("verificationId", imp_uid);
 
       toast("본인인증이 완료되었습니다.");
     } else {
