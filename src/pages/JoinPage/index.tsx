@@ -13,6 +13,10 @@ const JoinPage = () => {
   const provider = searchParams.get("provider");
   const referrer = searchParams.get("referrer");
 
+  // URL에서 본인인증 성공 여부와 imp_uid 확인
+  const success = searchParams.get("success") === "true";
+  const impUid = searchParams.get("imp_uid");
+
   // 초기 폼 데이터 구성
   const getInitialFormData = () => {
     // 세션 스토리지에서 저장된 값 가져오기
@@ -43,7 +47,6 @@ const JoinPage = () => {
   const [isVerified, setIsVerified] = useState(false);
   const [verificationId, setVerificationId] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
-  const [isFormValid, setIsFormValid] = useState(false);
 
   // 아임포트 스크립트 로드
   useEffect(() => {
@@ -53,9 +56,7 @@ const JoinPage = () => {
     document.body.appendChild(script);
 
     return () => {
-      if (document.body.contains(script)) {
-        document.body.removeChild(script);
-      }
+      document.body.removeChild(script);
     };
   }, []);
 
@@ -69,25 +70,28 @@ const JoinPage = () => {
   // formData가 변경될 때마다 세션 스토리지에 저장
   useEffect(() => {
     sessionStorage.setItem("joinFormData", JSON.stringify(formData));
-    validateForm();
-  }, [formData, isVerified, passwordError]);
+  }, [formData]);
 
   // URL 쿼리 파라미터로부터 본인인증 결과 체크
   useEffect(() => {
-    const impSuccess = searchParams.get("imp_success");
-    const impUid = searchParams.get("imp_uid");
-
-    if (impSuccess === "true" && impUid) {
+    // URL에서 본인인증 성공 여부 확인
+    if (success && impUid) {
       // 인증 성공 처리
       setIsVerified(true);
       setVerificationId(impUid);
-      toast("본인인증이 완료되었습니다.");
 
       // 세션 스토리지에 인증 완료 상태 저장
       sessionStorage.setItem("isVerified", "true");
       sessionStorage.setItem("verificationId", impUid);
+
+      toast.success("본인인증이 완료되었습니다.");
+
+      // 주소창에서 쿼리 파라미터 제거 (선택적)
+      const url = new URL(window.location.href);
+      url.search = "";
+      window.history.replaceState({}, document.title, url.toString());
     }
-  }, [searchParams]);
+  }, [success, impUid]);
 
   // 페이지 로드 시 인증 상태 복원
   useEffect(() => {
@@ -101,31 +105,7 @@ const JoinPage = () => {
         setVerificationId(savedVerificationId);
       }
     }
-
-    // 인증 상태가 로드된 후 폼 유효성 재검증
-    validateForm();
   }, []);
-
-  const validateForm = () => {
-    let valid = false;
-
-    if (kakaoId) {
-      valid = !!(formData.name && formData.id && formData.phone && isVerified);
-    } else {
-      valid = !!(
-        formData.name &&
-        formData.id &&
-        formData.password &&
-        formData.passwordConfirm &&
-        formData.phone &&
-        !passwordError &&
-        isVerified
-      );
-    }
-
-    setIsFormValid(valid);
-    return valid;
-  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -135,10 +115,26 @@ const JoinPage = () => {
     }));
   };
 
+  const isFormValid = () => {
+    if (kakaoId) {
+      return !!(formData.name && formData.id && formData.phone && isVerified);
+    } else {
+      return !!(
+        formData.name &&
+        formData.id &&
+        formData.password &&
+        formData.passwordConfirm &&
+        formData.phone &&
+        !passwordError &&
+        isVerified
+      );
+    }
+  };
+
   const signupMutation = usePostApiAuthSignup({
     mutation: {
       onSuccess: (data) => {
-        toast("회원가입 성공");
+        toast.success("회원가입 성공");
         // 회원가입 성공 시 저장된 폼 데이터 삭제
         sessionStorage.removeItem("joinFormData");
         sessionStorage.removeItem("isVerified");
@@ -148,7 +144,7 @@ const JoinPage = () => {
       onError: (error: any) => {
         console.log(error);
         console.log("AAAAA", error.response);
-        toast(error.response.data.err);
+        toast.error(error.response.data.err);
       },
     },
   });
@@ -164,8 +160,10 @@ const JoinPage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!validateForm()) {
-      toast("필수 정보를 모두 입력하고 본인인증을 완료해주세요.");
+
+    // 본인인증 확인
+    if (!isVerified) {
+      toast.error("본인인증이 필요합니다");
       return;
     }
 
@@ -177,7 +175,6 @@ const JoinPage = () => {
         phone: formData.phone,
         referrerCode: formData.referrerCode,
         provider: formData.provider,
-        // identityVerificationId: verificationId, // 본인인증 ID 추가
       },
     });
   };
@@ -223,6 +220,13 @@ const JoinPage = () => {
     handleChange(event);
   };
 
+  // 현재 URL에서 쿼리 파라미터 제거한 기본 경로 가져오기
+  const getCleanRedirectUrl = () => {
+    const url = new URL(window.location.href);
+    url.search = ""; // 모든 쿼리 파라미터 제거
+    return url.toString();
+  };
+
   // 아임포트 본인인증 요청 함수
   const requestIdentityVerification = () => {
     if (isVerifying) return;
@@ -233,7 +237,7 @@ const JoinPage = () => {
       // window.IMP 객체가 있는지 확인
       const { IMP } = window;
       if (!IMP) {
-        toast("아임포트 SDK가 로드되지 않았습니다.");
+        toast.error("아임포트 SDK가 로드되지 않았습니다.");
         setIsVerifying(false);
         return;
       }
@@ -243,9 +247,6 @@ const JoinPage = () => {
 
       // 전화번호 형식 변환 (하이픈 제거)
       const phoneNumberWithoutHyphen = formData.phone.replace(/-/g, "");
-
-      // 현재 URL에서 쿼리 파라미터 제거한 기본 경로 가져오기
-      const currentUrl = window.location.href.split("?")[0];
 
       // 본인인증 데이터 정의
       const data = {
@@ -259,15 +260,14 @@ const JoinPage = () => {
           phone: phoneNumberWithoutHyphen,
         }),
         // 리다이렉트 URL (모바일 환경에서 필요)
-        // 원래 URL로 돌아오도록 설정
-        m_redirect_url: currentUrl,
+        m_redirect_url: getCleanRedirectUrl(),
       };
 
       // 본인인증 창 호출
       IMP.certification(data, callback);
     } catch (error) {
       console.error("본인인증 오류:", error);
-      toast("본인인증 중 오류가 발생했습니다.");
+      toast.error("본인인증 중 오류가 발생했습니다.");
       setIsVerifying(false);
     }
   };
@@ -287,13 +287,10 @@ const JoinPage = () => {
       sessionStorage.setItem("isVerified", "true");
       sessionStorage.setItem("verificationId", imp_uid);
 
-      // 폼 유효성 즉시 재검증
-      validateForm();
-
-      toast("본인인증이 완료되었습니다.");
+      toast.success("본인인증이 완료되었습니다.");
     } else {
       // 본인인증 실패 처리
-      toast(`본인인증 실패: ${error_msg}`);
+      toast.error(`본인인증 실패: ${error_msg}`);
     }
   }
 
@@ -407,19 +404,11 @@ const JoinPage = () => {
 
         <SubmitButton
           type="submit"
-          $isValid={isFormValid}
-          disabled={!isFormValid}
+          $isValid={isFormValid()}
+          disabled={!isFormValid()}
         >
-          {"회원가입"}
+          {isVerified ? "회원가입" : "본인인증이 필요합니다"}
         </SubmitButton>
-
-        {/* 디버깅용 상태 표시 (개발 중에만 사용) */}
-        {/* <div style={{ marginTop: '20px', fontSize: '12px', color: '#999' }}>
-          폼 유효성: {isFormValid ? '유효함' : '유효하지 않음'}<br />
-          본인인증 상태: {isVerified ? '완료' : '미완료'}<br />
-          필수필드 채움: {formData.name && formData.id && formData.phone ? '완료' : '미완료'}<br />
-          비밀번호 일치: {passwordError ? '불일치' : '일치'}<br />
-        </div> */}
       </Form>
       <Devider />
     </Container>
