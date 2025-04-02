@@ -18,11 +18,12 @@ const Table = styled.table`
   border-radius: 20px;
   background: #fff;
   box-shadow: 0px 0px 15px 4px rgba(0, 0, 0, 0.1);
-
+  word-break: keep-all;
   /* overflow: hidden; <- 이 부분을 제거합니다 */
 `;
 
 const Th = styled.th`
+  min-width: 105px;
   padding: 16px;
   text-align: left;
   font-size: 14px;
@@ -65,6 +66,7 @@ const CarComparisonTable = () => {
       executive: "X",
       alphard: "X",
       staria: "X",
+      sprinter: "O",
     },
     {
       title: "파티션 글라스",
@@ -72,6 +74,7 @@ const CarComparisonTable = () => {
       executive: "X",
       alphard: "X",
       staria: "X",
+      sprinter: "O",
     },
     {
       title: "이중접합유리",
@@ -79,6 +82,7 @@ const CarComparisonTable = () => {
       executive: "O",
       alphard: "O",
       staria: "X",
+      sprinter: "O",
     },
     {
       title: "리어 컴포트 모드",
@@ -86,6 +90,7 @@ const CarComparisonTable = () => {
       executive: "O",
       alphard: "X",
       staria: "X",
+      sprinter: "O",
     },
     {
       title: "오디오 스피커 갯수",
@@ -93,6 +98,7 @@ const CarComparisonTable = () => {
       executive: "23",
       alphard: "14",
       staria: "-",
+      sprinter: "15",
     },
     {
       title: "냉장고",
@@ -100,6 +106,7 @@ const CarComparisonTable = () => {
       executive: "X",
       alphard: "X",
       staria: "X",
+      sprinter: "O",
     },
     {
       title: "와이파이",
@@ -107,6 +114,7 @@ const CarComparisonTable = () => {
       executive: "X",
       alphard: "X",
       staria: "O",
+      sprinter: "O",
     },
     {
       title: "모니터 크기",
@@ -114,6 +122,7 @@ const CarComparisonTable = () => {
       executive: '14"',
       alphard: '14"',
       staria: '24"',
+      sprinter: '27"',
     },
     {
       title: "리클라이닝 각도",
@@ -121,6 +130,7 @@ const CarComparisonTable = () => {
       executive: "165º",
       alphard: "160º",
       staria: "170º",
+      sprinter: "165º",
     },
     {
       title: "체온 추적 에어컨디셔닝",
@@ -128,6 +138,7 @@ const CarComparisonTable = () => {
       executive: "X",
       alphard: "X",
       staria: "X",
+      sprinter: "X",
     },
     {
       title: "4륜",
@@ -135,6 +146,7 @@ const CarComparisonTable = () => {
       executive: "O",
       alphard: "½",
       staria: "X",
+      sprinter: "O",
     },
     {
       title: "오디오",
@@ -142,6 +154,7 @@ const CarComparisonTable = () => {
       executive: "마크레빈슨",
       alphard: "JBL",
       staria: "JBL",
+      sprinter: "부메스터",
     },
   ];
 
@@ -161,6 +174,7 @@ const CarComparisonTable = () => {
                 <br /> EXECUTIVE
               </Th>
               <Th>ALPHARD</Th>
+              <Th>SPRINTER</Th>
               <Th>STARIA</Th>
             </tr>
           </thead>
@@ -171,6 +185,7 @@ const CarComparisonTable = () => {
                 <Td>{row.royal}</Td>
                 <Td>{row.executive}</Td>
                 <Td>{row.alphard}</Td>
+                <Td>{row.sprinter}</Td>
                 <Td>{row.staria}</Td>
               </tr>
             ))}

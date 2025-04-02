@@ -8,6 +8,7 @@ import MainBanner2 from "@/src/assets/main-banner-2.png";
 import MainBanner3 from "@/src/assets/main-banner-3.png";
 import IcLexus from "@/src/assets/ic-lexus.png";
 import IcToyota from "@/src/assets/ic-toyota.png";
+import IcBenz from "@/src/assets/ic-benz.png";
 
 import IcGene from "@/src/assets/ic-gene.png";
 import IcFerarri from "@/src/assets/ic-ferarri.png";
@@ -21,6 +22,9 @@ import royal4 from "@/src/assets/royal-4.jpg";
 import executive1 from "@/src/assets/executive-1.jpg";
 import executive2 from "@/src/assets/executive-2.jpg";
 import executive3 from "@/src/assets/executive-3.jpg";
+import sprinter1 from "@/src/assets/sprinter-1.png";
+import sprinter2 from "@/src/assets/sprinter-2.png";
+import sprinter3 from "@/src/assets/sprinter-3.png";
 import staria1 from "@/src/assets/staria-1.png";
 import staria2 from "@/src/assets/staria-2.png";
 import staria3 from "@/src/assets/staria-3.png";
@@ -95,6 +99,21 @@ const CarPage = () => {
         "ㆍ160º 리클라이닝",
         "ㆍ파트타임 4륜",
         "ㆍJBL 오디오",
+      ],
+    },
+    {
+      img: [sprinter1, sprinter2, sprinter3],
+      name: "SPRINTER TOURER",
+      subName: "Diesel ㆍ AWD",
+      label: "7 Seats",
+      bg: "#76865F",
+      barndLogo: IcBenz,
+      contents: [
+        "ㆍ컴포트 에어 서스펜션",
+        "ㆍ어댑티브 제동",
+        'ㆍ27" 격벽 TV',
+        "ㆍ미니 냉장고",
+        "ㆍ마사지 시트",
       ],
     },
     {
