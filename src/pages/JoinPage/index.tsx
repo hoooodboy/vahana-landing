@@ -43,6 +43,7 @@ const JoinPage = () => {
   const [isVerified, setIsVerified] = useState(false);
   const [verificationId, setVerificationId] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
+  const [isFormValid, setIsFormValid] = useState(false);
 
   // 아임포트 스크립트 로드
   useEffect(() => {
@@ -52,7 +53,9 @@ const JoinPage = () => {
     document.body.appendChild(script);
 
     return () => {
-      document.body.removeChild(script);
+      if (document.body.contains(script)) {
+        document.body.removeChild(script);
+      }
     };
   }, []);
 
@@ -66,7 +69,8 @@ const JoinPage = () => {
   // formData가 변경될 때마다 세션 스토리지에 저장
   useEffect(() => {
     sessionStorage.setItem("joinFormData", JSON.stringify(formData));
-  }, [formData]);
+    validateForm();
+  }, [formData, isVerified, passwordError]);
 
   // URL 쿼리 파라미터로부터 본인인증 결과 체크
   useEffect(() => {
@@ -97,21 +101,18 @@ const JoinPage = () => {
         setVerificationId(savedVerificationId);
       }
     }
+
+    // 인증 상태가 로드된 후 폼 유효성 재검증
+    validateForm();
   }, []);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+  const validateForm = () => {
+    let valid = false;
 
-  const isFormValid = () => {
     if (kakaoId) {
-      return !!(formData.name && formData.id && formData.phone && isVerified);
+      valid = !!(formData.name && formData.id && formData.phone && isVerified);
     } else {
-      return !!(
+      valid = !!(
         formData.name &&
         formData.id &&
         formData.password &&
@@ -121,6 +122,17 @@ const JoinPage = () => {
         isVerified
       );
     }
+
+    setIsFormValid(valid);
+    return valid;
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const signupMutation = usePostApiAuthSignup({
@@ -152,6 +164,11 @@ const JoinPage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!validateForm()) {
+      toast("필수 정보를 모두 입력하고 본인인증을 완료해주세요.");
+      return;
+    }
+
     signupMutation.mutate({
       data: {
         name: formData.name,
@@ -270,6 +287,9 @@ const JoinPage = () => {
       sessionStorage.setItem("isVerified", "true");
       sessionStorage.setItem("verificationId", imp_uid);
 
+      // 폼 유효성 즉시 재검증
+      validateForm();
+
       toast("본인인증이 완료되었습니다.");
     } else {
       // 본인인증 실패 처리
@@ -387,11 +407,19 @@ const JoinPage = () => {
 
         <SubmitButton
           type="submit"
-          $isValid={isFormValid()}
-          disabled={!isFormValid()}
+          $isValid={isFormValid}
+          disabled={!isFormValid}
         >
           {"회원가입"}
         </SubmitButton>
+
+        {/* 디버깅용 상태 표시 (개발 중에만 사용) */}
+        {/* <div style={{ marginTop: '20px', fontSize: '12px', color: '#999' }}>
+          폼 유효성: {isFormValid ? '유효함' : '유효하지 않음'}<br />
+          본인인증 상태: {isVerified ? '완료' : '미완료'}<br />
+          필수필드 채움: {formData.name && formData.id && formData.phone ? '완료' : '미완료'}<br />
+          비밀번호 일치: {passwordError ? '불일치' : '일치'}<br />
+        </div> */}
       </Form>
       <Devider />
     </Container>
