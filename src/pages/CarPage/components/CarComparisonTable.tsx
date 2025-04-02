@@ -122,7 +122,7 @@ const CarComparisonTable = () => {
       executive: '14"',
       alphard: '14"',
       staria: '24"',
-      sprinter: '27"',
+      sprinter: '40"',
     },
     {
       title: "리클라이닝 각도",
@@ -146,7 +146,7 @@ const CarComparisonTable = () => {
       executive: "O",
       alphard: "½",
       staria: "X",
-      sprinter: "O",
+      sprinter: "X",
     },
     {
       title: "오디오",

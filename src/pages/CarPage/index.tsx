@@ -104,14 +104,14 @@ const CarPage = () => {
     {
       img: [sprinter1, sprinter2, sprinter3],
       name: "SPRINTER TOURER",
-      subName: "Diesel ㆍ AWD",
+      subName: "Diesel ㆍ RWD",
       label: "7 Seats",
       bg: "#76865F",
       barndLogo: IcBenz,
       contents: [
         "ㆍ컴포트 에어 서스펜션",
         "ㆍ어댑티브 제동",
-        'ㆍ27" 격벽 TV',
+        'ㆍ40" 격벽 TV',
         "ㆍ미니 냉장고",
         "ㆍ마사지 시트",
       ],
