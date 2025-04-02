@@ -84,7 +84,7 @@ const JoinPage = () => {
       sessionStorage.setItem("isVerified", "true");
       sessionStorage.setItem("verificationId", impUid);
 
-      toast.success("본인인증이 완료되었습니다.");
+      toast("본인인증이 완료되었습니다.");
 
       // 주소창에서 쿼리 파라미터 제거 (선택적)
       const url = new URL(window.location.href);
@@ -134,7 +134,7 @@ const JoinPage = () => {
   const signupMutation = usePostApiAuthSignup({
     mutation: {
       onSuccess: (data) => {
-        toast.success("회원가입 성공");
+        toast("회원가입 성공");
         // 회원가입 성공 시 저장된 폼 데이터 삭제
         sessionStorage.removeItem("joinFormData");
         sessionStorage.removeItem("isVerified");
@@ -144,7 +144,7 @@ const JoinPage = () => {
       onError: (error: any) => {
         console.log(error);
         console.log("AAAAA", error.response);
-        toast.error(error.response.data.err);
+        toast(error.response.data.err);
       },
     },
   });
@@ -163,7 +163,7 @@ const JoinPage = () => {
 
     // 본인인증 확인
     if (!isVerified) {
-      toast.error("본인인증이 필요합니다");
+      toast("본인인증이 필요합니다");
       return;
     }
 
@@ -237,7 +237,7 @@ const JoinPage = () => {
       // window.IMP 객체가 있는지 확인
       const { IMP } = window;
       if (!IMP) {
-        toast.error("아임포트 SDK가 로드되지 않았습니다.");
+        toast("아임포트 SDK가 로드되지 않았습니다.");
         setIsVerifying(false);
         return;
       }
@@ -267,7 +267,7 @@ const JoinPage = () => {
       IMP.certification(data, callback);
     } catch (error) {
       console.error("본인인증 오류:", error);
-      toast.error("본인인증 중 오류가 발생했습니다.");
+      toast("본인인증 중 오류가 발생했습니다.");
       setIsVerifying(false);
     }
   };
@@ -287,10 +287,10 @@ const JoinPage = () => {
       sessionStorage.setItem("isVerified", "true");
       sessionStorage.setItem("verificationId", imp_uid);
 
-      toast.success("본인인증이 완료되었습니다.");
+      toast("본인인증이 완료되었습니다.");
     } else {
       // 본인인증 실패 처리
-      toast.error(`본인인증 실패: ${error_msg}`);
+      toast(`본인인증 실패: ${error_msg}`);
     }
   }
 
