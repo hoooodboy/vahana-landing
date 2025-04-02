@@ -198,7 +198,7 @@ const JoinPage = () => {
           phone: phoneNumberWithoutHyphen,
         }),
         // 리다이렉트 URL (모바일 환경에서 필요)
-        m_redirect_url: `${window.location.origin}/join`,
+        m_redirect_url: `${window.location.href}`,
       };
 
       // 본인인증 창 호출
