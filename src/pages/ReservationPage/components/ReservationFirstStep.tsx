@@ -1,25 +1,35 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import DaumPostcode from "react-daum-postcode";
 import Modal from "@/src/components/Modal";
 import styled from "styled-components";
 
+// 경유지 타입 정의
+interface ViaLocation {
+  location: string;
+  time: string;
+}
+
+interface FormDataType {
+  car_id: number | null;
+  name: string;
+  phone: string;
+  pickup_location: string;
+  pickup_time: string;
+  via_locations: ViaLocation[]; // 경유지 배열
+  dropoff_location: string;
+  ride_purpose: string;
+  luggage_count: number;
+  passenger_count: number;
+  special_requests: string;
+}
+
 interface FirstStepProps {
-  formData: {
-    car_id: number | null;
-    name: string;
-    phone: string;
-    pickup_location: string;
-    pickup_time: string;
-    dropoff_location: string;
-    ride_purpose: string;
-    luggage_count: number;
-    passenger_count: number;
-    special_requests: string;
-  };
+  formData: FormDataType;
   selectedDate: string;
   selectedCar: any;
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  updateFormData: (data: Partial<FormDataType>) => void; // formData 전체 업데이트 함수
 }
 
 const ReservationFirstStep: React.FC<FirstStepProps> = ({
@@ -27,16 +37,21 @@ const ReservationFirstStep: React.FC<FirstStepProps> = ({
   selectedDate,
   selectedCar,
   handleChange,
+  updateFormData,
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isPickupAddressOpen, setIsPickupAddressOpen] = useState(false);
   const [isDropoffAddressOpen, setIsDropoffAddressOpen] = useState(false);
-  const [isTimePickerOpen, setIsTimePickerOpen] = useState(false);
 
   // 직접 입력 텍스트 상태
   const [customPickupLocation, setCustomPickupLocation] = useState("");
   const [customDropoffLocation, setCustomDropoffLocation] = useState("");
+
+  // 경유지 관련 상태
+  const [currentStopoverIndex, setCurrentStopoverIndex] = useState<number>(-1);
+  const [isStopoverAddressOpen, setIsStopoverAddressOpen] = useState(false);
+  const [customStopoverLocation, setCustomStopoverLocation] = useState("");
 
   // 주소 검색 모드 (일반 주소 검색 또는 직접 입력)
   const [pickupSearchMode, setPickupSearchMode] = useState<
@@ -45,9 +60,18 @@ const ReservationFirstStep: React.FC<FirstStepProps> = ({
   const [dropoffSearchMode, setDropoffSearchMode] = useState<
     "address" | "direct"
   >("address");
+  const [stopoverSearchMode, setStopoverSearchMode] = useState<
+    "address" | "direct"
+  >("address");
 
-  console.log("selectedCar.seats", selectedCar.seats);
+  // via_locations 초기화
+  useEffect(() => {
+    if (!formData.via_locations) {
+      updateFormData({ via_locations: [] });
+    }
+  }, []);
 
+  // 다음 단계로 진행
   const onNext = () => {
     if (isFormValid()) {
       navigate("/reservation/second", {
@@ -62,6 +86,11 @@ const ReservationFirstStep: React.FC<FirstStepProps> = ({
           selectedDate: selectedDate,
         },
       });
+    } else {
+      // 폼이 유효하지 않을 때 사용자에게 알림
+      alert(
+        "모든 필수 항목을 입력해주세요. 경유지를 추가한 경우 경유지 주소와 시간도 입력해야 합니다."
+      );
     }
   };
 
@@ -89,44 +118,157 @@ const ReservationFirstStep: React.FC<FirstStepProps> = ({
     setIsDropoffAddressOpen(false);
   };
 
+  const handleStopoverComplete = (data: any) => {
+    const fullAddress = data.address;
+    updateStopoverLocation(currentStopoverIndex, fullAddress);
+    setIsStopoverAddressOpen(false);
+  };
+
   // 직접 입력한 장소 저장 처리
-  const handleCustomLocationConfirm = (isPickup: boolean) => {
-    const location = isPickup ? customPickupLocation : customDropoffLocation;
+  const handleCustomLocationConfirm = (
+    locationType: "pickup" | "dropoff" | "stopover"
+  ) => {
+    let location = "";
 
-    if (!location.trim()) {
-      alert("장소를 입력해주세요.");
-      return;
-    }
-
-    const event = {
-      target: {
-        name: isPickup ? "pickup_location" : "dropoff_location",
-        value: location,
-      },
-    } as React.ChangeEvent<HTMLInputElement>;
-
-    handleChange(event);
-
-    if (isPickup) {
+    if (locationType === "pickup") {
+      location = customPickupLocation;
+      if (!location.trim()) {
+        alert("장소를 입력해주세요.");
+        return;
+      }
+      const event = {
+        target: {
+          name: "pickup_location",
+          value: location,
+        },
+      } as React.ChangeEvent<HTMLInputElement>;
+      handleChange(event);
       setIsPickupAddressOpen(false);
       setCustomPickupLocation("");
-    } else {
+    } else if (locationType === "dropoff") {
+      location = customDropoffLocation;
+      if (!location.trim()) {
+        alert("장소를 입력해주세요.");
+        return;
+      }
+      const event = {
+        target: {
+          name: "dropoff_location",
+          value: location,
+        },
+      } as React.ChangeEvent<HTMLInputElement>;
+      handleChange(event);
       setIsDropoffAddressOpen(false);
       setCustomDropoffLocation("");
+    } else if (locationType === "stopover") {
+      location = customStopoverLocation;
+      if (!location.trim()) {
+        alert("장소를 입력해주세요.");
+        return;
+      }
+      updateStopoverLocation(currentStopoverIndex, location);
+      setIsStopoverAddressOpen(false);
+      setCustomStopoverLocation("");
     }
   };
 
+  // 경유지 추가
+  const addStopover = () => {
+    if (formData.via_locations && formData.via_locations.length >= 5) {
+      alert("경유지는 최대 5개까지 추가할 수 있습니다.");
+      return;
+    }
+
+    const newViaLocation: ViaLocation = {
+      location: "",
+      time: "",
+    };
+
+    const updatedViaLocations = [
+      ...(formData.via_locations || []),
+      newViaLocation,
+    ];
+    updateFormData({ via_locations: updatedViaLocations });
+  };
+
+  // 경유지 삭제
+  const removeStopover = (index: number) => {
+    if (formData.via_locations) {
+      const updatedViaLocations = [...formData.via_locations];
+      updatedViaLocations.splice(index, 1);
+      updateFormData({ via_locations: updatedViaLocations });
+    }
+  };
+
+  // 경유지 위치 업데이트
+  const updateStopoverLocation = (index: number, location: string) => {
+    if (
+      formData.via_locations &&
+      index >= 0 &&
+      index < formData.via_locations.length
+    ) {
+      const updatedViaLocations = [...formData.via_locations];
+      updatedViaLocations[index] = {
+        ...updatedViaLocations[index],
+        location,
+      };
+      updateFormData({ via_locations: updatedViaLocations });
+    }
+  };
+
+  // 경유지 시간 업데이트
+  const updateStopoverTime = (index: number, time: string) => {
+    if (
+      formData.via_locations &&
+      index >= 0 &&
+      index < formData.via_locations.length
+    ) {
+      // 날짜 형식 생성
+      const date = new Date(selectedDate);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+
+      // ISO 형식의 날짜 문자열 생성 (YYYY-MM-DDTHH:mm:ss.sssZ)
+      const isoDateTime = new Date(
+        `${year}-${month}-${day}T${time}:00`
+      ).toISOString();
+
+      const updatedViaLocations = [...formData.via_locations];
+      updatedViaLocations[index] = {
+        ...updatedViaLocations[index],
+        time: isoDateTime,
+      };
+      updateFormData({ via_locations: updatedViaLocations });
+    }
+  };
+
+  const openStopoverModal = (index: number) => {
+    setCurrentStopoverIndex(index);
+    setIsStopoverAddressOpen(true);
+  };
+
   const isFormValid = () => {
-    return (
+    const baseValid =
       formData.name.trim() !== "" &&
       formData.phone.trim() !== "" &&
       formData.pickup_location.trim() !== "" &&
       formData.pickup_time.trim() !== "" &&
-      formData.dropoff_location.trim() !== ""
-    );
+      formData.dropoff_location.trim() !== "";
+
+    // 경유지가 있다면 모든 경유지에 위치와 시간이 입력되어 있어야 함
+    const viaLocationsValid =
+      !formData.via_locations ||
+      formData.via_locations.length === 0 ||
+      formData.via_locations.every(
+        (location) =>
+          location.location.trim() !== "" && location.time.trim() !== ""
+      );
+
+    return baseValid && viaLocationsValid;
   };
 
-  // handleTimeChange 함수를 수정
+  // 출발 시간 변경 핸들러
   const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedTime = e.target.value; // HH:mm 형식
 
@@ -145,7 +287,6 @@ const ReservationFirstStep: React.FC<FirstStepProps> = ({
         value: formattedDateTime,
       },
     } as React.ChangeEvent<HTMLInputElement>;
-
     handleChange(event);
   };
 
@@ -190,6 +331,21 @@ const ReservationFirstStep: React.FC<FirstStepProps> = ({
     handleChange(event);
   };
 
+  // 시간만 추출하는 헬퍼 함수
+  const extractTimeOnly = (dateTimeString: string) => {
+    if (!dateTimeString) return "";
+
+    // ISO 형식의 날짜인 경우
+    if (dateTimeString.includes("T")) {
+      const date = new Date(dateTimeString);
+      return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+    }
+
+    // 공백으로 구분된 날짜/시간 형식인 경우
+    const parts = dateTimeString.split(" ");
+    return parts.length > 1 ? parts[1] : "";
+  };
+
   return (
     <Container>
       <Form>
@@ -217,6 +373,17 @@ const ReservationFirstStep: React.FC<FirstStepProps> = ({
         </InputGroup>
 
         <InputGroup>
+          <Label>출발 시간</Label>
+          <Input
+            type="time"
+            name="pickup_time"
+            value={extractTimeOnly(formData.pickup_time)}
+            onChange={handleTimeChange}
+            placeholder="출발 시간을 입력해주세요."
+          />
+        </InputGroup>
+
+        <InputGroup>
           <Label>출발지</Label>
           <Input
             type="text"
@@ -228,16 +395,50 @@ const ReservationFirstStep: React.FC<FirstStepProps> = ({
           />
         </InputGroup>
 
-        <InputGroup>
-          <Label>출발시간</Label>
-          <Input
-            type="time"
-            name="pickup_time"
-            value={formData.pickup_time.split(" ")[1] || ""}
-            onChange={handleTimeChange}
-            placeholder="출발 시간을 입력해주세요."
-          />
-        </InputGroup>
+        {/* 경유지 섹션 */}
+        {formData.via_locations && formData.via_locations.length > 0 && (
+          <StopoverSection>
+            {formData.via_locations.map((location, index) => (
+              <StopoverItem key={index}>
+                <FlexContainer>
+                  <InputGroup $flex={0.65}>
+                    <Label>경유지</Label>
+                    <Input
+                      type="text"
+                      value={location.location}
+                      onClick={() => openStopoverModal(index)}
+                      readOnly
+                      placeholder="경유지를 입력해주세요."
+                    />
+                  </InputGroup>
+                  <InputGroup $flex={0.35}>
+                    <Label>출발 시간</Label>
+                    <Input
+                      type="time"
+                      value={extractTimeOnly(location.time)}
+                      onChange={(e) =>
+                        updateStopoverTime(index, e.target.value)
+                      }
+                      placeholder="시간 선택"
+                    />
+                  </InputGroup>
+                </FlexContainer>
+                <RemoveButton onClick={() => removeStopover(index)}>
+                  -
+                </RemoveButton>
+              </StopoverItem>
+            ))}
+          </StopoverSection>
+        )}
+
+        {/* 경유지 추가 버튼 */}
+        {(!formData.via_locations || formData.via_locations.length < 5) && (
+          <StopoverToggleContainer>
+            <StopoverToggleButton type="button" onClick={addStopover}>
+              경유지 +
+            </StopoverToggleButton>
+          </StopoverToggleContainer>
+        )}
 
         <InputGroup>
           <Label>목적지</Label>
@@ -286,7 +487,7 @@ const ReservationFirstStep: React.FC<FirstStepProps> = ({
                 placeholder="출발지를 직접 입력하세요"
               />
               <ConfirmButton
-                onClick={() => handleCustomLocationConfirm(true)}
+                onClick={() => handleCustomLocationConfirm("pickup")}
                 disabled={!customPickupLocation.trim()}
               >
                 확인
@@ -297,6 +498,59 @@ const ReservationFirstStep: React.FC<FirstStepProps> = ({
               onComplete={handlePickupComplete}
               autoClose={false}
               onClose={() => setIsPickupAddressOpen(false)}
+            />
+          )}
+        </ModalContent>
+      </Modal>
+
+      {/* 경유지 주소 검색 모달 */}
+      <Modal
+        isOpen={isStopoverAddressOpen}
+        setIsOpen={setIsStopoverAddressOpen}
+      >
+        <ModalContent>
+          <ModalHeader>
+            <ModalTitle>경유지 주소 검색</ModalTitle>
+            <CloseButton onClick={() => setIsStopoverAddressOpen(false)}>
+              ×
+            </CloseButton>
+          </ModalHeader>
+
+          <SearchTypeContainer>
+            <SearchTypeButton
+              onClick={() => setStopoverSearchMode("address")}
+              $active={stopoverSearchMode === "address"}
+            >
+              주소로 검색
+            </SearchTypeButton>
+            <SearchTypeButton
+              onClick={() => setStopoverSearchMode("direct")}
+              $active={stopoverSearchMode === "direct"}
+            >
+              직접 입력
+            </SearchTypeButton>
+          </SearchTypeContainer>
+
+          {stopoverSearchMode === "direct" ? (
+            <DirectInputContainer>
+              <KeywordInput
+                type="text"
+                value={customStopoverLocation}
+                onChange={(e) => setCustomStopoverLocation(e.target.value)}
+                placeholder="경유지를 직접 입력하세요"
+              />
+              <ConfirmButton
+                onClick={() => handleCustomLocationConfirm("stopover")}
+                disabled={!customStopoverLocation.trim()}
+              >
+                확인
+              </ConfirmButton>
+            </DirectInputContainer>
+          ) : (
+            <DaumPostcode
+              onComplete={handleStopoverComplete}
+              autoClose={false}
+              onClose={() => setIsStopoverAddressOpen(false)}
             />
           )}
         </ModalContent>
@@ -336,7 +590,7 @@ const ReservationFirstStep: React.FC<FirstStepProps> = ({
                 placeholder="목적지를 직접 입력하세요"
               />
               <ConfirmButton
-                onClick={() => handleCustomLocationConfirm(false)}
+                onClick={() => handleCustomLocationConfirm("dropoff")}
                 disabled={!customDropoffLocation.trim()}
               >
                 확인
@@ -378,9 +632,16 @@ const Form = styled.form`
   gap: 32px;
 `;
 
-const InputGroup = styled.div`
+const FlexContainer = styled.div`
+  display: flex;
+  gap: 16px;
+  width: 100%;
+`;
+
+const InputGroup = styled.div<{ $flex?: number }>`
   display: flex;
   flex-direction: column;
+  flex: ${(props) => props.$flex || 1};
 `;
 
 const Label = styled.label`
@@ -411,6 +672,65 @@ const Input = styled.input<{ $error?: boolean }>`
   &:focus {
     outline: none;
     border-color: ${(props) => (props.$error ? "#ff0000" : "#3e4730")};
+  }
+`;
+
+// 경유지 관련 스타일
+const StopoverSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+`;
+
+const StopoverItem = styled.div`
+  position: relative;
+  padding-right: 30px;
+  display: flex;
+`;
+
+const RemoveButton = styled.button`
+  position: absolute;
+  right: 0;
+  /* top: 50%;
+  transform: translateY(-50%); */
+  bottom: 12px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #f0f0f0;
+  border: 1px solid #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  cursor: pointer;
+
+  &:hover {
+    background: #e0e0e0;
+  }
+`;
+
+const StopoverToggleContainer = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -16px;
+`;
+
+const StopoverToggleButton = styled.button`
+  background: none;
+  border: none;
+  color: #3e4730;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 8px;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &:focus {
+    outline: none;
   }
 `;
 
@@ -494,28 +814,13 @@ const SearchTypeButton = styled.button<{ $active: boolean }>`
   }
 `;
 
-const KeywordSearchContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding: 16px;
-  gap: 16px;
-  flex: 1;
-  overflow: hidden;
-`;
-
 const DirectInputContainer = styled.div`
-  /* height: 100%; */
   display: flex;
   flex: 1;
   flex-direction: column;
   justify-content: space-between;
   padding: 16px;
   gap: 16px;
-`;
-
-const SearchInputContainer = styled.div`
-  display: flex;
-  gap: 8px;
 `;
 
 const KeywordInput = styled.input`
@@ -529,20 +834,6 @@ const KeywordInput = styled.input`
   &:focus {
     outline: none;
     border-color: #3e4730;
-  }
-`;
-
-const SearchButton = styled.button`
-  padding: 0 16px;
-  background: #3e4730;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 500;
-
-  &:hover {
-    background: #2b331f;
   }
 `;
 
@@ -561,43 +852,6 @@ const ConfirmButton = styled.button<{ disabled?: boolean }>`
   &:hover {
     background: ${(props) => (props.disabled ? "#c7c7c7" : "#2b331f")};
   }
-`;
-
-const ResultsContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  overflow-y: auto;
-  flex: 1;
-`;
-
-const ResultItem = styled.div`
-  padding: 12px;
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-
-  &:hover {
-    background-color: #f8f9fa;
-  }
-`;
-
-const ResultTitle = styled.div`
-  font-weight: 600;
-  margin-bottom: 4px;
-  color: #212529;
-`;
-
-const ResultAddress = styled.div`
-  font-size: 14px;
-  color: #6c757d;
-`;
-
-const NoResults = styled.div`
-  padding: 16px;
-  text-align: center;
-  color: #6c757d;
 `;
 
 export default ReservationFirstStep;

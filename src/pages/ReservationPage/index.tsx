@@ -15,6 +15,11 @@ interface CarOption {
   available: boolean;
 }
 
+interface ViaLocation {
+  location: string;
+  time: string;
+}
+
 const ReservationPage: React.FC = () => {
   const location = useLocation();
 
@@ -35,6 +40,7 @@ const ReservationPage: React.FC = () => {
     phone: "",
     pickup_location: "",
     pickup_time: "",
+    via_locations: [], // 경유지 배열 추가
     dropoff_location: "",
     ride_purpose: "",
     luggage_count: 0,
@@ -47,6 +53,14 @@ const ReservationPage: React.FC = () => {
     setFormData((prev) => ({
       ...prev,
       [name]: value,
+    }));
+  };
+
+  // 부분 데이터 업데이트 함수 추가
+  const updateFormData = (partialData) => {
+    setFormData((prev) => ({
+      ...prev,
+      ...partialData,
     }));
   };
 
@@ -96,6 +110,7 @@ const ReservationPage: React.FC = () => {
           selectedDate={selectedDate}
           selectedCar={selectedCar}
           handleChange={handleChange}
+          updateFormData={updateFormData} // updateFormData prop 추가
         />
       )}
       {step.key === "second" && (
