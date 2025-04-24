@@ -20,4 +20,6 @@ export type CarResponseDto = {
   seat_capacity: number;
   /** 차량 재고 수 */
   car_inventory_count: number;
+  /** 순서 */
+  order: number;
 };

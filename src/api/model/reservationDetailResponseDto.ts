@@ -4,6 +4,7 @@
  * Vahana API
  * OpenAPI spec version: 1.0.0
  */
+import type { ReservationDetailResponseDtoStatus } from "./reservationDetailResponseDtoStatus";
 
 export type ReservationDetailResponseDto = {
   /** 예약자 이름 */
@@ -14,6 +15,8 @@ export type ReservationDetailResponseDto = {
   pickup_time: string;
   /** 출발 위치 */
   pickup_location: string;
+  /** 경유 위치 */
+  via_locations: string[];
   /** 도착 위치 */
   dropoff_location: string;
   /** 사용 목적 */
@@ -25,7 +28,9 @@ export type ReservationDetailResponseDto = {
   /** 특이사항 */
   special_requests: string;
   /** 예약 상태 */
-  status: string;
+  status: ReservationDetailResponseDtoStatus;
+  /** 현재 위치 */
+  current_location: string;
   /** 예약자 아이디 */
   user_id: number;
 };

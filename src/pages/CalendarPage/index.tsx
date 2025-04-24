@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import tokens from "@/src/tokens";
 import { toast } from "react-toastify";
 import { useGetApiReservationsAvailable } from "@/src/api/endpoints/reservations/reservations";
+import { useGetApiSettings } from "@/src/api/endpoints/settings/settings";
 
 interface CarOption {
   name: string;
@@ -30,6 +31,10 @@ const CalendarPage: React.FC = () => {
   // 실제 선택된 날짜 상태
   const [selectedDate, setSelectedDate] = useState<Date>(today);
 
+  // open_date 상태 관리
+  const [openDate, setOpenDate] = useState<number>(0);
+  const [openDateLimit, setOpenDateLimit] = useState<Date>(today);
+
   const ScrollContainer2Ref = useRef<HTMLDivElement>(null);
 
   // 드래그 스크롤을 위한 상태
@@ -40,6 +45,10 @@ const CalendarPage: React.FC = () => {
   const { accessToken } = tokens;
   const isLoggedIn = !!accessToken;
 
+  // Settings API 호출
+  const { data: settingsData }: any = useGetApiSettings();
+
+  // 차량 목록 데이터
   const { data: cars } = useGetApiReservationsAvailable(
     {
       year: selectedDate.getFullYear(),
@@ -52,6 +61,24 @@ const CalendarPage: React.FC = () => {
       },
     }
   );
+
+  // Settings 데이터 로드시 open_date 설정 및 최소 예약 가능 날짜 계산
+  useEffect(() => {
+    if (settingsData?.result?.open_date !== undefined) {
+      const openDaysCount = settingsData.result.open_date;
+      setOpenDate(openDaysCount);
+
+      // open_date 기반 최소 예약 가능 날짜 계산
+      const limitDate = new Date(today);
+      limitDate.setDate(today.getDate() + openDaysCount);
+      setOpenDateLimit(limitDate);
+
+      // 현재 선택된 날짜가 open_date 제한보다 빠르면 선택 날짜 업데이트
+      if (selectedDate < limitDate) {
+        setSelectedDate(limitDate);
+      }
+    }
+  }, [settingsData]);
 
   const generateDates = (baseDate: Date) => {
     const dates: Date[] = [];
@@ -96,7 +123,7 @@ const CalendarPage: React.FC = () => {
   };
 
   const handleDateClick = (date: Date) => {
-    if (date.getTime() >= today.getTime()) {
+    if (isDateSelectable(date)) {
       setSelectedDate(date);
 
       // 선택된 날짜가 현재 표시 월의 범위를 벗어나면 표시 월 업데이트
@@ -110,6 +137,9 @@ const CalendarPage: React.FC = () => {
           ScrollContainer2Ref.current.scrollLeft = 0;
         }
       }
+    } else if (date < openDateLimit && date >= today) {
+      // open_date 제한으로 선택할 수 없는 날짜 클릭 시 알림
+      toast(`예약은 ${openDate}일 이후부터 가능합니다.`);
     }
   };
 
@@ -174,8 +204,17 @@ const CalendarPage: React.FC = () => {
     }
   };
 
+  // 날짜가 예약 가능한지 확인 (open_date 고려)
   const isDateSelectable = (date: Date): boolean => {
-    return date.getTime() >= today.getTime();
+    return date.getTime() >= openDateLimit.getTime();
+  };
+
+  // 날짜가 오늘 이후지만 open_date 이전인지 확인
+  const isWithinOpenDateLimit = (date: Date): boolean => {
+    return (
+      date.getTime() >= today.getTime() &&
+      date.getTime() < openDateLimit.getTime()
+    );
   };
 
   return (
@@ -189,6 +228,15 @@ const CalendarPage: React.FC = () => {
         </Title>
         차량 예약
       </TitleContainer>
+
+      {/* Open Date 안내 메시지 */}
+      {openDate > 0 && (
+        <OpenDateInfoBox>
+          <InfoIcon>i</InfoIcon>
+          <InfoText>예약은 {openDate}일 이후 날짜부터 가능합니다.</InfoText>
+        </OpenDateInfoBox>
+      )}
+
       <CalendarContainer>
         <CalendarBlock>
           <CalendarHeader>
@@ -226,6 +274,7 @@ const CalendarPage: React.FC = () => {
                       selectedDate.toDateString() === date.toDateString()
                     }
                     $isSelectable={isDateSelectable(date)}
+                    $isOpenDatePending={isWithinOpenDateLimit(date)}
                     onClick={() => handleDateClick(date)}
                   >
                     {date.getDate()}
@@ -237,28 +286,48 @@ const CalendarPage: React.FC = () => {
 
           <DateBlock>{formatDate(selectedDate)}</DateBlock>
 
+          {!isDateSelectable(selectedDate) && (
+            <UnavailableMessage>
+              선택하신 날짜는 예약 불가능합니다. {openDate}일 이후 날짜를
+              선택해주세요.
+            </UnavailableMessage>
+          )}
+
           <CarList>
-            {cars?.result?.map((car, index) => (
-              <CarItem
-                key={index}
-                onClick={() =>
-                  isLoggedIn
-                    ? handleCarSelect(car)
-                    : toast("로그인 후 이용할 수 있습니다.")
-                }
-              >
-                <CarImage src={imgView(car.image)} alt={car.name} />
-                <CarInfo>
-                  <CarTitle>{car.name}</CarTitle>
-                  <CarSeats>
-                    {car.seat_capacity} Seats &#40;최대 {car.seats || 0}인&#41;
-                  </CarSeats>
-                </CarInfo>
-                <Button $disabled={!car.is_available}>
-                  {car.is_available ? "1 Ticket" : "마감"}
-                </Button>
-              </CarItem>
-            ))}
+            {isDateSelectable(selectedDate) ? (
+              cars?.result?.length > 0 ? (
+                cars.result.map((car, index) => (
+                  <CarItem
+                    key={index}
+                    onClick={() =>
+                      isLoggedIn
+                        ? handleCarSelect(car)
+                        : toast("로그인 후 이용할 수 있습니다.")
+                    }
+                  >
+                    <CarImage src={imgView(car.image)} alt={car.name} />
+                    <CarInfo>
+                      <CarTitle>{car.name}</CarTitle>
+                      <CarSeats>
+                        {car.seat_capacity} Seats &#40;최대 {car.seats || 0}
+                        인&#41;
+                      </CarSeats>
+                    </CarInfo>
+                    <Button $disabled={!car.is_available}>
+                      {car.is_available ? "1 Ticket" : "마감"}
+                    </Button>
+                  </CarItem>
+                ))
+              ) : (
+                <EmptyState>
+                  해당 날짜에 예약 가능한 차량이 없습니다.
+                </EmptyState>
+              )
+            ) : (
+              <EmptyState>
+                {openDate}일 이후 날짜를 선택하면 예약 가능한 차량이 표시됩니다.
+              </EmptyState>
+            )}
           </CarList>
         </CalendarBlock>
       </CalendarContainer>
@@ -281,12 +350,43 @@ const TitleContainer = styled.div`
   gap: 8px;
   font-size: 14px;
   font-weight: 500;
-  padding: 46px 16px 82px;
+  padding: 46px 16px 24px;
 `;
 
 const Title = styled.div`
   font-size: 32px;
   font-weight: 700;
+`;
+
+// Open Date 안내 메시지 스타일
+const OpenDateInfoBox = styled.div`
+  display: flex;
+  align-items: center;
+  margin: 0 16px 24px;
+  padding: 12px 16px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #76865f;
+`;
+
+const InfoIcon = styled.div`
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: #76865f;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  margin-right: 12px;
+  font-size: 12px;
+`;
+
+const InfoText = styled.p`
+  font-size: 14px;
+  color: #333;
+  margin: 0;
 `;
 
 const CalendarContainer = styled.div`
@@ -371,6 +471,7 @@ const Weekday = styled.div`
 const DateCircle = styled.div<{
   $isSelected?: boolean;
   $isSelectable?: boolean;
+  $isOpenDatePending?: boolean;
 }>`
   width: 32px;
   height: 32px;
@@ -380,20 +481,26 @@ const DateCircle = styled.div<{
   justify-content: center;
   border-radius: 50%;
   cursor: ${(props) => (props.$isSelectable ? "pointer" : "not-allowed")};
-  background-color: ${(props) =>
-    props.$isSelected ? "#76865F" : "transparent"};
-  color: ${(props) => {
-    if (!props.$isSelectable) return "#ccc";
-    return props.$isSelected ? "white" : "inherit";
+  background-color: ${(props) => {
+    if (props.$isSelected) return "#76865F";
+    if (props.$isOpenDatePending) return "#f3f4f6";
+    return "transparent";
   }};
+  color: ${(props) => {
+    if (!props.$isSelectable && !props.$isOpenDatePending) return "#ccc";
+    if (props.$isOpenDatePending) return "#999";
+    if (props.$isSelected) return "white";
+    return "inherit";
+  }};
+  /* border: ${(props) =>
+    props.$isOpenDatePending ? "1px dashed #999" : "none"}; */
 
   &:hover {
-    background-color: ${(props) =>
-      !props.$isSelectable
-        ? "transparent"
-        : props.$isSelected
-          ? "#76865F"
-          : "#f3f4f6"};
+    background-color: ${(props) => {
+      if (!props.$isSelectable)
+        return props.$isOpenDatePending ? "#f3f4f6" : "transparent";
+      return props.$isSelected ? "#76865F" : "#f3f4f6";
+    }};
   }
   transition: 0.2s all ease-in;
 `;
@@ -406,6 +513,39 @@ const DateBlock = styled.div`
   color: #fff;
   font-size: 14px;
   font-weight: 500;
+  margin-top: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const AvailabilityBadge = styled.span<{ $isUnavailable?: boolean }>`
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  background-color: ${(props) =>
+    props.$isUnavailable ? "#C6C6C6" : "#EAF2DC"};
+  color: ${(props) => (props.$isUnavailable ? "#666" : "#3E4730")};
+`;
+
+const UnavailableMessage = styled.div`
+  margin-top: 16px;
+  padding: 12px;
+  text-align: center;
+  background-color: #ffeeee;
+  border-radius: 8px;
+  color: #e03131;
+  font-size: 14px;
+`;
+
+const EmptyState = styled.div`
+  padding: 32px;
+  text-align: center;
+  color: #666;
+  background: #f8f9fa;
+  border-radius: 8px;
   margin-top: 16px;
 `;
 

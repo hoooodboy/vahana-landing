@@ -7,6 +7,10 @@ import {
   useGetApiReservationsAvailable,
   usePatchApiReservationsAvailable,
 } from "@/src/api/endpoints/reservations/reservations";
+import {
+  useGetApiSettings,
+  usePostApiSettings,
+} from "@/src/api/endpoints/settings/settings";
 import { imgView } from "@/src/utils/upload";
 import { toast } from "react-toastify";
 
@@ -21,12 +25,21 @@ const AdminCalendarPage: React.FC = () => {
   // 실제 선택된 날짜 상태
   const [selectedDate, setSelectedDate] = useState<Date>(today);
 
+  // open_date 설정 상태
+  const [openDate, setOpenDate] = useState<number>(0);
+  const [isEditingOpenDate, setIsEditingOpenDate] = useState<boolean>(false);
+  const [tempOpenDate, setTempOpenDate] = useState<number>(0);
+
   const ScrollContainer2Ref = useRef<HTMLDivElement>(null);
 
   // 드래그 스크롤을 위한 상태
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
+
+  // Settings API 호출
+  const { data: settingsData, refetch: refetchSettings } = useGetApiSettings();
+  const updateSettingsMutation = usePostApiSettings();
 
   // 차량 목록 데이터
   const { data: cars, refetch } = useGetApiReservationsAvailable(
@@ -55,6 +68,14 @@ const AdminCalendarPage: React.FC = () => {
       },
     },
   });
+
+  // Settings 데이터 로드시 open_date 설정
+  useEffect(() => {
+    if ((settingsData as any)?.result?.open_date !== undefined) {
+      setOpenDate((settingsData as any).result.open_date);
+      setTempOpenDate((settingsData as any).result.open_date);
+    }
+  }, [settingsData]);
 
   const generateDates = (baseDate: Date) => {
     const dates: Date[] = [];
@@ -154,7 +175,7 @@ const AdminCalendarPage: React.FC = () => {
   };
 
   const handleStatusChange = (
-    carId: string,
+    carId: any,
     status: "AVAILABLE" | "UNAVAILABLE"
   ) => {
     updateAvailabilityMutation.mutate({
@@ -168,11 +189,71 @@ const AdminCalendarPage: React.FC = () => {
     });
   };
 
+  // open_date 변경 저장 핸들러
+  const handleSaveOpenDate = () => {
+    updateSettingsMutation.mutate(
+      { data: { open_date: tempOpenDate } },
+      {
+        onSuccess: () => {
+          toast("예약 가능 일수가 변경되었습니다.");
+          setOpenDate(tempOpenDate);
+          setIsEditingOpenDate(false);
+          refetchSettings();
+        },
+        onError: (error) => {
+          toast("설정 변경에 실패했습니다.");
+          console.error("Error updating settings:", error);
+        },
+      }
+    );
+  };
+
+  // 날짜가 예약 가능한지 확인
+  const isDateSelectable = (date: Date): boolean => {
+    const limitDate = new Date(today);
+    limitDate.setDate(today.getDate() + openDate);
+    return date >= limitDate;
+  };
+
   return (
     <Container>
       <AdminSideBar />
       <Section>
         <SectionTitle>차량 일정 관리</SectionTitle>
+
+        {/* Open Date 설정 섹션 */}
+        <OpenDateSettingSection>
+          <OpenDateTitle>예약 오픈 설정</OpenDateTitle>
+          {isEditingOpenDate ? (
+            <OpenDateEditContainer>
+              <OpenDateInput
+                type="number"
+                min="0"
+                value={tempOpenDate}
+                onChange={(e) => setTempOpenDate(parseInt(e.target.value) || 0)}
+              />
+              <OpenDateText>일 이후부터 예약 가능</OpenDateText>
+              <SaveButton onClick={handleSaveOpenDate}>저장</SaveButton>
+              <CancelButton
+                onClick={() => {
+                  setTempOpenDate(openDate);
+                  setIsEditingOpenDate(false);
+                }}
+              >
+                취소
+              </CancelButton>
+            </OpenDateEditContainer>
+          ) : (
+            <OpenDateContainer>
+              <OpenDateValue>{openDate}</OpenDateValue>
+              <OpenDateText>일 이후부터 예약 가능</OpenDateText>
+              <EditButton onClick={() => setIsEditingOpenDate(true)}>
+                수정
+              </EditButton>
+            </OpenDateContainer>
+          )}
+        </OpenDateSettingSection>
+
         <CalendarContainer>
           <CalendarBlock>
             <CalendarHeader>
@@ -196,56 +277,67 @@ const AdminCalendarPage: React.FC = () => {
               onMouseLeave={handleMouseUp}
             >
               <DaysContainer>
-                {displayDates.map((date) => (
-                  <DayColumn key={date.toISOString()}>
-                    <Weekday>{weekDays[date.getDay()]}</Weekday>
-                    <DateCircle
-                      $isSelected={
-                        selectedDate.toDateString() === date.toDateString()
-                      }
-                      $isSelectable={true}
-                      onClick={() => handleDateClick(date)}
-                    >
-                      {date.getDate()}
-                    </DateCircle>
-                  </DayColumn>
-                ))}
+                {displayDates.map((date) => {
+                  const dateSelectable = isDateSelectable(date);
+                  return (
+                    <DayColumn key={date.toISOString()}>
+                      <Weekday>{weekDays[date.getDay()]}</Weekday>
+                      <DateCircle
+                        $isSelected={
+                          selectedDate.toDateString() === date.toDateString()
+                        }
+                        $isSelectable={dateSelectable}
+                        $isPastOpenDate={!dateSelectable}
+                        onClick={() => dateSelectable && handleDateClick(date)}
+                      >
+                        {date.getDate()}
+                      </DateCircle>
+                    </DayColumn>
+                  );
+                })}
               </DaysContainer>
             </ScrollContainer2>
 
             <DateBlock>{formatDate(selectedDate)}</DateBlock>
 
             <CarList>
-              {cars?.result?.length === 0 && (
+              {!isDateSelectable(selectedDate) && (
+                <InfoState>
+                  해당 날짜는 현재 예약 오픈 전입니다. ({openDate}일 이후부터
+                  예약 가능)
+                </InfoState>
+              )}
+              {isDateSelectable(selectedDate) && cars?.result?.length === 0 && (
                 <EmptyState>해당 날짜에 등록된 차량이 없습니다.</EmptyState>
               )}
-              {cars?.result?.map((car) => (
-                <CarItem key={car.id}>
-                  <CarImage src={imgView(car.image)} alt={car.name} />
-                  <CarInfo>
-                    <CarTitle>{car.name}</CarTitle>
-                    <CarSeats>
-                      {car.seat_capacity} Seats &#40;최대 {car.seats || 0}
-                      인&#41;
-                    </CarSeats>
-                  </CarInfo>
-                  <StatusSelectContainer>
-                    <StatusSelect
-                      value={car.is_available ? "AVAILABLE" : "UNAVAILABLE"}
-                      onChange={(e) =>
-                        handleStatusChange(
-                          String(car.id),
-                          e.target.value as "AVAILABLE" | "UNAVAILABLE"
-                        )
-                      }
-                      $status={car.is_available ? "AVAILABLE" : "UNAVAILABLE"}
-                    >
-                      <option value="AVAILABLE">예약 가능</option>
-                      <option value="UNAVAILABLE">예약 불가</option>
-                    </StatusSelect>
-                  </StatusSelectContainer>
-                </CarItem>
-              ))}
+              {isDateSelectable(selectedDate) &&
+                cars?.result?.map((car) => (
+                  <CarItem key={car.id}>
+                    <CarImage src={imgView(car.image)} alt={car.name} />
+                    <CarInfo>
+                      <CarTitle>{car.name}</CarTitle>
+                      <CarSeats>
+                        {car.seat_capacity} Seats &#40;최대 {car.seats || 0}
+                        인&#41;
+                      </CarSeats>
+                    </CarInfo>
+                    <StatusSelectContainer>
+                      <StatusSelect
+                        value={car.is_available ? "AVAILABLE" : "UNAVAILABLE"}
+                        onChange={(e) =>
+                          handleStatusChange(
+                            String(car.id),
+                            e.target.value as "AVAILABLE" | "UNAVAILABLE"
+                          )
+                        }
+                        $status={car.is_available ? "AVAILABLE" : "UNAVAILABLE"}
+                      >
+                        <option value="AVAILABLE">예약 가능</option>
+                        <option value="UNAVAILABLE">예약 불가</option>
+                      </StatusSelect>
+                    </StatusSelectContainer>
+                  </CarItem>
+                ))}
             </CarList>
           </CalendarBlock>
         </CalendarContainer>
@@ -274,6 +366,94 @@ const SectionTitle = styled.div`
   font-size: 28px;
   font-weight: 700;
   margin-bottom: 40px;
+`;
+
+// Open Date 설정 스타일
+const OpenDateSettingSection = styled.div`
+  margin-bottom: 24px;
+  padding: 24px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0px 0px 15px 4px rgba(0, 0, 0, 0.05);
+`;
+
+const OpenDateTitle = styled.h3`
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: #3e4730;
+`;
+
+const OpenDateContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+`;
+
+const OpenDateEditContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+`;
+
+const OpenDateValue = styled.span`
+  font-size: 22px;
+  font-weight: 600;
+  color: #3e4730;
+`;
+
+const OpenDateText = styled.span`
+  font-size: 16px;
+  color: #666;
+`;
+
+const OpenDateInput = styled.input`
+  width: 60px;
+  padding: 8px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  text-align: center;
+`;
+
+const EditButton = styled.button`
+  padding: 6px 12px;
+  background-color: #f3f4f6;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+
+  &:hover {
+    background-color: #e5e7eb;
+  }
+`;
+
+const SaveButton = styled.button`
+  padding: 6px 12px;
+  background-color: #3e4730;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+
+  &:hover {
+    background-color: #2d3422;
+  }
+`;
+
+const CancelButton = styled.button`
+  padding: 6px 12px;
+  background-color: #f3f4f6;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+
+  &:hover {
+    background-color: #e5e7eb;
+  }
 `;
 
 const CalendarContainer = styled.div`
@@ -356,6 +536,7 @@ const Weekday = styled.div`
 const DateCircle = styled.div<{
   $isSelected?: boolean;
   $isSelectable?: boolean;
+  $isPastOpenDate?: boolean;
 }>`
   width: 32px;
   height: 32px;
@@ -367,10 +548,18 @@ const DateCircle = styled.div<{
   cursor: ${(props) => (props.$isSelectable ? "pointer" : "not-allowed")};
   background-color: ${(props) =>
     props.$isSelected ? "#3e4730" : "transparent"};
-  color: ${(props) => (props.$isSelected ? "white" : "inherit")};
+  color: ${(props) => {
+    if (props.$isPastOpenDate) return "#aaa";
+    if (props.$isSelected) return "white";
+    return "inherit";
+  }};
+  opacity: ${(props) => (props.$isPastOpenDate ? 0.6 : 1)};
 
   &:hover {
-    background-color: ${(props) => (props.$isSelected ? "#3e4730" : "#f3f4f6")};
+    background-color: ${(props) => {
+      if (!props.$isSelectable) return "transparent";
+      return props.$isSelected ? "#3e4730" : "#f3f4f6";
+    }};
   }
   transition: 0.2s all ease-in;
 `;
@@ -400,6 +589,15 @@ const EmptyState = styled.div`
   color: #666;
   background: #f8f9fa;
   border-radius: 8px;
+`;
+
+const InfoState = styled.div`
+  padding: 32px;
+  text-align: center;
+  color: #666;
+  background: #fff0f0;
+  border-radius: 8px;
+  border: 1px dashed #ffcccc;
 `;
 
 const CarItem = styled.div`

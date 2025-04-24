@@ -14,7 +14,7 @@ export type UpdateAvailableCarsDto = {
   /** 일 */
   day: number;
   /** 차량 아이디 */
-  car_id: string;
+  car_id: number;
   /** 차량 상태 */
   status: UpdateAvailableCarsDtoStatus;
 };

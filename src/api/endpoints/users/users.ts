@@ -26,6 +26,7 @@ import type {
   APIResponseForbiddenDto,
   APIResponseLatestReservationResponseDto,
   APIResponseReferrerResponseWithLimitDto,
+  APIResponseReservationDetailResponseDto,
   APIResponseReservationResponseDto,
   APIResponseReserveResponse,
   APIResponseTicketResponseDto,
@@ -1103,7 +1104,7 @@ export const getApiUsersIdReservationsReservationId = (
   reservationId: string,
   signal?: AbortSignal,
 ) => {
-  return customAxios<APIResponseLatestReservationResponseDto>({
+  return customAxios<APIResponseReservationDetailResponseDto>({
     url: `/api/users/${id}/reservations/${reservationId}`,
     method: "GET",
     signal,

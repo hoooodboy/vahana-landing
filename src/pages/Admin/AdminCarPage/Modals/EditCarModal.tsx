@@ -98,6 +98,7 @@ const EditCarModal = ({ isOpen, car, onCancel, onComplete }) => {
           seats: formData.seats,
           seat_capacity: formData.seat_capacity,
           status: formData.status,
+          order: car.order || 0,
         },
       });
     } catch (error) {

@@ -8,13 +8,15 @@ import type { UpdateCarDtoStatus } from "./updateCarDtoStatus";
 
 export type UpdateCarDto = {
   /** 차량 이름 */
-  name: string;
+  name?: string;
   /** 차량 이미지 */
-  image: string;
+  image?: string;
   /** 차량 좌석 수 */
-  seats: number;
+  seats?: number;
   /** 차량 최대 정원 */
-  seat_capacity: number;
+  seat_capacity?: number;
   /** 차량 상태 */
   status: UpdateCarDtoStatus;
+  /** 순서 */
+  order: number;
 };

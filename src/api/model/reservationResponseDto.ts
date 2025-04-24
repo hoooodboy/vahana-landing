@@ -16,6 +16,8 @@ export type ReservationResponseDto = {
   pickup_time: string;
   /** 출발 위치 */
   pickup_location: string;
+  /** 경유 위치 */
+  via_locations: string[];
   /** 도착 위치 */
   dropoff_location: string;
   /** 사용 목적 */

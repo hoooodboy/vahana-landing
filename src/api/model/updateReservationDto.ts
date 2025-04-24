@@ -9,6 +9,8 @@ import type { UpdateReservationDtoStatus } from "./updateReservationDtoStatus";
 export type UpdateReservationDto = {
   /** 예약 상태 */
   status: UpdateReservationDtoStatus;
+  /** 현재 위치 */
+  current_location: string;
   /** 운전자 아이디 */
   driver_id: number;
   /** 차량 인벤토리 아이디 */
