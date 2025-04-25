@@ -229,6 +229,7 @@ const AdminCarPage = () => {
             <span>{inventory.registration_number}</span>
             <DeleteButton
               onClick={(e) => {
+                window.confirm("정말 차량을 삭제하시겠습니까?");
                 e.stopPropagation();
                 handleDeleteInventory(carId, inventory.id);
               }}
