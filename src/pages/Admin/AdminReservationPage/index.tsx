@@ -7,15 +7,18 @@ import AdminSideBar from "@/src/components/AdminSideBar";
 import InfoChangeModal from "./Modals/InfoChangeModal";
 import VehicleChangeModal from "./Modals/VehicleChangeModal";
 import DriverChangeModal from "./Modals/DriverChangeModal";
+
 import ReservationDetailModal from "./Modals/ReservationDetailModal";
 import StatusChangeModal from "./Modals/StatusChangeModal";
 import IcEdit from "@/src/assets/ic-edit.svg";
+import ViaLocationsModal from "./Modals/ViaLocationsModal";
 
 // 예약 상태 라벨 및 색상 매핑
 const STATUS_LABELS = {
   PENDING: { label: "대기", color: "#FFA500" },
   CONFIRMED: { label: "확정", color: "#2E8B57" },
   CANCELLED: { label: "취소", color: "#DC3545" },
+  COMPLETED: { label: "완료", color: "#0d6efd" }, // 운행완료 상태 추가
 };
 
 const AdminReservationPage = () => {
@@ -25,6 +28,7 @@ const AdminReservationPage = () => {
   const [statusModalOpen, setStatusModalOpen] = useState(false);
   const [vehicleModalOpen, setVehicleModalOpen] = useState(false);
   const [driverModalOpen, setDriverModalOpen] = useState(false);
+  const [viaLocationsModalOpen, setViaLocationsModalOpen] = useState(false);
   const [reservationDetailModalOpen, setReservationDetailModalOpen] =
     useState(false);
 
@@ -35,7 +39,9 @@ const AdminReservationPage = () => {
     refetch,
   } = useGetApiReservations(
     {
-      status: getStatusFilter(activeTab),
+      status: getStatusFilter(
+        activeTab === "운행완료" ? "예약 확정" : activeTab
+      ) as any,
     },
     {
       query: {
@@ -48,11 +54,11 @@ const AdminReservationPage = () => {
   const updateReservationMutation = usePatchApiReservationsId({
     mutation: {
       onSuccess: () => {
-        toast("예약 상태가 성공적으로 변경되었습니다.");
+        toast("예약 정보가 성공적으로 변경되었습니다.");
         refetch();
       },
       onError: () => {
-        toast("예약 상태 변경에 실패했습니다.");
+        toast("예약 정보 변경에 실패했습니다.");
       },
     },
   }) as any;
@@ -65,13 +71,45 @@ const AdminReservationPage = () => {
         return "PENDING";
       case "취소":
         return "CANCELLED";
+      case "운행완료":
+        return "COMPLETED"; // 운행완료 탭 필터 추가
       default:
         return "CONFIRMED";
     }
   }
 
+  // 원본 예약 데이터 처리
+  const processReservations = (data: any) => {
+    if (!data?.result) return [];
+
+    // 운행완료 탭이 활성화된 경우
+    if (activeTab === "운행완료") {
+      return data.result.filter(
+        (reservation: any) =>
+          reservation.current_location &&
+          reservation.dropoff_location &&
+          reservation.current_location === reservation.dropoff_location
+      );
+    }
+
+    // 예약 확정 탭이 활성화된 경우 (운행완료 예약 제외)
+    if (activeTab === "예약 확정") {
+      return data.result.filter(
+        (reservation: any) =>
+          !(
+            reservation.current_location &&
+            reservation.dropoff_location &&
+            reservation.current_location === reservation.dropoff_location
+          )
+      );
+    }
+
+    // 다른 탭의 경우 모든 결과 반환
+    return data.result;
+  };
+
   const filteredReservations =
-    reservationsData?.result?.filter((reservation) => {
+    processReservations(reservationsData)?.filter((reservation) => {
       return (
         reservation.name?.includes(searchTerm) ||
         reservation.id?.toString()?.includes(searchTerm) ||
@@ -159,6 +197,36 @@ const AdminReservationPage = () => {
     }
   };
 
+  // 경유지 관련 모달 함수
+  const openViaLocationsModal = (reservation: any) => {
+    setSelectedReservation(reservation);
+    setViaLocationsModalOpen(true);
+  };
+
+  const closeViaLocationsModal = () => {
+    setViaLocationsModalOpen(false);
+    setSelectedReservation(null);
+  };
+
+  const handleViaLocationChange = async (
+    currentLocation: string,
+    selectedLocationIndex: number
+  ) => {
+    if (!selectedReservation) return;
+
+    try {
+      await updateReservationMutation.mutateAsync({
+        id: selectedReservation.id,
+        data: {
+          current_location: currentLocation,
+        },
+      });
+      closeViaLocationsModal();
+    } catch (error) {
+      console.error("Failed to update current location:", error);
+    }
+  };
+
   const openReservationDetailModal = (reservation: any) => {
     setSelectedReservation(reservation);
     setReservationDetailModalOpen(true);
@@ -192,6 +260,55 @@ const AdminReservationPage = () => {
     toast("예약 정보가 성공적으로 업데이트되었습니다.");
   };
 
+  // 경유지 정보 표시 함수
+  const renderViaLocations = (reservation: any) => {
+    // if (!reservation.via_locations || reservation.via_locations.length === 0) {
+    //   return (
+    //     <ViaLocationsLink onClick={() => openViaLocationsModal(reservation)}>
+    //       -
+    //     </ViaLocationsLink>
+    //   );
+    // }
+
+    return (
+      <ViaLocationsLink
+        onClick={() =>
+          activeTab === "예약 확정" || activeTab === "운행완료"
+            ? openViaLocationsModal(reservation)
+            : alert("예약 확정 / 운행완료에서만 수정 가능합니다.")
+        }
+      >
+        {reservation.via_locations.length}개 경유지
+      </ViaLocationsLink>
+    );
+  };
+
+  // 상태 배지 색상 가져오기
+  const getStatusBadgeColor = (reservation: any) => {
+    if (
+      activeTab === "운행완료" ||
+      (reservation.current_location &&
+        reservation.dropoff_location &&
+        reservation.current_location === reservation.dropoff_location)
+    ) {
+      return STATUS_LABELS.COMPLETED.color;
+    }
+    return STATUS_LABELS[getStatusFilter(activeTab)]?.color;
+  };
+
+  // 상태 배지 텍스트 가져오기
+  const getStatusBadgeLabel = (reservation: any) => {
+    if (
+      activeTab === "운행완료" ||
+      (reservation.current_location &&
+        reservation.dropoff_location &&
+        reservation.current_location === reservation.dropoff_location)
+    ) {
+      return STATUS_LABELS.COMPLETED.label;
+    }
+    return STATUS_LABELS[getStatusFilter(activeTab)]?.label;
+  };
+
   return (
     <Container>
       <AdminSideBar />
@@ -212,6 +329,12 @@ const AdminReservationPage = () => {
               onClick={() => handleTabChange("예약 확정")}
             >
               예약 확정
+            </Tab>
+            <Tab
+              $isActive={activeTab === "운행완료"}
+              onClick={() => handleTabChange("운행완료")}
+            >
+              운행완료
             </Tab>
             <Tab
               $isActive={activeTab === "취소"}
@@ -243,6 +366,7 @@ const AdminReservationPage = () => {
                   <th>예약일</th>
                   <th>출발 시간</th>
                   <th>출발지</th>
+                  <th>경유지</th>
                   <th>목적지</th>
                   <th>차량</th>
                   <th>드라이버</th>
@@ -253,26 +377,24 @@ const AdminReservationPage = () => {
               <TableBody>
                 {isLoading ? (
                   <tr>
-                    <td colSpan={11}>로딩 중...</td>
+                    <td colSpan={12}>로딩 중...</td>
                   </tr>
                 ) : filteredReservations.length === 0 ? (
                   <tr>
-                    <td colSpan={11}>예약이 없습니다.</td>
+                    <td colSpan={12}>예약이 없습니다.</td>
                   </tr>
                 ) : (
                   filteredReservations.map((reservation) => (
                     <tr key={reservation.id}>
                       {/* <td>{reservation.id}</td> */}
-                      <td
-                      // onClick={() => openReservationDetailModal(reservation)}
-                      // className="clickable"
-                      >
-                        {reservation.name}
-                      </td>
+                      <td>{reservation.name}</td>
                       <td>{formatPhoneNumber(reservation.phone)}</td>
                       <td>{formatDate(reservation.reserved_date)}</td>
                       <td>{reservation.pickup_time}</td>
                       <td>{reservation.pickup_location}</td>
+                      <td className="clickable">
+                        {renderViaLocations(reservation)}
+                      </td>
                       <td>{reservation.dropoff_location}</td>
                       <td
                         onClick={() => openVehicleModal(reservation)}
@@ -291,12 +413,8 @@ const AdminReservationPage = () => {
                         onClick={() => openStatusModal(reservation)}
                         className="clickable status"
                       >
-                        <StatusBadge
-                          $color={
-                            STATUS_LABELS[getStatusFilter(activeTab)]?.color
-                          }
-                        >
-                          {STATUS_LABELS[getStatusFilter(activeTab)]?.label}
+                        <StatusBadge $color={getStatusBadgeColor(reservation)}>
+                          {getStatusBadgeLabel(reservation)}
                         </StatusBadge>
                       </td>
                       <td>
@@ -306,11 +424,6 @@ const AdminReservationPage = () => {
                             openReservationDetailModal(reservation)
                           }
                         />
-                        {/* <EditButton
-                          
-                        >
-                          수정
-                        </EditButton> */}
                       </td>
                     </tr>
                   ))
@@ -352,6 +465,17 @@ const AdminReservationPage = () => {
           reservation={selectedReservation}
           onCancel={closeDriverModal}
           onSave={handleDriverChange}
+        />
+      )}
+
+      {/* Via Locations Modal */}
+      {viaLocationsModalOpen && (
+        <ViaLocationsModal
+          isOpen={viaLocationsModalOpen}
+          setIsOpen={setViaLocationsModalOpen}
+          reservation={selectedReservation}
+          onCancel={closeViaLocationsModal}
+          onSave={handleViaLocationChange}
         />
       )}
 
@@ -517,17 +641,18 @@ const TableBody = styled.tbody`
   }
 `;
 
-const EditButton = styled.button`
-  background: none;
-  border: none;
-  cursor: pointer;
+const ViaLocationsLink = styled.span`
   color: #3e4730;
+  text-decoration: underline;
+  cursor: pointer;
 
   &:hover {
     color: #2b331f;
   }
 `;
 
-const Icon = styled.img``;
+const Icon = styled.img`
+  cursor: pointer;
+`;
 
 export default AdminReservationPage;
