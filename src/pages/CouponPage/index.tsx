@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
+import { useParams } from "react-router-dom";
 
 import Header from "@/src/components/Header";
 
@@ -18,6 +19,7 @@ import { toast } from "react-toastify";
 
 const CouponPage = () => {
   const { userInfo } = tokens;
+  const params = useParams();
   const [isInfoOpen, setIsInfoOpen] = useState(false);
   const [isCouponOpen, setIsCouponOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -45,9 +47,12 @@ const CouponPage = () => {
     },
   });
 
+  // 현재 유저 이름 가져오기
+  const currentUserName = userData?.result?.name || userInfo?.name;
+
   // API 응답 데이터 처리
   useEffect(() => {
-    if (!isReferrerLoading && referrerResponse) {
+    if (!isReferrerLoading && referrerResponse && currentUserName) {
       console.log("API 응답 데이터:", referrerResponse);
 
       // API 응답 구조에 맞게 데이터 처리
@@ -62,20 +67,19 @@ const CouponPage = () => {
       const referrerList = [];
       const refereeList = [];
 
-      // 예시 데이터 구조에 맞게 처리
-      // referee는 피추천인, referrer는 추천인
+      // 데이터 구조에 맞게 처리
       if (Array.isArray(result)) {
         result.forEach((item) => {
           if (item.referee && item.referrer) {
             // referee가 현재 사용자인 경우 (추천인 목록)
-            if (userInfo.name === item.referee) {
+            if (currentUserName === item.referee) {
               referrerList.push({
                 name: item.referrer,
                 date: formatDate(item.created_at),
               });
             }
             // referrer가 현재 사용자인 경우 (피추천인 목록)
-            else if (userInfo.name === item.referrer) {
+            else if (currentUserName === item.referrer) {
               refereeList.push({
                 name: item.referee,
                 date: formatDate(item.created_at),
@@ -85,20 +89,21 @@ const CouponPage = () => {
         });
       } else if (Array.isArray(result.data)) {
         result.data.forEach((item) => {
-          if (item.referee) {
-            // 현재 사용자가 추천인인 경우 (피추천인 목록)
-            refereeList.push({
-              name: item.referee,
-              date: formatDate(item.created_at),
-            });
-          }
-
-          if (item.referrer) {
-            // 현재 사용자가 피추천인인 경우 (추천인 목록)
-            referrerList.push({
-              name: item.referrer,
-              date: formatDate(item.created_at),
-            });
+          // 현재 유저 이름으로 비교하여 추천인/피추천인 분류
+          if (item.referee && item.referrer) {
+            if (currentUserName === item.referrer) {
+              // 현재 사용자가 추천인인 경우 (피추천인 목록)
+              refereeList.push({
+                name: item.referee,
+                date: formatDate(item.created_at),
+              });
+            } else if (currentUserName === item.referee) {
+              // 현재 사용자가 피추천인인 경우 (추천인 목록)
+              referrerList.push({
+                name: item.referrer,
+                date: formatDate(item.created_at),
+              });
+            }
           }
         });
       }
@@ -107,7 +112,7 @@ const CouponPage = () => {
       setRefereeData(refereeList);
       setIsLoading(false);
     }
-  }, [referrerResponse, isReferrerLoading]);
+  }, [referrerResponse, isReferrerLoading, currentUserName]);
 
   // 초대 코드 발행 API 호출
   const mutation = usePostApiUsersIdInvite({
@@ -248,7 +253,7 @@ const CouponPage = () => {
       <ContentContainer>
         <ContainertTitle>피추천인</ContainertTitle>
         <ContentBlock>
-          {isReferrerLoading ? (
+          {isReferrerLoading || !userData ? (
             <LoadingState>데이터를 불러오는 중입니다...</LoadingState>
           ) : refereeData.length > 0 ? (
             refereeData.map((item, index) => (
@@ -270,7 +275,7 @@ const CouponPage = () => {
       <ContentContainer style={{ marginBottom: 152 }}>
         <ContainertTitle>추천인</ContainertTitle>
         <ContentBlock>
-          {/* {isReferrerLoading ? (
+          {isReferrerLoading || !userData ? (
             <LoadingState>데이터를 불러오는 중입니다...</LoadingState>
           ) : referrerData.length > 0 ? (
             referrerData.map((item, index) => (
@@ -284,11 +289,7 @@ const CouponPage = () => {
               <Empty src={icEmpty} alt="빈 데이터" />
               데이터가 없습니다.
             </EmptyBox>
-          )} */}
-          <EmptyBox>
-            <Empty src={icEmpty} alt="빈 데이터" />
-            데이터가 없습니다.
-          </EmptyBox>
+          )}
         </ContentBlock>
       </ContentContainer>
 
