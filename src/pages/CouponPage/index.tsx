@@ -24,37 +24,131 @@ const CouponPage = () => {
     name: "",
     phone: "",
   });
-  const [reservationCount, setReservationCount] = useState<number>(0);
+  const [inviteLimit, setInviteLimit] = useState(0);
+  const [referrerData, setReferrerData] = useState([]);
+  const [refereeData, setRefereeData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const { data: referrerData }: any = useGetApiUsersIdReferrer(userInfo.id, {
+  // 사용자 정보 조회
+  const { data: userData, refetch: refetchUserData } = useGetApiUsersId(
+    userInfo.id
+  );
+
+  // 추천인 정보 조회
+  const {
+    data: referrerResponse,
+    isLoading: isReferrerLoading,
+    error: referrerError,
+  } = useGetApiUsersIdReferrer(userInfo.id, {
     query: {
       enabled: !!userInfo?.id,
     },
   });
 
-  console.log("referrerData", referrerData);
-
-  const { data: userData, refetch } = useGetApiUsersId(userInfo.id);
-
+  // API 응답 데이터 처리
   useEffect(() => {
-    if (referrerData?.result?.invite_limit !== undefined) {
-      setReservationCount(referrerData?.result?.invite_limit || 0);
-    }
-  }, [userData?.result?.reservations]);
+    if (!isReferrerLoading && referrerResponse) {
+      console.log("API 응답 데이터:", referrerResponse);
 
+      // API 응답 구조에 맞게 데이터 처리
+      const result = referrerResponse?.result || ({} as any);
+
+      // 추천 가능 횟수 업데이트
+      if (result.invite_limit !== undefined) {
+        setInviteLimit(result.invite_limit);
+      }
+
+      // 추천인(referrer)과 피추천인(referee) 데이터 분리
+      const referrerList = [];
+      const refereeList = [];
+
+      // 예시 데이터 구조에 맞게 처리
+      // referee는 피추천인, referrer는 추천인
+      if (Array.isArray(result)) {
+        result.forEach((item) => {
+          if (item.referee && item.referrer) {
+            // referee가 현재 사용자인 경우 (추천인 목록)
+            if (userInfo.name === item.referee) {
+              referrerList.push({
+                name: item.referrer,
+                date: formatDate(item.created_at),
+              });
+            }
+            // referrer가 현재 사용자인 경우 (피추천인 목록)
+            else if (userInfo.name === item.referrer) {
+              refereeList.push({
+                name: item.referee,
+                date: formatDate(item.created_at),
+              });
+            }
+          }
+        });
+      } else if (Array.isArray(result.data)) {
+        result.data.forEach((item) => {
+          if (item.referee) {
+            // 현재 사용자가 추천인인 경우 (피추천인 목록)
+            refereeList.push({
+              name: item.referee,
+              date: formatDate(item.created_at),
+            });
+          }
+
+          if (item.referrer) {
+            // 현재 사용자가 피추천인인 경우 (추천인 목록)
+            referrerList.push({
+              name: item.referrer,
+              date: formatDate(item.created_at),
+            });
+          }
+        });
+      }
+
+      setReferrerData(referrerList);
+      setRefereeData(refereeList);
+      setIsLoading(false);
+    }
+  }, [referrerResponse, isReferrerLoading]);
+
+  // 초대 코드 발행 API 호출
   const mutation = usePostApiUsersIdInvite({
     mutation: {
       onSuccess: () => {
         setIsCouponOpen(false);
-        setReservationCount((prev) => Math.max(0, prev - 1));
-        refetch();
+        setInviteLimit((prev) => Math.max(0, prev - 1));
+        refetchUserData();
         toast("초대코드가 발송되었습니다.");
+        // 폼 초기화
+        setFormData({
+          name: "",
+          phone: "",
+        });
       },
       onError: (error) => {
         toast("초대에 실패했습니다.\n관리자에게 문의해주세요.");
       },
     },
   });
+
+  // 날짜 포맷 함수
+  const formatDate = (dateString) => {
+    if (!dateString) return "";
+
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        // 이미 형식화된 날짜 문자열일 수 있음
+        return dateString;
+      }
+      return new Intl.DateTimeFormat("ko-KR", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }).format(date);
+    } catch (e) {
+      console.error("날짜 변환 오류:", e);
+      return dateString; // 오류 발생시 원본 문자열 반환
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -64,7 +158,7 @@ const CouponPage = () => {
     }));
   };
 
-  const formatPhoneNumber = (value: string) => {
+  const formatPhoneNumber = (value) => {
     const phoneNumber = value.replace(/[^\d]/g, "");
 
     if (phoneNumber.startsWith("02")) {
@@ -90,14 +184,14 @@ const CouponPage = () => {
     }
   };
 
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhoneChange = (e) => {
     const formattedPhone = formatPhoneNumber(e.target.value);
     const event = {
       target: {
         name: "phone",
         value: formattedPhone,
       },
-    } as React.ChangeEvent<HTMLInputElement>;
+    };
     handleChange(event);
   };
 
@@ -135,11 +229,14 @@ const CouponPage = () => {
         <RemainBlock>
           <Remain onClick={() => setIsInfoOpen(true)}>
             잔여횟수
-            <img src={icInfo} />
+            <img src={icInfo} alt="Info" />
           </Remain>
-          {reservationCount}회
+          {inviteLimit}회
         </RemainBlock>
-        <PublishButton onClick={() => setIsCouponOpen(true)}>
+        <PublishButton
+          onClick={() => setIsCouponOpen(true)}
+          disabled={inviteLimit <= 0}
+        >
           초대 쿠폰 발급
         </PublishButton>
       </PublishContainer>
@@ -147,43 +244,55 @@ const CouponPage = () => {
         *초대쿠폰 발급시 피추천인과 추천인에게 1티켓이 제공됩니다.
       </Notice>
 
+      {/* 피추천인 섹션 */}
       <ContentContainer>
         <ContainertTitle>피추천인</ContainertTitle>
         <ContentBlock>
-          {!referrerData && (
-            <ContentWrapper>
-              <ContentTitle>이름</ContentTitle>
-              날짜
-            </ContentWrapper>
-          )}
-
-          {!!referrerData && (
+          {isReferrerLoading ? (
+            <LoadingState>데이터를 불러오는 중입니다...</LoadingState>
+          ) : refereeData.length > 0 ? (
+            refereeData.map((item, index) => (
+              <ContentWrapper key={`referee-${index}`}>
+                <ContentTitle>{item.name}</ContentTitle>
+                {item.date}
+              </ContentWrapper>
+            ))
+          ) : (
             <EmptyBox>
-              <Empty src={icEmpty} />
+              <Empty src={icEmpty} alt="빈 데이터" />
               데이터가 없습니다.
             </EmptyBox>
           )}
         </ContentBlock>
       </ContentContainer>
 
+      {/* 추천인 섹션 */}
       <ContentContainer style={{ marginBottom: 152 }}>
         <ContainertTitle>추천인</ContainertTitle>
-
-        {!referrerData && (
-          <ContentWrapper>
-            <ContentTitle>이름</ContentTitle>
-            날짜
-          </ContentWrapper>
-        )}
-
-        {!!referrerData && (
+        <ContentBlock>
+          {/* {isReferrerLoading ? (
+            <LoadingState>데이터를 불러오는 중입니다...</LoadingState>
+          ) : referrerData.length > 0 ? (
+            referrerData.map((item, index) => (
+              <ContentWrapper key={`referrer-${index}`}>
+                <ContentTitle>{item.name}</ContentTitle>
+                {item.date}
+              </ContentWrapper>
+            ))
+          ) : (
+            <EmptyBox>
+              <Empty src={icEmpty} alt="빈 데이터" />
+              데이터가 없습니다.
+            </EmptyBox>
+          )} */}
           <EmptyBox>
-            <Empty src={icEmpty} />
+            <Empty src={icEmpty} alt="빈 데이터" />
             데이터가 없습니다.
           </EmptyBox>
-        )}
+        </ContentBlock>
       </ContentContainer>
 
+      {/* 쿠폰 발행 모달 */}
       <Modal isOpen={isCouponOpen} setIsOpen={setIsCouponOpen}>
         <ModalContent>
           <ModalTitle>쿠폰 발행</ModalTitle>
@@ -215,6 +324,8 @@ const CouponPage = () => {
           <InviteButton onClick={handleInvite}>초대하기</InviteButton>
         </ModalContent>
       </Modal>
+
+      {/* 쿠폰 정보 모달 */}
       <Modal isOpen={isInfoOpen} setIsOpen={setIsInfoOpen}>
         <ModalContent>
           <ModalTitle>쿠폰 발행</ModalTitle>
@@ -240,7 +351,6 @@ const CouponPage = () => {
 
 const Container = styled.div`
   width: 100%;
-  /* height: 100%; */
   display: flex;
   flex-direction: column;
   flex: 1 !important;
@@ -354,17 +464,19 @@ const Remain = styled.div`
   font-style: normal;
   font-weight: 400;
   line-height: normal;
+  cursor: pointer;
 `;
 
-const PublishButton = styled.div`
+const PublishButton = styled.div<{ disabled?: boolean }>`
   padding: 12px 24px;
   border-radius: 24px;
   background: #3e4730;
-
   color: #fff;
   font-size: 16px;
   font-weight: 700;
   cursor: pointer;
+  opacity: ${(props) => (props.disabled ? 0.6 : 1)};
+  pointer-events: ${(props) => (props.disabled ? "none" : "auto")};
 `;
 
 const ModalContent = styled.div`
@@ -375,7 +487,6 @@ const ModalContent = styled.div`
   border-radius: 16px;
   width: 100%;
   max-width: 500px;
-  /* max-height: 90vh; */
   overflow-y: auto;
   gap: 36px;
 `;
@@ -398,12 +509,12 @@ const Label = styled.label`
   padding: 8px;
 `;
 
-const Input = styled.input<{ $error?: boolean }>`
+const Input = styled.input`
   width: 100%;
   height: 48px;
   padding: 0 16px;
   border-radius: 12px;
-  border: 1px solid ${(props) => (props.$error ? "#ff0000" : "#c7c7c7")};
+  border: 1px solid #c7c7c7;
   background: #fff;
   color: #000;
   font-size: 16px;
@@ -418,7 +529,7 @@ const Input = styled.input<{ $error?: boolean }>`
   }
   &:focus {
     outline: none;
-    border-color: ${(props) => (props.$error ? "#ff0000" : "#3e4730")};
+    border-color: #3e4730;
   }
 `;
 
@@ -429,7 +540,7 @@ const ModalTitle = styled.div`
   text-align: center;
 `;
 
-const InviteButton = styled.div`
+const InviteButton = styled.div<{ disabled?: boolean }>`
   width: 100%;
   height: 48px;
   display: flex;
@@ -442,6 +553,8 @@ const InviteButton = styled.div`
   font-size: 16px;
   font-weight: 700;
   cursor: pointer;
+  opacity: ${(props) => (props.disabled ? 0.6 : 1)};
+  pointer-events: ${(props) => (props.disabled ? "none" : "auto")};
 `;
 
 const ModalContents = styled.div`
@@ -449,6 +562,14 @@ const ModalContents = styled.div`
   text-align: center;
   font-size: 16px;
   font-weight: 400;
+`;
+
+const LoadingState = styled.div`
+  width: 100%;
+  padding: 24px 0;
+  text-align: center;
+  color: #666;
+  font-size: 14px;
 `;
 
 export default CouponPage;
