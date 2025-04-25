@@ -14,7 +14,6 @@ import { useQueries } from "@tanstack/react-query";
 import { imgView } from "@/src/utils/upload";
 
 const AdminCarPage = () => {
-  // 차량 목록 데이터
   const {
     data: carsData,
     isLoading: carsLoading,
