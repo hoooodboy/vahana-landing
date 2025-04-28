@@ -24,7 +24,7 @@ const PCModal: React.FC<{
     openScroll();
   }, []);
 
-  return (
+  return createPortal(
     <ModalContainer isVisible={isOpen}>
       <AnimatePresence>
         {isOpen && (
@@ -56,7 +56,8 @@ const PCModal: React.FC<{
         )}
       </AnimatePresence>
       <Background onClick={() => setIsOpen(false)}></Background>
-    </ModalContainer>
+    </ModalContainer>,
+    document.body
   );
 };
 
@@ -64,8 +65,11 @@ const Background = styled.div`
   background: rgba(0, 0, 0, 0.5);
   width: 100%;
   height: 100%;
-
-  position: absolute;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   z-index: -1;
   cursor: pointer;
   backdrop-filter: blur(5px);
@@ -75,44 +79,31 @@ const Background = styled.div`
 const ModalContainer = styled.div<{ isVisible?: boolean }>`
   width: 100%;
   height: 100%;
-
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 0 16px;
-  /* background: rgba(0, 0, 0, 0.5); */
-  /* position: fixed;
-  top: 0;
-  left: 50%; */
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
-  /* transform: translate(-50%, 0); */
-
+  right: 0;
+  bottom: 0;
   opacity: ${(props) => (props.isVisible ? 1 : 0)};
   pointer-events: ${(props) => (props.isVisible ? "auto" : "none")};
   transition: opacity 0.1s ease-in-out;
-
   z-index: 100000;
-
-  /* padding: 20px; */
 `;
 
 const ModalBlock = styled(motion.div)<{ isVisible?: boolean }>`
   width: 100%;
-
   max-width: 500px;
-  /* padding: 58px 24px 20px; */
-
   display: flex;
   flex: 1;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  /* border-radius: 40px;
-  background: #fff; */
   position: relative;
-  overflow: hidden;
+  max-height: 90vh;
 `;
 
 const ModalInfoWrap = styled.div`
