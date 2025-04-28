@@ -11,6 +11,10 @@ import {
   useGetApiSettings,
   usePostApiSettings,
 } from "@/src/api/endpoints/settings/settings";
+import {
+  useGetApiCars,
+  usePatchApiCarsId,
+} from "@/src/api/endpoints/cars/cars";
 import { imgView } from "@/src/utils/upload";
 import { toast } from "react-toastify";
 
@@ -30,6 +34,17 @@ const AdminCalendarPage: React.FC = () => {
   const [isEditingOpenDate, setIsEditingOpenDate] = useState<boolean>(false);
   const [tempOpenDate, setTempOpenDate] = useState<number>(0);
 
+  // 차량 순서 관리를 위한 상태
+  const [isOrderModalOpen, setIsOrderModalOpen] = useState<boolean>(false);
+  const [carsList, setCarsList] = useState<any[]>([]);
+  const [editingCarOrder, setEditingCarOrder] = useState<{
+    [key: string]: number;
+  }>({});
+  const [originalCarOrder, setOriginalCarOrder] = useState<{
+    [key: string]: number;
+  }>({});
+  const [isSaving, setIsSaving] = useState<boolean>(false);
+
   const ScrollContainer2Ref = useRef<HTMLDivElement>(null);
 
   // 드래그 스크롤을 위한 상태
@@ -40,6 +55,12 @@ const AdminCalendarPage: React.FC = () => {
   // Settings API 호출
   const { data: settingsData, refetch: refetchSettings } = useGetApiSettings();
   const updateSettingsMutation = usePostApiSettings();
+
+  // 전체 차량 목록 불러오기
+  const { data: allCarsData, refetch: refetchAllCars } = useGetApiCars();
+
+  // 차량 정보 수정 API
+  const updateCarMutation = usePatchApiCarsId();
 
   // 차량 목록 데이터
   const { data: cars, refetch } = useGetApiReservationsAvailable(
@@ -69,13 +90,36 @@ const AdminCalendarPage: React.FC = () => {
     },
   });
 
-  // Settings 데이터 로드시 open_date 설정
+  // Settings 데이터 로드시 open_date 설정 및 차량 목록 설정
   useEffect(() => {
     if ((settingsData as any)?.result?.open_date !== undefined) {
       setOpenDate((settingsData as any).result.open_date);
       setTempOpenDate((settingsData as any).result.open_date);
     }
   }, [settingsData]);
+
+  // 전체 차량 목록 로드 시 차량 순서 정보 설정
+  useEffect(() => {
+    if (allCarsData?.result) {
+      // 순서대로 정렬하여 저장
+      const sortedCars = [...allCarsData.result].sort(
+        (a, b) =>
+          (a.order || Number.MAX_SAFE_INTEGER) -
+          (b.order || Number.MAX_SAFE_INTEGER)
+      );
+
+      setCarsList(sortedCars);
+
+      // 현재 순서를 객체로 저장 {id: order}
+      const orderMap = {};
+      sortedCars.forEach((car) => {
+        orderMap[car.id] = car.order || 0;
+      });
+
+      setEditingCarOrder(orderMap);
+      setOriginalCarOrder(orderMap);
+    }
+  }, [allCarsData]);
 
   const generateDates = (baseDate: Date) => {
     const dates: Date[] = [];
@@ -208,6 +252,129 @@ const AdminCalendarPage: React.FC = () => {
     );
   };
 
+  // 차량 순서 관리 모달 열기
+  const openOrderModal = () => {
+    setIsOrderModalOpen(true);
+  };
+
+  // 차량 순서 변경 핸들러
+  const handleOrderChange = (carId: string, newOrder: number) => {
+    setEditingCarOrder((prev) => ({
+      ...prev,
+      [carId]: newOrder,
+    }));
+  };
+
+  // 차량 순서 위로 이동
+  const moveCarUp = (index: number) => {
+    if (index <= 0) return;
+
+    const updatedCars = [...carsList];
+    const currentCar = updatedCars[index];
+    const previousCar = updatedCars[index - 1];
+
+    // 차량 위치 교환
+    updatedCars[index - 1] = currentCar;
+    updatedCars[index] = previousCar;
+
+    setCarsList(updatedCars);
+
+    // order 값도 업데이트
+    setEditingCarOrder((prev) => {
+      return {
+        ...prev,
+        [currentCar.id]: prev[previousCar.id],
+        [previousCar.id]: prev[currentCar.id],
+      };
+    });
+  };
+
+  // 차량 순서 아래로 이동
+  const moveCarDown = (index: number) => {
+    if (index >= carsList.length - 1) return;
+
+    const updatedCars = [...carsList];
+    const currentCar = updatedCars[index];
+    const nextCar = updatedCars[index + 1];
+
+    // 차량 위치 교환
+    updatedCars[index + 1] = currentCar;
+    updatedCars[index] = nextCar;
+
+    setCarsList(updatedCars);
+
+    // order 값도 업데이트
+    setEditingCarOrder((prev) => {
+      return {
+        ...prev,
+        [currentCar.id]: prev[nextCar.id],
+        [nextCar.id]: prev[currentCar.id],
+      };
+    });
+  };
+
+  // 변경된 차량만 찾는 함수
+  const getChangedCars = () => {
+    return carsList.filter(
+      (car) => editingCarOrder[car.id] !== originalCarOrder[car.id]
+    );
+  };
+
+  // 순서 변경 저장
+  const saveCarOrders = async () => {
+    // 변경된 차량만 필터링
+    const changedCars = getChangedCars();
+
+    // 변경사항이 없으면 모달만 닫고 반환
+    if (changedCars.length === 0) {
+      setIsOrderModalOpen(false);
+      return;
+    }
+
+    // 저장 중 상태 표시
+    setIsSaving(true);
+
+    try {
+      // 변경된 차량만 순차적으로 업데이트
+      for (const car of changedCars) {
+        await updateCarMutation.mutateAsync({
+          id: car.id.toString(),
+          data: {
+            order: editingCarOrder[car.id],
+            name: car.name,
+            status: car.status,
+          },
+        });
+      }
+
+      // 모든 작업 성공
+      toast("차량 순서가 업데이트되었습니다.");
+      setOriginalCarOrder({ ...editingCarOrder });
+      refetchAllCars();
+      refetch();
+    } catch (error) {
+      toast("차량 순서 업데이트 중 오류가 발생했습니다.");
+      console.error("Error updating car orders:", error);
+    } finally {
+      setIsSaving(false);
+      setIsOrderModalOpen(false);
+    }
+  };
+
+  // 순서 변경 취소
+  const cancelOrderEdit = () => {
+    // 원래 순서로 복원
+    setEditingCarOrder({ ...originalCarOrder });
+
+    // 원래 순서대로 차량 목록 정렬
+    const sortedCars = [...carsList].sort(
+      (a, b) => (originalCarOrder[a.id] || 0) - (originalCarOrder[b.id] || 0)
+    );
+    setCarsList(sortedCars);
+
+    setIsOrderModalOpen(false);
+  };
+
   // 날짜가 예약 가능한지 확인
   const isDateSelectable = (date: Date): boolean => {
     const limitDate = new Date(today);
@@ -253,6 +420,11 @@ const AdminCalendarPage: React.FC = () => {
             </OpenDateContainer>
           )}
         </OpenDateSettingSection>
+
+        {/* 차량 순서 관리 버튼 */}
+        <OrderManagementButton onClick={openOrderModal}>
+          차량 표시 순서 관리
+        </OrderManagementButton>
 
         <CalendarContainer>
           <CalendarBlock>
@@ -342,6 +514,87 @@ const AdminCalendarPage: React.FC = () => {
           </CalendarBlock>
         </CalendarContainer>
       </Section>
+
+      {/* 차량 순서 관리 모달 */}
+      {isOrderModalOpen && (
+        <ModalOverlay>
+          <OrderModal>
+            <ModalHeader>
+              <ModalTitle>차량 표시 순서 관리</ModalTitle>
+              <CloseButton onClick={cancelOrderEdit}>×</CloseButton>
+            </ModalHeader>
+            <OrderDescription>
+              차량이 고객에게 표시되는 순서를 관리합니다. 위로/아래로 버튼을
+              사용하여 순서를 조정하세요.
+            </OrderDescription>
+            <CarOrderList>
+              {carsList.map((car, index) => (
+                <CarOrderItem
+                  key={car.id}
+                  $isChanged={
+                    editingCarOrder[car.id] !== originalCarOrder[car.id]
+                  }
+                >
+                  <CarOrderInfo>
+                    <OrderNumber>
+                      {editingCarOrder[car.id] > 0
+                        ? editingCarOrder[car.id]
+                        : "미설정"}
+                    </OrderNumber>
+                    <CarInfoBlock>
+                      <OrderCarImage src={imgView(car.image)} alt={car.name} />
+                      <OrderCarName>{car.name}</OrderCarName>
+                    </CarInfoBlock>
+                  </CarOrderInfo>
+                  <OrderButtons>
+                    <MoveButton
+                      disabled={index === 0}
+                      onClick={() => moveCarUp(index)}
+                    >
+                      ↑
+                    </MoveButton>
+                    <MoveButton
+                      disabled={index === carsList.length - 1}
+                      onClick={() => moveCarDown(index)}
+                    >
+                      ↓
+                    </MoveButton>
+                    <OrderInput
+                      type="number"
+                      min="0"
+                      value={editingCarOrder[car.id] || 0}
+                      onChange={(e) =>
+                        handleOrderChange(car.id, Number(e.target.value))
+                      }
+                      placeholder="순서"
+                    />
+                  </OrderButtons>
+                </CarOrderItem>
+              ))}
+            </CarOrderList>
+            <ChangeSummary>
+              {getChangedCars().length > 0 ? (
+                <ChangedCount>
+                  변경된 항목: {getChangedCars().length}개
+                </ChangedCount>
+              ) : (
+                <NoChangesText>변경된 항목이 없습니다</NoChangesText>
+              )}
+            </ChangeSummary>
+            <ModalFooter>
+              <CancelButton onClick={cancelOrderEdit} disabled={isSaving}>
+                취소
+              </CancelButton>
+              <SaveButton
+                onClick={saveCarOrders}
+                disabled={isSaving || getChangedCars().length === 0}
+              >
+                {isSaving ? "저장 중..." : "저장"}
+              </SaveButton>
+            </ModalFooter>
+          </OrderModal>
+        </ModalOverlay>
+      )}
     </Container>
   );
 };
@@ -416,6 +669,27 @@ const OpenDateInput = styled.input`
   text-align: center;
 `;
 
+// 차량 순서 관리 버튼
+const OrderManagementButton = styled.button`
+  align-self: flex-start;
+  margin-bottom: 24px;
+  padding: 10px 16px;
+  background-color: #3e4730;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  &:hover {
+    background-color: #2d3422;
+  }
+`;
+
 const EditButton = styled.button`
   padding: 6px 12px;
   background-color: #f3f4f6;
@@ -429,30 +703,32 @@ const EditButton = styled.button`
   }
 `;
 
-const SaveButton = styled.button`
+const SaveButton = styled.button<{ disabled?: boolean }>`
   padding: 6px 12px;
-  background-color: #3e4730;
+  background-color: ${(props) => (props.disabled ? "#a0a0a0" : "#3e4730")};
   color: white;
   border: none;
   border-radius: 4px;
-  cursor: pointer;
+  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
   font-size: 14px;
+  transition: background-color 0.2s;
 
   &:hover {
-    background-color: #2d3422;
+    background-color: ${(props) => (props.disabled ? "#a0a0a0" : "#2d3422")};
   }
 `;
 
-const CancelButton = styled.button`
+const CancelButton = styled.button<{ disabled?: boolean }>`
   padding: 6px 12px;
   background-color: #f3f4f6;
   border: 1px solid #ddd;
   border-radius: 4px;
-  cursor: pointer;
+  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
   font-size: 14px;
+  opacity: ${(props) => (props.disabled ? 0.7 : 1)};
 
   &:hover {
-    background-color: #e5e7eb;
+    background-color: ${(props) => (props.disabled ? "#f3f4f6" : "#e5e7eb")};
   }
 `;
 
@@ -649,6 +925,191 @@ const StatusSelect = styled.select<{ $status: "AVAILABLE" | "UNAVAILABLE" }>`
     outline: none;
     border-color: #3e4730;
   }
+`;
+
+// 차량 순서 관리 모달 스타일
+const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+`;
+
+const OrderModal = styled.div`
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+`;
+
+const ModalHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #eee;
+`;
+
+const ModalTitle = styled.h2`
+  font-size: 20px;
+  font-weight: 600;
+  color: #3e4730;
+  margin: 0;
+`;
+
+const CloseButton = styled.button`
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+
+  &:hover {
+    color: #333;
+  }
+`;
+
+const OrderDescription = styled.p`
+  padding: 16px 24px;
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+  border-bottom: 1px solid #eee;
+`;
+
+const CarOrderList = styled.div`
+  overflow-y: auto;
+  padding: 16px 24px;
+  max-height: 50vh;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+`;
+
+const CarOrderItem = styled.div<{ $isChanged?: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border: 1px solid ${(props) => (props.$isChanged ? "#4caf50" : "#eee")};
+  border-radius: 8px;
+  background: ${(props) => (props.$isChanged ? "#f0fff1" : "#f9f9f9")};
+  transition: all 0.2s ease;
+`;
+
+const CarOrderInfo = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 16px;
+`;
+
+const OrderNumber = styled.div`
+  width: 32px;
+  height: 32px;
+  background: #3e4730;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 14px;
+  flex-shrink: 0;
+`;
+
+const CarInfoBlock = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+`;
+
+const OrderCarImage = styled.img`
+  width: 50px;
+  height: 35px;
+  object-fit: cover;
+  border-radius: 4px;
+`;
+
+const OrderCarName = styled.span`
+  font-weight: 500;
+  color: #333;
+`;
+
+const OrderButtons = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const MoveButton = styled.button`
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: ${(props) => (props.disabled ? "#f3f3f3" : "#edf7ee")};
+  color: ${(props) => (props.disabled ? "#bbb" : "#2b8a3e")};
+  border: 1px solid ${(props) => (props.disabled ? "#e5e5e5" : "#d7ead8")};
+  border-radius: 4px;
+  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
+  font-size: 16px;
+
+  &:hover:not(:disabled) {
+    background: #d7ead8;
+  }
+`;
+
+const OrderInput = styled.input`
+  width: 60px;
+  padding: 6px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 14px;
+
+  &:focus {
+    outline: none;
+    border-color: #3e4730;
+  }
+`;
+
+const ChangeSummary = styled.div`
+  padding: 12px 24px;
+  background-color: #f8f9fa;
+  display: flex;
+  justify-content: flex-end;
+  border-top: 1px solid #eee;
+`;
+
+const ChangedCount = styled.span`
+  font-size: 14px;
+  color: #2b8a3e;
+  font-weight: 500;
+`;
+
+const NoChangesText = styled.span`
+  font-size: 14px;
+  color: #666;
+`;
+
+const ModalFooter = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid #eee;
 `;
 
 export default AdminCalendarPage;
