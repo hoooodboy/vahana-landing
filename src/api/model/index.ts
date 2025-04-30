@@ -79,3 +79,4 @@ export * from "./updateReservationDtoStatus";
 export * from "./updateUserDto";
 export * from "./userResponseDto";
 export * from "./verifyIdentityDto";
+export * from "./viaLocationDto";

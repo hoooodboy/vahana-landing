@@ -4,6 +4,7 @@
  * Vahana API
  * OpenAPI spec version: 1.0.0
  */
+import type { ViaLocationDto } from "./viaLocationDto";
 
 export type ReservationResponseDto = {
   /** 예약 아이디 */
@@ -19,7 +20,7 @@ export type ReservationResponseDto = {
   /** 출발 위치 */
   pickup_location: string;
   /** 경유 위치 */
-  via_locations: string[];
+  via_locations: ViaLocationDto[];
   /** 도착 위치 */
   dropoff_location: string;
   /** 사용 목적 */

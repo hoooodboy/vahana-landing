@@ -12,6 +12,8 @@ export type ReservationResponseForAdminDto = {
   name: string;
   /** 예약자 전화번호 */
   phone: string;
+  /** 현재 위치 */
+  current_location: string;
   /** 출발 시간 */
   pickup_time: string;
   /** 출발 위치 */

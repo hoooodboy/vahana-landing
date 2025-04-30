@@ -24,4 +24,6 @@ export type UpdateReservationDetailDto = {
   luggage_count: number;
   /** 인원 수 */
   passenger_count: number;
+  /** 특이사항 */
+  special_requests: string;
 };
