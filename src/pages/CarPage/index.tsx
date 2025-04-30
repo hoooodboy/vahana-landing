@@ -34,6 +34,9 @@ import alphard3 from "@/src/assets/alphard-3.jpg";
 import IcChevronDown from "@/src/assets/ic-chevron-down.svg";
 import Gv90 from "@/src/assets/gv90.png";
 import Purosan from "@/src/assets/purosan.png";
+import Purosan1 from "@/src/assets/purosan-1.png";
+import Purosan2 from "@/src/assets/purosan-2.png";
+import Purosan3 from "@/src/assets/purosan-3.png";
 import Cyber from "@/src/assets/cyber.png";
 
 import { CarouselProvider, Dot, Slide, Slider } from "pure-react-carousel";
@@ -132,6 +135,24 @@ const CarPage = () => {
         "ㆍ마사지시트",
       ],
     },
+    {
+      img: [Purosan1, Purosan2, Purosan3],
+      name: "PUROSANGUE",
+      subName: "6.5L NA-V12ㆍ4WD",
+      label: "4 Seats",
+      bg: "#76865F",
+      barndLogo: IcFerarri,
+      contents: [
+        "ㆍ6.5L 자연흡기 V12 엔진",
+        "ㆍ최고출력 725마력",
+        "ㆍ제로백 3.3초",
+        "ㆍ페라리 4WD 시스템",
+        "ㆍ리어 히든 도어",
+        "ㆍ어댑티브 서스펜션",
+        "ㆍ버메스터 서라운드 오디오",
+        "ㆍ디지털 클러스터 + 보조 디스플레이",
+      ],
+    },
   ];
 
   const comeingData = [
@@ -156,22 +177,22 @@ const CarPage = () => {
         "ㆍ마크레빈슨 오디오",
       ],
     },
-    {
-      img: [Purosan],
-      name: "PUROSANGUE",
-      subName: "6.5L NA-V12ㆍ 4WD",
-      label: "4 Seats",
-      bg: "#76865F",
-      contents: [
-        "ㆍ이중접합유리",
-        "ㆍ리어 컴포트 모드",
-        "ㆍ오디오 스피커 23개",
-        'ㆍ14" 모니터',
-        "ㆍ165º 리클라이닝",
-        "ㆍ4륜",
-        "ㆍ마크레빈슨 오디오",
-      ],
-    },
+    // {
+    //   img: [Purosan],
+    //   name: "PUROSANGUE",
+    //   subName: "6.5L NA-V12ㆍ 4WD",
+    //   label: "4 Seats",
+    //   bg: "#76865F",
+    //   contents: [
+    //     "ㆍ이중접합유리",
+    //     "ㆍ리어 컴포트 모드",
+    //     "ㆍ오디오 스피커 23개",
+    //     'ㆍ14" 모니터',
+    //     "ㆍ165º 리클라이닝",
+    //     "ㆍ4륜",
+    //     "ㆍ마크레빈슨 오디오",
+    //   ],
+    // },
     {
       img: [Cyber],
       name: "CYBER TRUCK",
