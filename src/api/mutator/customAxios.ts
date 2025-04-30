@@ -4,9 +4,23 @@ import {
   setupTokenRefreshTimer,
   attemptTokenRefresh,
 } from "@/src/utils/tokenRefresh";
-import Axios, { AxiosRequestConfig, AxiosResponse, AxiosError } from "axios";
+import Axios, {
+  AxiosRequestConfig,
+  AxiosResponse,
+  AxiosError,
+  InternalAxiosRequestConfig,
+} from "axios";
 
 const { VITE_APP_API_HOST } = import.meta.env;
+
+// Axios 설정에 사용자 정의 속성을 추가하기 위한 타입 확장
+declare module "axios" {
+  export interface InternalAxiosRequestConfig {
+    _retry?: number;
+    _networkRetry?: number;
+    _serverErrorRetry?: number;
+  }
+}
 
 export const axiosInstance = Axios.create({
   baseURL: VITE_APP_API_HOST,
@@ -24,7 +38,7 @@ const processQueue = (error: any, token: string | null = null) => {
   refreshQueue.forEach((callback) => {
     if (error) {
       // 갱신 실패 시 각 요청에 오류 전달
-      callback(Promise.reject(error));
+      // callback(Promise.reject(error));
     } else if (token) {
       // 갱신 성공 시 새 토큰으로 요청 재시도
       callback(token);
@@ -208,7 +222,7 @@ axiosInstance.interceptors.response.use(
       if (isRefreshing) {
         console.log("토큰 갱신 중... 요청을 큐에 추가합니다.");
         return new Promise((resolve, reject) => {
-          refreshQueue.push((token) => {
+          refreshQueue.push((token: any) => {
             if (typeof token === "string") {
               // 토큰 갱신 성공 시 원래 요청 재시도
               originalRequest.headers.Authorization = `Bearer ${token}`;
