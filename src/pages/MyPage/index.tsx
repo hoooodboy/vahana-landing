@@ -72,11 +72,14 @@ const MyPage = () => {
   const { userInfo } = tokens;
   console.log("userInfo", userInfo);
 
-  const { data: latestReservation } = useGetApiUsersIdReservationsLatest(userInfo.id, {
-    query: {
-      enabled: !!userInfo?.id,
-    },
-  });
+  const { data: latestReservation } = useGetApiUsersIdReservationsLatest(
+    userInfo.id,
+    {
+      query: {
+        enabled: !!userInfo?.id,
+      },
+    }
+  );
 
   // latestReservation.result를 통해 데이터 접근
   const reservationData = latestReservation?.result;
@@ -124,11 +127,15 @@ const MyPage = () => {
         </QuickMenuBlock>
       </QuickMenuWrapper>
       {reservationData && (
-        <HorizontalContainer onClick={() => navigate(`/schedule-operation/${reservationData.id}`)}>
+        <HorizontalContainer
+          onClick={() => navigate(`/schedule-operation/${reservationData.id}`)}
+        >
           <SectionTitle>운행 예약</SectionTitle>
           <OperationBlock>
             <OperationInfo>
-              <OperationTime>{formatPickupTime(reservationData?.pickup_time)}</OperationTime>
+              <OperationTime>
+                {formatPickupTime(reservationData?.pickup_time)}
+              </OperationTime>
               <Destination>{reservationData?.pickup_location}</Destination>
               <CarInfo>{reservationData?.car_name}</CarInfo>
             </OperationInfo>
@@ -155,7 +162,10 @@ const MyPage = () => {
             )}
 
             {links.title === "고객센터" && (
-              <LinkWrapper to="" onClick={() => window.open("http://pf.kakao.com/_yxcxhVn")}>
+              <LinkWrapper
+                to=""
+                onClick={() => window.open("http://pf.kakao.com/_yxcxhVn")}
+              >
                 1:1 문의
                 <img src={IcChevronRight} />
               </LinkWrapper>
@@ -187,7 +197,7 @@ const Container = styled.div`
   position: relative;
   padding-top: 56px;
   min-height: 100vh;
-  padding-bottom: 261px;
+  padding-bottom: 317px;
 `;
 
 const TitleContainer = styled.div`

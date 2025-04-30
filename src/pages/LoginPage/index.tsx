@@ -1,4 +1,7 @@
-import { PostApiAuthLoginMutationResult, usePostApiAuthLogin } from "@/src/api/endpoints/auth/auth";
+import {
+  PostApiAuthLoginMutationResult,
+  usePostApiAuthLogin,
+} from "@/src/api/endpoints/auth/auth";
 import IcKakao from "@/src/assets/ic-kakao.png";
 import Header from "@/src/components/Header";
 import tokens from "@/src/tokens";
@@ -92,7 +95,13 @@ const LoginPage = () => {
       <Form onSubmit={handleSubmit}>
         <InputGroup>
           <Label>아이디</Label>
-          <Input type="text" name="id" value={formData.id} onChange={handleChange} placeholder="아이디를 입력해주세요." />
+          <Input
+            type="text"
+            name="id"
+            value={formData.id}
+            onChange={handleChange}
+            placeholder="아이디를 입력해주세요."
+          />
         </InputGroup>
 
         <InputGroup>
@@ -105,7 +114,10 @@ const LoginPage = () => {
               onChange={handleChange}
               placeholder="비밀번호를 입력해주세요."
             />
-            <TogglePasswordButton type="button" onClick={togglePasswordVisibility}>
+            <TogglePasswordButton
+              type="button"
+              onClick={togglePasswordVisibility}
+            >
               {showPassword ? "숨기기" : "보기"}
             </TogglePasswordButton>
           </PasswordInputWrapper>
@@ -140,7 +152,7 @@ const Container = styled.div`
   position: relative;
   padding-top: 56px;
   min-height: 100vh;
-  padding-bottom: 261px;
+  padding-bottom: 317px;
 `;
 
 const TitleContainer = styled.div`
