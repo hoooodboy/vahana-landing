@@ -6,16 +6,28 @@ import DriverAddModal from "./Modals/DriverAddModal";
 import DriverEditModal from "./Modals/DriverEditModal";
 import IcEdit from "@/src/assets/ic-edit.svg";
 
-const AdminDriverPage = () => {
+// 드라이버 타입 정의
+interface Driver {
+  id: number;
+  name: string;
+  phone?: string;
+  address?: string;
+  note?: string;
+}
+
+const AdminDriverPage: React.FC = () => {
   // 검색어 상태
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [sidebarVisible, setSidebarVisible] = useState<boolean>(true);
 
   // 드라이버 추가 모달 상태
-  const [isDriverAddModalOpen, setIsDriverAddModalOpen] = useState(false);
+  const [isDriverAddModalOpen, setIsDriverAddModalOpen] =
+    useState<boolean>(false);
 
   // 드라이버 수정 모달 상태
-  const [isDriverEditModalOpen, setIsDriverEditModalOpen] = useState(false);
-  const [selectedDriver, setSelectedDriver] = useState(null);
+  const [isDriverEditModalOpen, setIsDriverEditModalOpen] =
+    useState<boolean>(false);
+  const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null);
 
   // 드라이버 목록 데이터 fetching
   const {
@@ -33,12 +45,16 @@ const AdminDriverPage = () => {
   const filteredDrivers = useMemo(() => {
     return (
       driversData?.result?.filter(
-        (driver) =>
+        (driver: Driver) =>
           driver.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
           driver.phone?.includes(searchTerm)
       ) || []
     );
   }, [driversData, searchTerm]);
+
+  const toggleSidebar = () => {
+    setSidebarVisible(!sidebarVisible);
+  };
 
   // 드라이버 추가 완료 핸들러
   const handleDriverAddComplete = () => {
@@ -54,17 +70,22 @@ const AdminDriverPage = () => {
   };
 
   // 드라이버 수정 모달 열기
-  const openEditModal = (driver) => {
+  const openEditModal = (driver: Driver) => {
     setSelectedDriver(driver);
     setIsDriverEditModalOpen(true);
   };
 
   return (
     <Container>
-      <AdminSideBar />
+      {sidebarVisible && <AdminSideBar />}
 
       <Section>
-        <SectionTitle>드라이버 관리</SectionTitle>
+        <TopBar>
+          {/* <MenuToggle onClick={toggleSidebar}>
+            {sidebarVisible ? "◀" : "▶"}
+          </MenuToggle> */}
+          <SectionTitle>드라이버 관리</SectionTitle>
+        </TopBar>
 
         <ContentWrapper>
           <SearchContainer>
@@ -78,48 +99,47 @@ const AdminDriverPage = () => {
             </AddButton>
           </SearchContainer>
 
-          <DriverTable>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>이름</th>
-                <th>전화번호</th>
-                <th>자택</th>
-                <th>특이사항</th>
-                <th>수정</th>
-              </tr>
-            </thead>
-            <tbody>
-              {isLoading ? (
+          <TableWrapper>
+            <DriverTable>
+              <thead>
                 <tr>
-                  <td colSpan={6}>로딩 중...</td>
+                  <th>ID</th>
+                  <th>이름</th>
+                  <th>전화번호</th>
+                  <th>자택</th>
+                  <th>특이사항</th>
+                  <th>수정</th>
                 </tr>
-              ) : filteredDrivers.length === 0 ? (
-                <tr>
-                  <td colSpan={6}>등록된 드라이버가 없습니다.</td>
-                </tr>
-              ) : (
-                filteredDrivers.map((driver) => (
-                  <tr key={driver.id}>
-                    <td>{driver.id}</td>
-                    <td>{driver.name}</td>
-                    <td>{formatPhoneNumber(driver.phone)}</td>
-                    <td>{driver.address}</td>
-                    <td>{driver.note || "-"}</td>
-                    <td>
-                      <Icon
-                        src={IcEdit}
-                        onClick={() => openEditModal(driver)}
-                      />
-                      {/* <EditButton onClick={() => openEditModal(driver)}>
-                        수정
-                      </EditButton> */}
-                    </td>
+              </thead>
+              <tbody>
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={6}>로딩 중...</td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </DriverTable>
+                ) : filteredDrivers.length === 0 ? (
+                  <tr>
+                    <td colSpan={6}>등록된 드라이버가 없습니다.</td>
+                  </tr>
+                ) : (
+                  filteredDrivers.map((driver: Driver) => (
+                    <tr key={driver.id}>
+                      <td>{driver.id}</td>
+                      <td>{driver.name}</td>
+                      <td>{formatPhoneNumber(driver.phone)}</td>
+                      <td>{driver.address}</td>
+                      <td>{driver.note || "-"}</td>
+                      <td>
+                        <Icon
+                          src={IcEdit}
+                          onClick={() => openEditModal(driver)}
+                        />
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </DriverTable>
+          </TableWrapper>
         </ContentWrapper>
       </Section>
 
@@ -146,7 +166,7 @@ const AdminDriverPage = () => {
 };
 
 // 전화번호 포맷팅 헬퍼 함수
-const formatPhoneNumber = (phone?: string) => {
+const formatPhoneNumber = (phone?: string): string => {
   if (!phone) return "N/A";
   return phone.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3");
 };
@@ -157,6 +177,37 @@ const Container = styled.div`
   min-height: 100vh;
   display: flex;
   background-color: #f8f9fa;
+  overflow: scroll;
+  @media (max-width: 768px) {
+    flex-direction: column;
+    padding-top: 60px;
+  }
+`;
+
+const TopBar = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+`;
+
+const MenuToggle = styled.button`
+  display: none;
+  background: #3e4730;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  width: 32px;
+  height: 32px;
+  margin-right: 15px;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+
+  @media (max-width: 1024px) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 `;
 
 const Section = styled.div`
@@ -164,13 +215,26 @@ const Section = styled.div`
   padding: 60px;
   display: flex;
   flex-direction: column;
+
+  @media (max-width: 1200px) {
+    padding: 40px 20px;
+  }
+
+  @media (max-width: 768px) {
+    padding: 20px 15px;
+    width: 100%;
+  }
 `;
 
 const SectionTitle = styled.h1`
   font-size: 28px;
   font-weight: 700;
-  margin-bottom: 40px;
+  margin-bottom: 20px;
   color: #333;
+
+  @media (max-width: 768px) {
+    font-size: 22px;
+  }
 `;
 
 const ContentWrapper = styled.div`
@@ -179,6 +243,10 @@ const ContentWrapper = styled.div`
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   overflow: hidden;
   padding: 20px;
+
+  @media (max-width: 768px) {
+    padding: 15px 10px;
+  }
 `;
 
 const SearchContainer = styled.div`
@@ -186,6 +254,13 @@ const SearchContainer = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
 `;
 
 const SearchInput = styled.input`
@@ -198,6 +273,10 @@ const SearchInput = styled.input`
   &:focus {
     outline: none;
     border-color: #3e4730;
+  }
+
+  @media (max-width: 768px) {
+    width: 100%;
   }
 `;
 
@@ -215,19 +294,43 @@ const AddButton = styled.button`
   &:hover {
     background-color: #2b331f;
   }
+
+  @media (max-width: 768px) {
+    width: 100%;
+  }
+`;
+
+const TableWrapper = styled.div`
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+
+  &::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #3e4730;
+    border-radius: 4px;
+  }
 `;
 
 const DriverTable = styled.table`
   width: 100%;
   border-collapse: collapse;
+  min-width: 800px; /* 테이블의 최소 너비 설정 */
 
   th,
   td {
     padding: 12px 16px;
-    text-align: center;
-    border-bottom: 1px solid #e9ecef;
-    white-space: pre-wrap;
     text-align: left;
+    border-bottom: 1px solid #e9ecef;
+    white-space: nowrap;
   }
 
   th {
@@ -241,18 +344,8 @@ const DriverTable = styled.table`
   }
 `;
 
-const EditButton = styled.button`
-  background: none;
-  border: none;
+const Icon = styled.img`
   cursor: pointer;
-  color: #3e4730;
-  text-decoration: underline;
-
-  &:hover {
-    color: #2b331f;
-  }
 `;
-
-const Icon = styled.img``;
 
 export default AdminDriverPage;

@@ -44,6 +44,7 @@ const AdminCalendarPage: React.FC = () => {
     [key: string]: number;
   }>({});
   const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [sidebarVisible, setSidebarVisible] = useState<boolean>(true);
 
   const ScrollContainer2Ref = useRef<HTMLDivElement>(null);
 
@@ -89,6 +90,10 @@ const AdminCalendarPage: React.FC = () => {
       },
     },
   });
+
+  const toggleSidebar = () => {
+    setSidebarVisible(!sidebarVisible);
+  };
 
   // Settings 데이터 로드시 open_date 설정 및 차량 목록 설정
   useEffect(() => {
@@ -384,9 +389,14 @@ const AdminCalendarPage: React.FC = () => {
 
   return (
     <Container>
-      <AdminSideBar />
+      {sidebarVisible && <AdminSideBar />}
       <Section>
-        <SectionTitle>차량 일정 관리</SectionTitle>
+        <TopBar>
+          {/* <MenuToggle onClick={toggleSidebar}>
+            {sidebarVisible ? "◀" : "▶"}
+          </MenuToggle> */}
+          <SectionTitle>차량 일정 관리</SectionTitle>
+        </TopBar>
 
         {/* Open Date 설정 섹션 */}
         <OpenDateSettingSection>
@@ -605,6 +615,37 @@ const Container = styled.div`
   background: #fff;
   position: relative;
   display: flex;
+  overflow: scroll;
+  @media (max-width: 768px) {
+    flex-direction: column;
+    padding-top: 60px;
+  }
+`;
+
+const TopBar = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+`;
+
+const MenuToggle = styled.button`
+  display: none;
+  background: #3e4730;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  width: 32px;
+  height: 32px;
+  margin-right: 15px;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+
+  @media (max-width: 1024px) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 `;
 
 const Section = styled.div`
@@ -612,13 +653,26 @@ const Section = styled.div`
   flex-direction: column;
   flex: 1 !important;
   padding: 60px;
+
+  @media (max-width: 1200px) {
+    padding: 40px 20px;
+  }
+
+  @media (max-width: 768px) {
+    padding: 20px 15px;
+    width: 100%;
+  }
 `;
 
 const SectionTitle = styled.div`
   color: #000;
   font-size: 28px;
   font-weight: 700;
-  margin-bottom: 40px;
+  margin-bottom: 20px;
+
+  @media (max-width: 768px) {
+    font-size: 22px;
+  }
 `;
 
 // Open Date 설정 스타일
@@ -628,6 +682,10 @@ const OpenDateSettingSection = styled.div`
   background: white;
   border-radius: 16px;
   box-shadow: 0px 0px 15px 4px rgba(0, 0, 0, 0.05);
+
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
 `;
 
 const OpenDateTitle = styled.h3`
@@ -635,29 +693,55 @@ const OpenDateTitle = styled.h3`
   font-weight: 600;
   margin-bottom: 16px;
   color: #3e4730;
+
+  @media (max-width: 768px) {
+    font-size: 16px;
+  }
 `;
 
 const OpenDateContainer = styled.div`
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-wrap: wrap;
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
 `;
 
 const OpenDateEditContainer = styled.div`
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-wrap: wrap;
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
 `;
 
 const OpenDateValue = styled.span`
   font-size: 22px;
   font-weight: 600;
   color: #3e4730;
+
+  @media (max-width: 768px) {
+    font-size: 18px;
+  }
 `;
 
 const OpenDateText = styled.span`
   font-size: 16px;
   color: #666;
+
+  @media (max-width: 768px) {
+    font-size: 14px;
+  }
 `;
 
 const OpenDateInput = styled.input`
@@ -667,6 +751,11 @@ const OpenDateInput = styled.input`
   border: 1px solid #ddd;
   border-radius: 4px;
   text-align: center;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    max-width: 120px;
+  }
 `;
 
 // 차량 순서 관리 버튼
@@ -688,6 +777,11 @@ const OrderManagementButton = styled.button`
   &:hover {
     background-color: #2d3422;
   }
+
+  @media (max-width: 768px) {
+    width: 100%;
+    justify-content: center;
+  }
 `;
 
 const EditButton = styled.button`
@@ -700,6 +794,10 @@ const EditButton = styled.button`
 
   &:hover {
     background-color: #e5e7eb;
+  }
+
+  @media (max-width: 480px) {
+    width: 100%;
   }
 `;
 
@@ -716,6 +814,10 @@ const SaveButton = styled.button<{ disabled?: boolean }>`
   &:hover {
     background-color: ${(props) => (props.disabled ? "#a0a0a0" : "#2d3422")};
   }
+
+  @media (max-width: 480px) {
+    width: 100%;
+  }
 `;
 
 const CancelButton = styled.button<{ disabled?: boolean }>`
@@ -730,12 +832,20 @@ const CancelButton = styled.button<{ disabled?: boolean }>`
   &:hover {
     background-color: ${(props) => (props.disabled ? "#f3f4f6" : "#e5e7eb")};
   }
+
+  @media (max-width: 480px) {
+    width: 100%;
+  }
 `;
 
 const CalendarContainer = styled.div`
   width: 100%;
   padding-bottom: 100px;
   max-width: 800px;
+
+  @media (max-width: 768px) {
+    padding-bottom: 40px;
+  }
 `;
 
 const CalendarBlock = styled.div`
@@ -746,6 +856,11 @@ const CalendarBlock = styled.div`
   border-radius: 16px;
   box-shadow: 0px 0px 15px 4px rgba(0, 0, 0, 0.05);
   max-width: 1200px;
+
+  @media (max-width: 768px) {
+    padding: 16px;
+    border-radius: 12px;
+  }
 `;
 
 const CalendarHeader = styled.div`
@@ -759,6 +874,10 @@ const CalendarHeader = styled.div`
 const MonthTitle = styled.h2`
   font-size: 20px;
   font-weight: 600;
+
+  @media (max-width: 768px) {
+    font-size: 18px;
+  }
 `;
 
 const NavButton = styled.button`
@@ -801,12 +920,20 @@ const DaysContainer = styled.div`
 const DayColumn = styled.div`
   flex: 0 0 56px;
   text-align: center;
+
+  @media (max-width: 768px) {
+    flex: 0 0 45px;
+  }
 `;
 
 const Weekday = styled.div`
   color: #666;
   font-size: 14px;
   margin-bottom: 4px;
+
+  @media (max-width: 768px) {
+    font-size: 12px;
+  }
 `;
 
 const DateCircle = styled.div<{
@@ -838,6 +965,12 @@ const DateCircle = styled.div<{
     }};
   }
   transition: 0.2s all ease-in;
+
+  @media (max-width: 768px) {
+    width: 30px;
+    height: 30px;
+    font-size: 14px;
+  }
 `;
 
 const DateBlock = styled.div`
@@ -850,6 +983,11 @@ const DateBlock = styled.div`
   font-weight: 500;
   margin-top: 16px;
   margin-bottom: 24px;
+
+  @media (max-width: 768px) {
+    padding: 12px 8px;
+    font-size: 13px;
+  }
 `;
 
 const CarList = styled.div`
@@ -857,6 +995,11 @@ const CarList = styled.div`
   display: flex;
   flex-direction: column;
   gap: 16px;
+
+  @media (max-width: 768px) {
+    margin-top: 24px;
+    gap: 12px;
+  }
 `;
 
 const EmptyState = styled.div`
@@ -865,6 +1008,11 @@ const EmptyState = styled.div`
   color: #666;
   background: #f8f9fa;
   border-radius: 8px;
+
+  @media (max-width: 768px) {
+    padding: 20px 15px;
+    font-size: 14px;
+  }
 `;
 
 const InfoState = styled.div`
@@ -874,6 +1022,11 @@ const InfoState = styled.div`
   background: #fff0f0;
   border-radius: 8px;
   border: 1px dashed #ffcccc;
+
+  @media (max-width: 768px) {
+    padding: 20px 15px;
+    font-size: 14px;
+  }
 `;
 
 const CarItem = styled.div`
@@ -883,6 +1036,13 @@ const CarItem = styled.div`
   border: 1px solid #eee;
   border-radius: 12px;
   gap: 16px;
+
+  @media (max-width: 768px) {
+    padding: 12px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
 `;
 
 const CarImage = styled.img`
@@ -890,10 +1050,19 @@ const CarImage = styled.img`
   height: 70px;
   object-fit: cover;
   border-radius: 8px;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    height: 140px;
+  }
 `;
 
 const CarInfo = styled.div`
   flex: 1;
+
+  @media (max-width: 768px) {
+    width: 100%;
+  }
 `;
 
 const CarTitle = styled.h3`
@@ -908,6 +1077,10 @@ const CarSeats = styled.p`
 
 const StatusSelectContainer = styled.div`
   min-width: 120px;
+
+  @media (max-width: 768px) {
+    width: 100%;
+  }
 `;
 
 const StatusSelect = styled.select<{ $status: "AVAILABLE" | "UNAVAILABLE" }>`
@@ -952,6 +1125,12 @@ const OrderModal = styled.div`
   flex-direction: column;
   padding: 0;
   overflow: hidden;
+
+  @media (max-width: 768px) {
+    width: 95%;
+    max-height: 80vh;
+    border-radius: 12px;
+  }
 `;
 
 const ModalHeader = styled.div`
@@ -960,6 +1139,10 @@ const ModalHeader = styled.div`
   align-items: center;
   padding: 20px 24px;
   border-bottom: 1px solid #eee;
+
+  @media (max-width: 768px) {
+    padding: 16px 20px;
+  }
 `;
 
 const ModalTitle = styled.h2`
@@ -967,6 +1150,10 @@ const ModalTitle = styled.h2`
   font-weight: 600;
   color: #3e4730;
   margin: 0;
+
+  @media (max-width: 768px) {
+    font-size: 18px;
+  }
 `;
 
 const CloseButton = styled.button`
@@ -987,6 +1174,11 @@ const OrderDescription = styled.p`
   color: #666;
   font-size: 14px;
   border-bottom: 1px solid #eee;
+
+  @media (max-width: 768px) {
+    padding: 12px 20px;
+    font-size: 13px;
+  }
 `;
 
 const CarOrderList = styled.div`
@@ -996,6 +1188,12 @@ const CarOrderList = styled.div`
   display: flex;
   flex-direction: column;
   gap: 16px;
+
+  @media (max-width: 768px) {
+    padding: 12px 20px;
+    max-height: 40vh;
+    gap: 12px;
+  }
 `;
 
 const CarOrderItem = styled.div<{ $isChanged?: boolean }>`
@@ -1007,12 +1205,23 @@ const CarOrderItem = styled.div<{ $isChanged?: boolean }>`
   border-radius: 8px;
   background: ${(props) => (props.$isChanged ? "#f0fff1" : "#f9f9f9")};
   transition: all 0.2s ease;
+
+  @media (max-width: 768px) {
+    padding: 10px 12px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
 `;
 
 const CarOrderInfo = styled.div`
   display: flex;
   align-items: center;
   gap: 16px;
+
+  @media (max-width: 768px) {
+    width: 100%;
+  }
 `;
 
 const OrderNumber = styled.div`
@@ -1027,12 +1236,22 @@ const OrderNumber = styled.div`
   font-weight: 600;
   font-size: 14px;
   flex-shrink: 0;
+
+  @media (max-width: 768px) {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
 `;
 
 const CarInfoBlock = styled.div`
   display: flex;
   align-items: center;
   gap: 12px;
+
+  @media (max-width: 768px) {
+    width: calc(100% - 40px);
+  }
 `;
 
 const OrderCarImage = styled.img`
@@ -1040,17 +1259,35 @@ const OrderCarImage = styled.img`
   height: 35px;
   object-fit: cover;
   border-radius: 4px;
+
+  @media (max-width: 768px) {
+    width: 45px;
+    height: 30px;
+  }
 `;
 
 const OrderCarName = styled.span`
   font-weight: 500;
   color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  @media (max-width: 768px) {
+    font-size: 14px;
+    max-width: calc(100% - 60px);
+  }
 `;
 
 const OrderButtons = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    justify-content: flex-end;
+  }
 `;
 
 const MoveButton = styled.button`
@@ -1069,6 +1306,11 @@ const MoveButton = styled.button`
   &:hover:not(:disabled) {
     background: #d7ead8;
   }
+
+  @media (max-width: 768px) {
+    width: 30px;
+    height: 30px;
+  }
 `;
 
 const OrderInput = styled.input`
@@ -1083,6 +1325,10 @@ const OrderInput = styled.input`
     outline: none;
     border-color: #3e4730;
   }
+
+  @media (max-width: 768px) {
+    width: 50px;
+  }
 `;
 
 const ChangeSummary = styled.div`
@@ -1091,17 +1337,29 @@ const ChangeSummary = styled.div`
   display: flex;
   justify-content: flex-end;
   border-top: 1px solid #eee;
+
+  @media (max-width: 768px) {
+    padding: 10px 20px;
+  }
 `;
 
 const ChangedCount = styled.span`
   font-size: 14px;
   color: #2b8a3e;
   font-weight: 500;
+
+  @media (max-width: 768px) {
+    font-size: 13px;
+  }
 `;
 
 const NoChangesText = styled.span`
   font-size: 14px;
   color: #666;
+
+  @media (max-width: 768px) {
+    font-size: 13px;
+  }
 `;
 
 const ModalFooter = styled.div`
@@ -1110,6 +1368,11 @@ const ModalFooter = styled.div`
   gap: 12px;
   padding: 16px 24px;
   border-top: 1px solid #eee;
+
+  @media (max-width: 768px) {
+    padding: 12px 20px;
+    flex-direction: column-reverse;
+  }
 `;
 
 export default AdminCalendarPage;

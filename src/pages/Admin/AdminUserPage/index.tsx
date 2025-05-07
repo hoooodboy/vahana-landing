@@ -17,6 +17,7 @@ import { toast } from "react-toastify";
 const AdminHomePage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
+  const [sidebarVisible, setSidebarVisible] = useState(true);
 
   // 각 모달별 상태 관리
   const [isUserInfoOpen, setIsUserInfoOpen] = useState(false);
@@ -52,6 +53,10 @@ const AdminHomePage = () => {
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
+  };
+
+  const toggleSidebar = () => {
+    setSidebarVisible(!sidebarVisible);
   };
 
   const openModal = (type, user) => {
@@ -113,9 +118,11 @@ const AdminHomePage = () => {
 
   return (
     <Container>
-      <AdminSideBar />
+      {sidebarVisible && <AdminSideBar />}
       <Section>
-        <SectionTitle>회원 관리</SectionTitle>
+        <TopBar>
+          <SectionTitle>회원 관리</SectionTitle>
+        </TopBar>
 
         <SearchContainer>
           <SearchBox>
@@ -129,87 +136,89 @@ const AdminHomePage = () => {
         </SearchContainer>
 
         <TableContainer>
-          <Table>
-            <TableHeader>
-              <tr>
-                <th>ID</th>
-                <th>이름</th>
-                <th>전화번호</th>
-                <th>잔여 추천 횟수</th>
-                <th>추천인</th>
-                <th>운행 횟수</th>
-                <th>잔여 티켓</th>
-                <th>관리</th>
-                <th>삭제</th>
-              </tr>
-            </TableHeader>
-            <TableBody>
-              {filteredUsers?.map((user) => (
-                <TableRow key={user.id}>
-                  <td>{user.user_id}</td>
-                  {/* 이름 */}
-                  <td
-                    className="clickable"
-                    onClick={() => openModal("userInfo", user)}
-                  >
-                    {user.name}
-                  </td>
-
-                  {/* 전화번호 */}
-                  <td>{formatPhoneNumber(user.phone)}</td>
-
-                  {/* 잔여 추천 횟수 */}
-                  <td
-                    className="clickable"
-                    onClick={() => openModal("referralCount", user)}
-                  >
-                    {user.invite_limit || 0}
-                  </td>
-
-                  {/* 추천인 */}
-                  <td
-                    className="clickable"
-                    onClick={() => openModal("referrers", user)}
-                  >
-                    {user.referrer || "-"}
-                  </td>
-
-                  {/* 운행 횟수 */}
-                  <td
-                    className="clickable"
-                    onClick={() => openModal("operations", user)}
-                  >
-                    {user.reservations || 0}
-                  </td>
-
-                  {/* 잔여 티켓 */}
-                  <td
-                    className="clickable"
-                    onClick={() => openModal("tickets", user)}
-                  >
-                    {user.tickets || 0}
-                  </td>
-
-                  {/* 관리 */}
-                  <td>
-                    <StatusBadge
-                      status={user?.identity_status}
-                      onClick={() => openModal("verification", user)}
+          <TableWrapper>
+            <Table>
+              <TableHeader>
+                <tr>
+                  <th>ID</th>
+                  <th>이름</th>
+                  <th>전화번호</th>
+                  <th>잔여 추천 횟수</th>
+                  <th>추천인</th>
+                  <th>운행 횟수</th>
+                  <th>잔여 티켓</th>
+                  <th>관리</th>
+                  <th>삭제</th>
+                </tr>
+              </TableHeader>
+              <TableBody>
+                {filteredUsers?.map((user) => (
+                  <TableRow key={user.id}>
+                    <td>{user.user_id}</td>
+                    {/* 이름 */}
+                    <td
+                      className="clickable"
+                      onClick={() => openModal("userInfo", user)}
                     >
-                      {getStatusLabel(user?.identity_status)}
-                    </StatusBadge>
-                  </td>
+                      {user.name}
+                    </td>
 
-                  {/* 삭제 */}
-                  <td>
-                    <DeleteButton onClick={() => handleDeleteClick(user)}>
-                      삭제
-                    </DeleteButton>
-                  </td>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                    {/* 전화번호 */}
+                    <td>{formatPhoneNumber(user.phone)}</td>
+
+                    {/* 잔여 추천 횟수 */}
+                    <td
+                      className="clickable"
+                      onClick={() => openModal("referralCount", user)}
+                    >
+                      {user.invite_limit || 0}
+                    </td>
+
+                    {/* 추천인 */}
+                    <td
+                      className="clickable"
+                      onClick={() => openModal("referrers", user)}
+                    >
+                      {user.referrer || "-"}
+                    </td>
+
+                    {/* 운행 횟수 */}
+                    <td
+                      className="clickable"
+                      onClick={() => openModal("operations", user)}
+                    >
+                      {user.reservations || 0}
+                    </td>
+
+                    {/* 잔여 티켓 */}
+                    <td
+                      className="clickable"
+                      onClick={() => openModal("tickets", user)}
+                    >
+                      {user.tickets || 0}
+                    </td>
+
+                    {/* 관리 */}
+                    <td>
+                      <StatusBadge
+                        status={user?.identity_status}
+                        onClick={() => openModal("verification", user)}
+                      >
+                        {getStatusLabel(user?.identity_status)}
+                      </StatusBadge>
+                    </td>
+
+                    {/* 삭제 */}
+                    <td>
+                      <DeleteButton onClick={() => handleDeleteClick(user)}>
+                        삭제
+                      </DeleteButton>
+                    </td>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableWrapper>
         </TableContainer>
 
         {/* Modals */}
@@ -259,6 +268,38 @@ const Container = styled.div`
   background: #fff;
   position: relative;
   display: flex;
+  flex-direction: row;
+  overflow: scroll;
+  @media (max-width: 768px) {
+    flex-direction: column;
+    padding-top: 60px;
+  }
+`;
+
+const TopBar = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+`;
+
+const MenuToggle = styled.button`
+  display: none;
+  background: #3e4730;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  width: 32px;
+  height: 32px;
+  margin-right: 15px;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+
+  @media (max-width: 1024px) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 `;
 
 const Section = styled.div`
@@ -266,22 +307,41 @@ const Section = styled.div`
   flex-direction: column;
   flex: 1 !important;
   padding: 60px;
+  transition: all 0.3s ease;
+
+  @media (max-width: 1200px) {
+    padding: 40px 20px;
+  }
+
+  @media (max-width: 768px) {
+    padding: 20px 15px;
+    width: 100%;
+  }
 `;
 
 const SectionTitle = styled.div`
   color: #000;
   font-size: 28px;
   font-weight: 700;
-  margin-bottom: 40px;
+  margin-bottom: 20px;
+
+  @media (max-width: 768px) {
+    font-size: 22px;
+  }
 `;
 
 const SearchContainer = styled.div`
   margin-bottom: 20px;
+  width: 100%;
 `;
 
 const SearchBox = styled.div`
   position: relative;
   max-width: 400px;
+
+  @media (max-width: 768px) {
+    max-width: 100%;
+  }
 `;
 
 const SearchInput = styled.input`
@@ -310,11 +370,33 @@ const TableContainer = styled.div`
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   overflow: hidden;
+  width: 100%;
+`;
+
+const TableWrapper = styled.div`
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+
+  &::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #3e4730;
+    border-radius: 4px;
+  }
 `;
 
 const Table = styled.table`
   width: 100%;
   border-collapse: collapse;
+  min-width: 900px; /* 테이블의 최소 너비 설정 */
 `;
 
 const TableHeader = styled.thead`
@@ -326,6 +408,7 @@ const TableHeader = styled.thead`
     font-weight: 600;
     color: #333;
     border-bottom: 1px solid #eee;
+    white-space: nowrap;
   }
 `;
 
@@ -339,6 +422,7 @@ const TableRow = styled.tr`
   td {
     padding: 16px;
     border-bottom: 1px solid #eee;
+    white-space: nowrap;
 
     &.clickable {
       cursor: pointer;
@@ -352,7 +436,7 @@ const TableRow = styled.tr`
   }
 `;
 
-const StatusBadge = styled.span<{ status?: any }>`
+const StatusBadge = styled.span<{ status?: string }>`
   padding: 4px 8px;
   border-radius: 4px;
   font-size: 12px;
@@ -388,7 +472,7 @@ const StatusBadge = styled.span<{ status?: any }>`
   }};
 `;
 
-const DeleteButton = styled.button<{ disabled?: boolean }>`
+const DeleteButton = styled.button`
   padding: 4px 8px;
   background: ${(props) => (props.disabled ? "#ffc9c9" : "#ff6b6b")};
   color: white;
