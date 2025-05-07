@@ -185,6 +185,8 @@ const ContactButton = styled.div`
     width: 100%;
     height: 100%;
   }
+  border-radius: 100px;
+  box-shadow: rgba(0, 0, 0, 0.09) 0px 3px 12px;
 `;
 
 export default BaseLayout;

@@ -20,7 +20,7 @@ function App() {
           {/* 토큰 체크 컴포넌트 추가 */}
           <TokenChecker />
           <RootRouter />
-          <ReactQueryDevtools initialIsOpen={false} />
+          {/* <ReactQueryDevtools initialIsOpen={false} /> */}
         </QueryClientProvider>
       </CookiesProvider>
       <Toast />
