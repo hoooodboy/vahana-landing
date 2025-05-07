@@ -151,7 +151,7 @@ const HomePage = () => {
         <MainImg>
           <img src={LmImg} />
         </MainImg>
-        <Button to="/calendar">전체 차량 보기</Button>
+        <Button to="/cars">전체 차량 보기</Button>
       </ThirdSection>
       <ThirdSection>
         <TitleConteiner>
@@ -165,7 +165,7 @@ const HomePage = () => {
         <MainImg2>
           <img src={CalendarImg} />
         </MainImg2>
-        <Button to="/cars">예약하러 가기</Button>
+        <Button to="/calendar">예약하러 가기</Button>
       </ThirdSection>
 
       <FourthSection>
