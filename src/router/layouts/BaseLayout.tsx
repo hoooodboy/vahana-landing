@@ -7,6 +7,7 @@ import LocalStorage from "@/src/local-storage";
 import Logo from "@/src/assets/ic-logo.png";
 import ScrollToTop from "@/src/components/ScrollToTop";
 import Footer from "@/src/components/Footer";
+import ImgContact from "@/src/assets/img-contact.png";
 
 const useDocumentHeight = () => {
   const getHeight = useCallback(
@@ -88,6 +89,11 @@ function BaseLayout() {
         {/* <AppNav theme="dark" /> */}
         <Footer />
         <ScrollToTop />
+        <ContactButton
+          onClick={() => window.open("http://pf.kakao.com/_yxcxhVn")}
+        >
+          <img src={ImgContact} />
+        </ContactButton>
       </Content>
     </Container>
   );
@@ -166,6 +172,19 @@ const LogoImg = styled.img`
   width: 100%;
   height: auto;
   background-size: cover;
+`;
+
+const ContactButton = styled.div`
+  width: 48px;
+  height: 48px;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  cursor: pointer;
+  & > img {
+    width: 100%;
+    height: 100%;
+  }
 `;
 
 export default BaseLayout;

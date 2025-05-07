@@ -11,6 +11,8 @@ import Customer3Img from "@/src/assets/img-customer-3.png";
 import Customer4Img from "@/src/assets/img-customer-4.png";
 import Customer5Img from "@/src/assets/img-customer-5.png";
 import LmImg from "@/src/assets/img-lm500h.png";
+import CalendarImg from "@/src/assets/calendar-sample.png";
+
 import ServiceImg from "@/src/assets/img-service.png";
 import Hc1Img from "@/src/assets/main-hc-1.png";
 import Hc2Img from "@/src/assets/main-hc-2.png";
@@ -139,19 +141,6 @@ const HomePage = () => {
       <ThirdSection>
         <TitleConteiner>
           <Title>
-            오직
-            <br />
-            나만을 위한 서비스
-          </Title>
-          전문성 있는 수행 드라이버와 최고급 의전 차량을 제공합니다.
-        </TitleConteiner>
-        <MainImg>
-          <img src={ServiceImg} />
-        </MainImg>
-      </ThirdSection>
-      <ThirdSection>
-        <TitleConteiner>
-          <Title>
             최상의 편안함과
             <br />
             완벽한 이동의 품격
@@ -162,8 +151,23 @@ const HomePage = () => {
         <MainImg>
           <img src={LmImg} />
         </MainImg>
-        <Button to="/cars">전체 차량 보기</Button>
+        <Button to="/calendar">전체 차량 보기</Button>
       </ThirdSection>
+      <ThirdSection>
+        <TitleConteiner>
+          <Title>
+            오직 나만을 위한 순간,
+            <br />
+            이제 캘린더로 예약하세요.
+          </Title>
+          전문성 있는 수행 드라이버와 최고급 의전 차량을 제공합니다.
+        </TitleConteiner>
+        <MainImg2>
+          <img src={CalendarImg} />
+        </MainImg2>
+        <Button to="/cars">예약하러 가기</Button>
+      </ThirdSection>
+
       <FourthSection>
         <TitleConteiner padding={"0px 16px"}>
           <Title>
@@ -320,6 +324,12 @@ const MainImg = styled.div`
   }
 `;
 
+const MainImg2 = styled(MainImg)`
+  border-radius: 32px;
+  overflow: hidden;
+  box-shadow: rgba(0, 0, 0, 0.09) 0px 3px 12px;
+`;
+
 const Text = styled.div``;
 
 const CarouselContainer = styled.div`
@@ -453,6 +463,7 @@ const Button = styled(Link)`
   font-weight: 400;
   align-self: flex-start;
   text-decoration: none;
+  margin-top: 24px;
 `;
 
 const FourthSection = styled.section`
