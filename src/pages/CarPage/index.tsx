@@ -15,6 +15,8 @@ import IcFerarri from "@/src/assets/ic-ferarri.png";
 import IcTesla from "@/src/assets/ic-tesla.png";
 import IcHyundai from "@/src/assets/ic-hyundai.png";
 
+import lx1 from "@/src/assets/lx-1.png";
+import lx2 from "@/src/assets/lx-2.png";
 import royal1 from "@/src/assets/royal-1.jpg";
 import royal2 from "@/src/assets/royal-2.jpg";
 import royal3 from "@/src/assets/royal-3.jpg";
@@ -86,6 +88,23 @@ const CarPage = () => {
         "ㆍ165º 리클라이닝",
         "ㆍ4륜",
         "ㆍ마크레빈슨 오디오",
+      ],
+    },
+    {
+      img: [lx1, lx2],
+      name: "LX 700h VIP",
+      subName: "Hybrid ㆍ 4WD",
+      label: "4 Seats",
+      bg: "#3A3A3A",
+      barndLogo: IcLexus,
+      contents: [
+        "ㆍ세미 아닐린 시트",
+        'ㆍ리어 엔터테인먼트 11.6" 듀얼 디스플레이',
+        "ㆍ4존 풀 오토 에어컨",
+        "ㆍ리어 쿨 박스",
+        "ㆍ마크레빈슨 25스피커",
+        "ㆍ어댑티브 댐핑 시스템",
+        "ㆍ멀티 테레인 셀렉트",
       ],
     },
     {
