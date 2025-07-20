@@ -1,10 +1,13 @@
-import { BrowserRouter } from 'react-router-dom';
-import AllRoutes from './AllRoutes';
+import { BrowserRouter } from "react-router-dom";
+import AllRoutes from "./AllRoutes";
+import { RootPageProvider } from "../contexts/RootPageContext";
 
 function RootRouter() {
   return (
     <BrowserRouter>
-      <AllRoutes />
+      <RootPageProvider>
+        <AllRoutes />
+      </RootPageProvider>
     </BrowserRouter>
   );
 }

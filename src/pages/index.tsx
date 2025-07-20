@@ -15,4 +15,5 @@ export { default as QnAPage } from "./QnAPage";
 export { default as ReservationDetailPage } from "./ReservationDetailPage";
 export { default as UserPage } from "./UserPage";
 export { default as FindAccountPage } from "./FindAccountPage";
+export { default as UckPage } from "./UckPage";
 export * from "./Admin";

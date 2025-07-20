@@ -4,24 +4,26 @@ import LogoImg from "@/src/assets/ic-vahana-white.png";
 import LogoDarkImg from "@/src/assets/ic-vahana-black.png";
 import icBurgerSvg from "@/src/assets/ic-burger.svg";
 import icBurgerBlackSvg from "@/src/assets/ic-burger-black.svg";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import LocalStorage from "../local-storage";
+import { useRootPage } from "../contexts/RootPageContext";
 
 const Header = () => {
   const [scrolled, setScrolled] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { toggleRootPage, isUck } = useRootPage();
 
   const isLoggedIn = LocalStorage.get("accessToken");
-  const currentNav = window.location.pathname;
-  const isHome = currentNav === "/";
+  const isHomePage = location.pathname === "/" && !isUck;
+  const isScrolledOrMenuOpen = scrolled || isMenuOpen;
+  const isWhite = isHomePage && !scrolled;
 
   const handleScroll = () => {
     const scrollY = window.scrollY;
-    // 스크롤 위치가 150px 이상이면 scrolled를 true로 설정
     setScrolled(scrollY >= 500);
-
-    // 스크롤 진행도는 0~150px 구간에서 0~1 사이 값으로 변환
     const progress = Math.min(scrollY / 500, 1);
     setScrollProgress(progress);
   };
@@ -35,69 +37,86 @@ const Header = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
+  const handleToggleRoot = () => {
+    toggleRootPage();
+    if (location.pathname !== "/") {
+      navigate("/");
+    }
+  };
+
   return (
-    <StyledContainer $scrolled={scrolled || isMenuOpen}>
-      <HeaderContainer>
-        <Link to="/">
-          <Logo
-            src={isHome ? LogoImg : LogoDarkImg}
-            style={{
-              opacity: isHome ? 1 - scrollProgress : 1,
-              display: isHome ? "block" : "none",
-            }}
-          />
-        </Link>
-        <Link to="/">
-          <Logo
-            src={LogoDarkImg}
-            style={{
-              opacity: isHome ? scrollProgress : 1,
-              display: isHome ? "block" : "none",
-            }}
-          />
-        </Link>
-        {!isHome && (
+    <>
+      <StyledContainer $scrolled={isScrolledOrMenuOpen}>
+        <HeaderContainer>
           <Link to="/">
-            <Logo src={LogoDarkImg} />
+            <Logo src={isWhite ? LogoImg : LogoDarkImg} $isWhite={isWhite} />
           </Link>
+
+          <ButtonContainer>
+            <ToggleTab $isWhite={isWhite}>
+              <ToggleButton
+                active={isUck}
+                onClick={() => {
+                  if (!isUck) handleToggleRoot();
+                }}
+              >
+                구독
+              </ToggleButton>
+              <ToggleButton
+                active={!isUck}
+                onClick={() => {
+                  if (isUck) handleToggleRoot();
+                }}
+              >
+                의전
+              </ToggleButton>
+            </ToggleTab>
+            {/* 햄버거 버튼은 HomePage일 때만 보이게 */}
+            {!isUck && (
+              <BurgerButton onClick={toggleMenuOpen} $isWhite={isWhite}>
+                <BurgerIcon
+                  src={isWhite ? icBurgerSvg : icBurgerBlackSvg}
+                  alt="menu"
+                />
+              </BurgerButton>
+            )}
+          </ButtonContainer>
+        </HeaderContainer>
+
+        {isMenuOpen && (
+          <MenuContainer>
+            <StyledMenuItem
+              to="/cars"
+              $scrolled={isScrolledOrMenuOpen}
+              $isWhite={isWhite}
+            >
+              Vehicles
+            </StyledMenuItem>
+            <StyledMenuItem
+              to="/calendar"
+              $scrolled={isScrolledOrMenuOpen}
+              $isWhite={isWhite}
+            >
+              Reservation
+            </StyledMenuItem>
+            <StyledMenuItem
+              to="/pricing"
+              $scrolled={isScrolledOrMenuOpen}
+              $isWhite={isWhite}
+            >
+              Pricing
+            </StyledMenuItem>
+            <StyledMenuItem
+              to="/my"
+              $scrolled={isScrolledOrMenuOpen}
+              $isWhite={isWhite}
+            >
+              {!!isLoggedIn ? "My" : "Login"}
+            </StyledMenuItem>
+          </MenuContainer>
         )}
-
-        <Burger
-          onClick={toggleMenuOpen}
-          src={icBurgerSvg}
-          style={{
-            opacity: isHome ? 1 - scrollProgress : 0,
-            display: isHome ? "block" : "none",
-          }}
-        />
-        <Burger
-          onClick={toggleMenuOpen}
-          src={icBurgerBlackSvg}
-          style={{
-            opacity: isHome ? scrollProgress : 1,
-            display: isHome ? "block" : "none",
-          }}
-        />
-        {!isHome && <Burger onClick={toggleMenuOpen} src={icBurgerBlackSvg} />}
-      </HeaderContainer>
-
-      {isMenuOpen && (
-        <MenuContainer>
-          <StyledMenuItem to="/cars" $scrolled={scrolled} $isHome={isHome}>
-            Vehicles
-          </StyledMenuItem>
-          <StyledMenuItem to="/calendar" $scrolled={scrolled} $isHome={isHome}>
-            Reservation
-          </StyledMenuItem>
-          <StyledMenuItem to="/pricing" $scrolled={scrolled} $isHome={isHome}>
-            Pricing
-          </StyledMenuItem>
-          <StyledMenuItem to="/my" $scrolled={scrolled} $isHome={isHome}>
-            {!!isLoggedIn ? "My" : "Login"}
-          </StyledMenuItem>
-        </MenuContainer>
-      )}
-    </StyledContainer>
+      </StyledContainer>
+    </>
   );
 };
 
@@ -126,7 +145,7 @@ const HeaderContainer = styled.div`
   }
 `;
 
-const Logo = styled.img`
+const Logo = styled.img<{ $isWhite: boolean }>`
   width: 128px;
   height: 20px;
   position: absolute;
@@ -135,12 +154,52 @@ const Logo = styled.img`
   transition: opacity 0.3s;
 `;
 
-const Burger = styled.img`
-  width: 24px;
-  height: 24px;
+const ButtonContainer = styled.div`
   position: absolute;
   right: 16px;
   top: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const ToggleTab = styled.div<{ $isWhite: boolean }>`
+  display: flex;
+  width: 120px;
+  height: 32px;
+  background-color: #e5e5ea;
+  border-radius: 999px;
+  padding: 2px;
+`;
+
+const ToggleButton = styled.button<{ active: boolean }>`
+  flex: 1;
+  border: none;
+  outline: none;
+  border-radius: 999px;
+  background-color: ${({ active }) => (active ? "#fff" : "transparent")};
+  color: ${({ active }) => (active ? "#000" : "#999")};
+  font-weight: ${({ active }) => (active ? "700" : "400")};
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+`;
+
+const BurgerButton = styled.button<{ $isWhite: boolean }>`
+  width: 24px;
+  height: 24px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.3s;
+`;
+
+const BurgerIcon = styled.img<{ $isWhite?: boolean }>`
+  width: 24px;
+  height: 24px;
   transition: opacity 0.3s;
 `;
 
@@ -151,7 +210,7 @@ const MenuContainer = styled.div`
   transition: all ease-in 0.3s;
 `;
 
-const StyledMenuItem = styled(Link)<{ $scrolled: boolean; $isHome: boolean }>`
+const StyledMenuItem = styled(Link)<{ $scrolled: boolean; $isWhite: boolean }>`
   width: 100%;
   height: 48px;
   display: flex;
@@ -161,7 +220,7 @@ const StyledMenuItem = styled(Link)<{ $scrolled: boolean; $isHome: boolean }>`
   font-size: 14px;
   font-weight: 400;
   text-decoration: none;
-  color: ${(p) => (!p.$isHome ? "#000" : p.$scrolled ? "#000" : "#fff")};
+  color: ${(p) => (p.$isWhite ? "#fff" : "#000")} !important;
 `;
 
 export default Header;
