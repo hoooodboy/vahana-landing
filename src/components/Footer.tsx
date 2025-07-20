@@ -12,7 +12,7 @@ const Footer = () => {
       <Logo src={LogoImg} />
       <FooterContentsWrapper>
         <FooterContents>상호명 | 비티오랩 주식회사</FooterContents>
-        <FooterContents>대표 | 김해</FooterContents>
+        {/* <FooterContents>대표 | 김해</FooterContents> */}
         <FooterContents>사업자등록번호 | 691-87-02329</FooterContents>
         <FooterContents>유선번호 | 031-8042-2038</FooterContents>
         <FooterContents>대표문의 | vahana.sun@gmail.com</FooterContents>
