@@ -8,7 +8,7 @@ import Logo from "@/src/assets/ic-logo.png";
 import ScrollToTop from "@/src/components/ScrollToTop";
 import Footer from "@/src/components/Footer";
 import ImgContact from "@/src/assets/img-contact.png";
-import { useRootPage } from "@/src/contexts/RootPageContext";
+// import { useRootPage } from "@/src/contexts/RootPageContext"; // 더 이상 필요 없음
 
 const useDocumentHeight = () => {
   const getHeight = useCallback(
@@ -73,9 +73,9 @@ function BaseLayout() {
     window.location.pathname.includes("/introduce");
   // const termsAgree = LocalStorage.getBool("termsAgree");
 
-  const location = useLocation();
-  const { isUck } = useRootPage();
-  const isUckPage = location.pathname === "/" && isUck;
+  // const location = useLocation();
+  // const { isUck } = useRootPage();
+  // const isUckPage = location.pathname === "/" && isUck;
 
   return (
     // <Container style={{ maxHeight: height }}>
@@ -92,17 +92,13 @@ function BaseLayout() {
         <Outlet />
 
         {/* <AppNav theme="dark" /> */}
-        {!isUckPage && (
-          <>
-            <Footer />
-            <ScrollToTop />
-            <ContactButton
-              onClick={() => window.open("http://pf.kakao.com/_yxcxhVn")}
-            >
-              <img src={ImgContact} />
-            </ContactButton>
-          </>
-        )}
+        <Footer />
+        <ScrollToTop />
+        <ContactButton
+          onClick={() => window.open("http://pf.kakao.com/_yxcxhVn")}
+        >
+          <img src={ImgContact} />
+        </ContactButton>
       </Content>
     </Container>
   );

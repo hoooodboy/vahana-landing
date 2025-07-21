@@ -17,7 +17,7 @@ const Header = () => {
   const { toggleRootPage, isUck } = useRootPage();
 
   const isLoggedIn = LocalStorage.get("accessToken");
-  const isHomePage = location.pathname === "/";
+  const isHomePage = location.pathname === "/" && !isUck;
   const isScrolledOrMenuOpen = scrolled || isMenuOpen;
   const isWhite = isHomePage && !scrolled;
 
@@ -44,39 +44,46 @@ const Header = () => {
     }
   };
 
-  // 현재 도메인에서 subscribe 서브도메인으로 이동
-  const goToSubscribe = () => {
-    const { host, protocol } = window.location;
-    const base = host.replace(/^([^.]+\.)?/, "subscribe.");
-    window.location.href = `${protocol}//${base}`;
-  };
-
   return (
     <>
-      <StyledContainer $scrolled={scrolled}>
+      <StyledContainer $scrolled={isScrolledOrMenuOpen}>
         <HeaderContainer>
           <Link to="/">
-            <Logo src={isWhite ? LogoImg : LogoDarkImg} $isWhite={isWhite} />
+            <Logo
+              src={isWhite ? LogoImg : LogoDarkImg}
+              $isWhite={isWhite}
+              onClick={() => window.location.reload()}
+            />
           </Link>
 
           <ButtonContainer>
             <ToggleTab $isWhite={isWhite}>
-              <ToggleButton active={false} onClick={goToSubscribe}>
+              <ToggleButton
+                active={isUck}
+                onClick={() => {
+                  if (!isUck) handleToggleRoot();
+                }}
+              >
                 구독
               </ToggleButton>
-              <ToggleButton active={true} onClick={() => {}}>
+              <ToggleButton
+                active={!isUck}
+                onClick={() => {
+                  if (isUck) handleToggleRoot();
+                }}
+              >
                 의전
               </ToggleButton>
             </ToggleTab>
             {/* 햄버거 버튼은 HomePage일 때만 보이게 */}
-            {
+            {!isUck && (
               <BurgerButton onClick={toggleMenuOpen} $isWhite={isWhite}>
                 <BurgerIcon
                   src={isWhite ? icBurgerSvg : icBurgerBlackSvg}
                   alt="menu"
                 />
               </BurgerButton>
-            }
+            )}
           </ButtonContainer>
         </HeaderContainer>
 

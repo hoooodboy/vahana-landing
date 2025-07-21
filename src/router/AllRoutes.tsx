@@ -8,7 +8,7 @@ import PCLayout from "./layouts/PCLayout";
 import { useEffect } from "react";
 import { setupTokenRefreshTimer } from "../utils/tokenRefresh";
 import LocalStorage from "../local-storage";
-import { useRootPage } from "../contexts/RootPageContext";
+// import { useRootPage } from "../contexts/RootPageContext"; // 더 이상 필요 없음
 
 // 보호된 라우트를 위한 커스텀 래퍼 컴포넌트
 const ProtectedPage = ({ children, requireAuth = true }) => {
@@ -36,7 +36,7 @@ function AllRoutes() {
   const { accessToken } = tokens;
   const isLoggedIn = !!accessToken;
   const path = window.location.pathname;
-  const { isUck } = useRootPage();
+  // const { isUck } = useRootPage(); // 더 이상 필요 없음
 
   // 컴포넌트 마운트 시 토큰 만료 확인 및 갱신 타이머 설정
   useEffect(() => {
@@ -52,7 +52,7 @@ function AllRoutes() {
       children: [
         {
           path: "/",
-          element: isUck ? <Pages.UckPage /> : <Pages.HomePage />,
+          element: <Pages.HomePage />,
         },
         {
           path: "/vahana",
@@ -61,10 +61,6 @@ function AllRoutes() {
         {
           path: "/cars",
           element: <Pages.CarPage />,
-        },
-        {
-          path: "/uck",
-          element: <Pages.UckPage />,
         },
         {
           path: "/pricing",
@@ -114,7 +110,7 @@ function AllRoutes() {
         // 로그인 여부와 관계 없이 접근 가능한 페이지들
         {
           path: "/",
-          element: isUck ? <Pages.UckPage /> : <Pages.HomePage />,
+          element: <Pages.HomePage />,
         },
         {
           path: "/vahana",
@@ -123,10 +119,6 @@ function AllRoutes() {
         {
           path: "/cars",
           element: <Pages.CarPage />,
-        },
-        {
-          path: "/uck",
-          element: <Pages.UckPage />,
         },
         {
           path: "/pricing",
