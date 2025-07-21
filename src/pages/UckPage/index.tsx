@@ -1,8 +1,17 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Header from "../../components/Header";
+import Lottie from "lottie-react";
+import loadingLottie from "../../../public/lottie-loading.json";
 
 const UckPage = () => {
+  const [showLoading, setShowLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowLoading(false), 5000);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <Container>
       <Header />
@@ -14,6 +23,15 @@ const UckPage = () => {
             frameBorder="0"
             allowFullScreen
           />
+          {showLoading && (
+            <LoadingOverlay>
+              <Lottie
+                animationData={loadingLottie}
+                loop
+                style={{ width: 42, height: 42 }}
+              />
+            </LoadingOverlay>
+          )}
         </IframeContainer>
       </Content>
     </Container>
@@ -44,6 +62,7 @@ const IframeContainer = styled.div`
   flex: 1 1 0;
   background: white;
   display: flex;
+  position: relative;
 `;
 
 const Iframe = styled.iframe`
@@ -51,6 +70,19 @@ const Iframe = styled.iframe`
   height: 100%;
   border: none;
   display: block;
+`;
+
+const LoadingOverlay = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
 `;
 
 export default UckPage;

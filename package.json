@@ -23,6 +23,7 @@
     "framer-motion": "^12.4.4",
     "globby": "^14.1.0",
     "jwt-decode": "^4.0.0",
+    "lottie-react": "^2.4.1",
     "orval": "^7.5.0",
     "path": "^0.12.7",
     "portone": "^2.1.1",
