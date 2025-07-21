@@ -80,13 +80,13 @@ function BaseLayout() {
   return (
     // <Container style={{ maxHeight: height }}>
     <Container>
-      <LogoContainer>
+      <LogoContainer w={`${((window.innerWidth - 480) / 4) * 3}px`}>
         <LogoBlock>
           <LogoImg src={Logo} />
           이동의 혁신, 품격의 진화
         </LogoBlock>
       </LogoContainer>
-      <Content>
+      <Content rightPosition={`${(window.innerWidth - 480) / 4}px`}>
         {/* <TermsAgree /> */}
         {/* <Logo>adasssasdasd</Logo> */}
         <Outlet />
@@ -94,12 +94,12 @@ function BaseLayout() {
         {/* <AppNav theme="dark" /> */}
         <Footer />
         <ScrollToTop />
-        <ContactButton
-          onClick={() => window.open("http://pf.kakao.com/_yxcxhVn")}
-        >
-          <img src={ImgContact} />
-        </ContactButton>
       </Content>
+      <ContactButton
+        onClick={() => window.open("http://pf.kakao.com/_yxcxhVn")}
+      >
+        <img src={ImgContact} />
+      </ContactButton>
     </Container>
   );
 }
@@ -111,7 +111,7 @@ const Container = styled.div`
   background: #151711;
   display: flex;
   gap: 240px;
-  justify-content: center;
+  justify-content: flex-end;
   align-items: center;
 
   @media (max-width: 768px) {
@@ -119,18 +119,16 @@ const Container = styled.div`
   }
 `;
 
-const LogoContainer = styled.div`
+const LogoContainer = styled.div<{ w?: string }>`
   position: fixed; /* fixed로 변경 */
   left: 0; /* 왼쪽에서의 위치 */
   top: 50%; /* 상단에서 50% */
   transform: translateY(-50%); /* 자신의 높이의 50%만큼 위로 이동 */
-  width: 400px; /* 고정 너비 설정 */
+  width: ${(p) => p.w}; /* 고정 너비 설정 */
   display: flex;
   flex-direction: column;
   gap: 36px;
   color: #decda7;
-
-  margin-left: calc((100% - 1080px) / 2); /* 중앙 정렬을 위한 마진 계산 */
 
   @media (max-width: 768px) {
     display: none;
@@ -153,7 +151,11 @@ const LogoBlock = styled.div`
   gap: 36px;
 `;
 
-const Content = styled.div<{ isIos?: boolean; pcView?: boolean }>`
+const Content = styled.div<{
+  isIos?: boolean;
+  pcView?: boolean;
+  rightPosition?: string;
+}>`
   max-width: ${(p) => (p.pcView ? "none" : "480px")};
   width: 100%;
   height: 100%;
@@ -164,7 +166,7 @@ const Content = styled.div<{ isIos?: boolean; pcView?: boolean }>`
   justify-content: flex-end;
   box-sizing: border-box;
   position: relative;
-  margin-left: 640px; /* LogoContainer 너비 + gap */
+  margin-right: ${(p) => p.rightPosition};
   box-shadow: ${(p) => (p.pcView ? "none" : "rgba(0, 0, 0, 0.9) 0px 3px 12px")};
 
   @media (max-width: 768px) {
