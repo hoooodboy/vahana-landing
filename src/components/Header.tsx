@@ -48,7 +48,7 @@ const Header = () => {
   const goToSubscribe = () => {
     const { host, protocol } = window.location;
     const base = host.replace(/^([^.]+\.)?/, "subscribe.");
-    window.location.href = `${protocol}//${base}`;
+    window.location.href = `${protocol}//${base}/#/cars`;
   };
 
   return (
