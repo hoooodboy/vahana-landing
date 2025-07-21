@@ -132,6 +132,9 @@ const StyledContainer = styled.div<{
   backdrop-filter: ${(p) =>
     p.$scrolled || p.$isMenuOpen ? "blur(5px)" : "none"};
   transition: 0.2s all ease-in;
+  @media (max-width: 768px) {
+    max-width: 768px;
+  }
 `;
 
 const HeaderContainer = styled.div`
@@ -149,16 +152,16 @@ const HeaderContainer = styled.div`
 const Logo = styled.img<{ $isWhite: boolean }>`
   width: 128px;
   height: 20px;
-  position: absolute;
+  /* position: absolute;
   left: 16px;
-  top: 21px;
+  top: 21px; */
   transition: opacity 0.3s;
 `;
 
 const ButtonContainer = styled.div`
-  position: absolute;
+  /* position: absolute;
   right: 16px;
-  top: 16px;
+  top: 16px; */
   display: flex;
   align-items: center;
   gap: 8px;
