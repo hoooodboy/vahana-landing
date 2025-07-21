@@ -53,7 +53,7 @@ const Header = () => {
 
   return (
     <>
-      <StyledContainer $scrolled={scrolled}>
+      <StyledContainer $scrolled={scrolled} $isMenuOpen={isMenuOpen}>
         <HeaderContainer>
           <Link to="/">
             <Logo src={isWhite ? LogoImg : LogoDarkImg} $isWhite={isWhite} />
@@ -118,7 +118,10 @@ const Header = () => {
 };
 
 // Styled Components
-const StyledContainer = styled.div<{ $scrolled: boolean }>`
+const StyledContainer = styled.div<{
+  $scrolled: boolean;
+  $isMenuOpen?: boolean;
+}>`
   width: 100%;
   max-width: 480px;
   position: fixed;
@@ -126,7 +129,8 @@ const StyledContainer = styled.div<{ $scrolled: boolean }>`
   display: flex;
   flex-direction: column;
   z-index: 1000;
-  backdrop-filter: ${(p) => (p.$scrolled ? "blur(5px)" : "none")};
+  backdrop-filter: ${(p) =>
+    p.$scrolled || p.$isMenuOpen ? "blur(5px)" : "none"};
   transition: 0.2s all ease-in;
 `;
 
