@@ -49,7 +49,11 @@ const Header = () => {
       <StyledContainer $scrolled={isScrolledOrMenuOpen}>
         <HeaderContainer>
           <Link to="/">
-            <Logo src={isWhite ? LogoImg : LogoDarkImg} $isWhite={isWhite} />
+            <Logo
+              src={isWhite ? LogoImg : LogoDarkImg}
+              $isWhite={isWhite}
+              onClick={() => window.location.reload()}
+            />
           </Link>
 
           <ButtonContainer>

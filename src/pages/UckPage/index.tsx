@@ -12,6 +12,7 @@ const UckPage = () => {
             src="https://uck.dothome.co.kr/#/cars"
             title="External Cars Page"
             frameBorder="0"
+            allowFullScreen
           />
         </IframeContainer>
       </Content>
@@ -21,26 +22,35 @@ const UckPage = () => {
 
 const Container = styled.div`
   width: 100%;
-  min-height: calc(100vh + 480px);
+  height: 100vh;
+  min-height: 100vh;
+  padding-top: 56px;
   background: #fff;
+  display: flex;
+  flex-direction: column;
 `;
 
 const Content = styled.div`
-  padding-top: 56px; // 헤더 높이만큼 패딩
   width: 100%;
-  height: calc(100vh - 56px);
+  flex: 1 1 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 `;
 
 const IframeContainer = styled.div`
   width: 100%;
   height: 100%;
+  flex: 1 1 0;
   background: white;
+  display: flex;
 `;
 
 const Iframe = styled.iframe`
   width: 100%;
   height: 100%;
   border: none;
+  display: block;
 `;
 
 export default UckPage;

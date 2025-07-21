@@ -1,4 +1,4 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 
 import styled, { css } from "../../themes";
 
@@ -8,6 +8,7 @@ import Logo from "@/src/assets/ic-logo.png";
 import ScrollToTop from "@/src/components/ScrollToTop";
 import Footer from "@/src/components/Footer";
 import ImgContact from "@/src/assets/img-contact.png";
+import { useRootPage } from "@/src/contexts/RootPageContext";
 
 const useDocumentHeight = () => {
   const getHeight = useCallback(
@@ -72,6 +73,10 @@ function BaseLayout() {
     window.location.pathname.includes("/introduce");
   // const termsAgree = LocalStorage.getBool("termsAgree");
 
+  const location = useLocation();
+  const { isUck } = useRootPage();
+  const isUckPage = location.pathname === "/" && isUck;
+
   return (
     // <Container style={{ maxHeight: height }}>
     <Container>
@@ -87,13 +92,17 @@ function BaseLayout() {
         <Outlet />
 
         {/* <AppNav theme="dark" /> */}
-        <Footer />
-        <ScrollToTop />
-        <ContactButton
-          onClick={() => window.open("http://pf.kakao.com/_yxcxhVn")}
-        >
-          <img src={ImgContact} />
-        </ContactButton>
+        {!isUckPage && (
+          <>
+            <Footer />
+            <ScrollToTop />
+            <ContactButton
+              onClick={() => window.open("http://pf.kakao.com/_yxcxhVn")}
+            >
+              <img src={ImgContact} />
+            </ContactButton>
+          </>
+        )}
       </Content>
     </Container>
   );
