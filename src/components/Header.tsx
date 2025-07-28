@@ -115,6 +115,22 @@ const Header = () => {
               >
                 가격
               </StyledMenuItem>
+              <StyledMenuItem
+                to="/calendar"
+                $scrolled={isScrolledOrMenuOpen}
+                $isWhite={isWhite}
+                $isActive={selectedIndex === 2}
+              >
+                예약
+              </StyledMenuItem>
+              <StyledMenuItem
+                to="/my"
+                $scrolled={isScrolledOrMenuOpen}
+                $isWhite={isWhite}
+                $isActive={selectedIndex === 2}
+              >
+                마이
+              </StyledMenuItem>
             </MenuContainer>
           </BottomRow>
         </HeaderContainer>
