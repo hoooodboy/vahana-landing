@@ -21,6 +21,16 @@ const Header = () => {
   const isScrolledOrMenuOpen = scrolled || isMenuOpen;
   const isWhite = isHomePage && !scrolled;
 
+  // 현재 페이지에 따른 selectedIndex 계산
+  const getSelectedIndex = () => {
+    if (location.pathname === "/info") return 0;
+    if (location.pathname === "/cars") return 1;
+    if (location.pathname === "/faqs") return 2;
+    return -1;
+  };
+
+  const selectedIndex = getSelectedIndex();
+
   const handleScroll = () => {
     const scrollY = window.scrollY;
     setScrolled(scrollY >= 500);
@@ -55,33 +65,62 @@ const Header = () => {
     <>
       <StyledContainer $scrolled={scrolled} $isMenuOpen={isMenuOpen}>
         <HeaderContainer>
-          <Link to="/">
-            <Logo src={isWhite ? LogoImg : LogoDarkImg} $isWhite={isWhite} />
-          </Link>
-
-          <ButtonContainer>
-            <ToggleTab $isWhite={isWhite}>
-              <ToggleButton active={false} onClick={goToSubscribe}>
-                구독
-              </ToggleButton>
-              <ToggleButton active={true} onClick={() => {}}>
-                의전
-              </ToggleButton>
-            </ToggleTab>
-            {/* 햄버거 버튼은 HomePage일 때만 보이게 */}
-            {
-              <BurgerButton onClick={toggleMenuOpen} $isWhite={isWhite}>
+          {/* 상단 56px 영역 */}
+          <TopRow>
+            <LogoLink to="/cars">
+              <Logo src={isWhite ? LogoImg : LogoDarkImg} $isWhite={isWhite} />
+            </LogoLink>
+            <TopRightSection>
+              <ToggleTab $isWhite={isWhite}>
+                <ToggleButton active={false} onClick={goToSubscribe}>
+                  구독
+                </ToggleButton>
+                <ToggleButton active={true} onClick={() => {}}>
+                  의전
+                </ToggleButton>
+              </ToggleTab>
+              {/* <BurgerButton onClick={toggleMenuOpen} $isWhite={isWhite}>
                 <BurgerIcon
                   src={isWhite ? icBurgerSvg : icBurgerBlackSvg}
                   alt="menu"
                 />
-              </BurgerButton>
-            }
-          </ButtonContainer>
+              </BurgerButton> */}
+            </TopRightSection>
+          </TopRow>
+
+          {/* 하단 30px 영역 */}
+          <BottomRow>
+            <MenuContainer>
+              <StyledMenuItem
+                to="/"
+                $scrolled={isScrolledOrMenuOpen}
+                $isWhite={isWhite}
+                $isActive={selectedIndex === 0}
+              >
+                서비스 소개
+              </StyledMenuItem>
+              <StyledMenuItem
+                to="/cars"
+                $scrolled={isScrolledOrMenuOpen}
+                $isWhite={isWhite}
+                $isActive={selectedIndex === 1}
+              >
+                차고
+              </StyledMenuItem>
+              <StyledMenuItem
+                to="/pricing"
+                $scrolled={isScrolledOrMenuOpen}
+                $isWhite={isWhite}
+                $isActive={selectedIndex === 2}
+              >
+                가격
+              </StyledMenuItem>
+            </MenuContainer>
+          </BottomRow>
         </HeaderContainer>
 
         {isMenuOpen && (
-          <MenuContainer>
+          <MobileMenuContainer>
             <StyledMenuItem
               to="/cars"
               $scrolled={isScrolledOrMenuOpen}
@@ -110,7 +149,7 @@ const Header = () => {
             >
               {!!isLoggedIn ? "My" : "Login"}
             </StyledMenuItem>
-          </MenuContainer>
+          </MobileMenuContainer>
         )}
       </StyledContainer>
     </>
@@ -138,33 +177,42 @@ const StyledContainer = styled.div<{
 `;
 
 const HeaderContainer = styled.div`
+  height: 86px;
+  width: 100%;
+  padding: 0 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+`;
+
+const TopRow = styled.div`
   height: 56px;
-  padding: 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-
-  @media (max-width: 768px) {
-    max-width: 768px;
-  }
 `;
 
-const Logo = styled.img<{ $isWhite: boolean }>`
-  width: 128px;
-  height: 20px;
-  /* position: absolute;
-  left: 16px;
-  top: 21px; */
-  transition: opacity 0.3s;
-`;
-
-const ButtonContainer = styled.div`
-  /* position: absolute;
-  right: 16px;
-  top: 16px; */
+const TopRightSection = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
+`;
+
+const BottomRow = styled.div`
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+`;
+
+const LogoLink = styled(Link)`
+  display: flex;
+  align-items: center;
+`;
+
+const Logo = styled.img<{ $isWhite: boolean }>`
+  height: 20px;
+  transition: opacity 0.3s;
 `;
 
 const ToggleTab = styled.div<{ $isWhite: boolean }>`
@@ -209,22 +257,38 @@ const BurgerIcon = styled.img<{ $isWhite?: boolean }>`
 
 const MenuContainer = styled.div`
   display: flex;
+  align-items: center;
+  gap: 18px;
+`;
+
+const MobileMenuContainer = styled.div`
+  display: flex;
   flex-direction: column;
   padding-top: 16px;
+  gap: 8px;
   transition: all ease-in 0.3s;
 `;
 
-const StyledMenuItem = styled(Link)<{ $scrolled: boolean; $isWhite: boolean }>`
-  width: 100%;
-  height: 48px;
+const StyledMenuItem = styled(Link)<{
+  $scrolled: boolean;
+  $isWhite: boolean;
+  $isActive?: boolean;
+}>`
+  height: 30px;
   display: flex;
-  justify-content: center;
   align-items: center;
-  text-align: center;
-  font-size: 14px;
-  font-weight: 400;
   text-decoration: none;
-  color: ${(p) => (p.$isWhite ? "#fff" : "#000")} !important;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+  padding: 4px 0 14px 0;
+  color: ${(p) => {
+    if (p.$isActive) {
+      return p.$isWhite ? "#fff" : "#000";
+    }
+    return "#C7C4C4";
+  }} !important;
+  transition: color 0.3s ease;
 `;
 
 export default Header;
