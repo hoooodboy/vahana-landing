@@ -32,7 +32,7 @@ const Footer = () => {
       <LinkContainer>
         <OutLink
           onClick={() =>
-            window.open("https://www.instagram.com/bto_vahana/?hl=ko")
+            window.open("https://www.instagram.com/vahana.kr/?hl=ko")
           }
         >
           <Icon src={IcFooterInsta} />
