@@ -22,8 +22,12 @@ const Footer = () => {
         </FooterContents>
       </FooterContentsWrapper>
       <FooterContentsWrapper2>
-        <Link to="/privacy">개인정보 처리방침</Link>
-        <Link to="/terms">서비스 이용약관</Link>
+        <Link to="/privacy" style={{ color: "#fff !important" }}>
+          개인정보 처리방침
+        </Link>
+        <Link to="/terms" style={{ color: "#fff !important" }}>
+          서비스 이용약관
+        </Link>
       </FooterContentsWrapper2>
       <LinkContainer>
         <OutLink
