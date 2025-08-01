@@ -5,6 +5,7 @@ import LogoImg from "@/src/assets/ic-vahana-white.png";
 import IcFooterInsta from "@/src/assets/ic-footer-insta.png";
 import IcFooterBlog from "@/src/assets/ic-footer-blog.png";
 import IcFooterKakao from "@/src/assets/ic-footer-kakao.png";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
@@ -19,6 +20,10 @@ const Footer = () => {
         <FooterContents>
           주소 | 서울시 구로구 경인로53길 90, 11층 1104호
         </FooterContents>
+      </FooterContentsWrapper>
+      <FooterContentsWrapper>
+        <Link to="/privacy">개인정보 처리방침</Link>
+        <Link to="/terms">서비스 이용약관</Link>
       </FooterContentsWrapper>
       <LinkContainer>
         <OutLink
@@ -60,6 +65,10 @@ const FooterContentsWrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px;
+  color: #fff;
+  * > {
+    color: #fff !important;
+  }
 `;
 
 const FooterContents = styled.div`
