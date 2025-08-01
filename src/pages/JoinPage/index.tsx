@@ -308,7 +308,9 @@ const JoinPage = () => {
 
       <Form onSubmit={handleSubmit}>
         <InputGroup>
-          <Label>이름</Label>
+          <Label>
+            이름&nbsp;<b>*</b>
+          </Label>
           <Input
             type="text"
             name="name"
@@ -461,6 +463,9 @@ const Label = styled.label`
   font-size: 14px;
   font-weight: 600;
   padding: 8px;
+  b {
+    color: #ba1313;
+  }
 `;
 
 const Input = styled.input<{ $error?: boolean }>`

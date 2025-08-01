@@ -22,10 +22,16 @@ import "pure-react-carousel/dist/react-carousel.es.css";
 import "./styles/style.css";
 
 import Header from "@/src/components/Header";
+// import DayBanner from "@/src/components/DayBanner";
 import ScrollContainer from "react-indiana-drag-scroll";
 import { Link } from "react-router-dom";
+import LocalStorage from "@/src/local-storage";
+import { useEffect, useState } from "react";
 
 const HomePage = () => {
+  const [showMainPop, setShowMainPop] = useState(false);
+  const HOME_VISITED = LocalStorage.get("homeVisited") as any;
+
   const mainData = [
     {
       img: MainBanner1,
@@ -61,7 +67,7 @@ const HomePage = () => {
       img: Hc2Img,
       author: "황희찬",
       contents:
-        "인터뷰라서 하는 말이 아니라, 가족들이 의전 서비스를 정말 많이 만족하고 있고 저도 그런 모습을 보면서 안정감을 느껴요.",
+        "인터뷰라서 하는 말이 아니라, 가족들이 의전 서비스를 정말 많이 만족하고 있고 저도 그런 모습을 보면서 안정감을 느껴요.",
     },
   ];
 
@@ -87,6 +93,21 @@ const HomePage = () => {
       author: "정치인 트럼프 주니어",
     },
   ];
+
+  useEffect(() => {
+    const today = new Date();
+    const handleMainPop = () => {
+      if (HOME_VISITED && HOME_VISITED > today) {
+        // 현재 date가 localStorage의 시간보다 크면 return
+        return;
+      }
+      if (!HOME_VISITED || HOME_VISITED < today) {
+        // 저장된 date가 없거나 today보다 작다면 popup 노출
+        setShowMainPop(true);
+      }
+    };
+    window.setTimeout(handleMainPop, 1000); // 1초 뒤 실행
+  }, [HOME_VISITED]);
 
   return (
     <Container>
@@ -276,6 +297,8 @@ const HomePage = () => {
           </MenuBlock>
         </MenuContainer>
       </FifthSection>
+
+      {/* {showMainPop && <DayBanner setShowMainPop={setShowMainPop} />} */}
     </Container>
   );
 };
