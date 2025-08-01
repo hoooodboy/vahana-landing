@@ -79,8 +79,9 @@ const FooterContentsWrapper2 = styled.div`
   display: flex;
   gap: 8px;
   color: #fff;
-  * > {
+  & > a {
     color: #fff !important;
+    text-decoration: none;
   }
 `;
 
