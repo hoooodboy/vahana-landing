@@ -21,10 +21,10 @@ const Footer = () => {
           주소 | 서울시 구로구 경인로53길 90, 11층 1104호
         </FooterContents>
       </FooterContentsWrapper>
-      <FooterContentsWrapper>
+      <FooterContentsWrapper2>
         <Link to="/privacy">개인정보 처리방침</Link>
         <Link to="/terms">서비스 이용약관</Link>
-      </FooterContentsWrapper>
+      </FooterContentsWrapper2>
       <LinkContainer>
         <OutLink
           onClick={() =>
@@ -64,6 +64,15 @@ const FooterContainer = styled.div`
 const FooterContentsWrapper = styled.div`
   display: flex;
   flex-direction: column;
+  gap: 8px;
+  color: #fff;
+  * > {
+    color: #fff !important;
+  }
+`;
+
+const FooterContentsWrapper2 = styled.div`
+  display: flex;
   gap: 8px;
   color: #fff;
   * > {
