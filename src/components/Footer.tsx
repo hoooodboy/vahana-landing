@@ -5,6 +5,7 @@ import LogoImg from "@/src/assets/ic-vahana-white.png";
 import IcFooterInsta from "@/src/assets/ic-footer-insta.png";
 import IcFooterBlog from "@/src/assets/ic-footer-blog.png";
 import IcFooterKakao from "@/src/assets/ic-footer-kakao.png";
+import IcFooterYoutube from "@/src/assets/ic-footer-youtube.png";
 import { Link } from "react-router-dom";
 
 const Footer = () => {
@@ -42,6 +43,11 @@ const Footer = () => {
         </OutLink>
         <OutLink onClick={() => window.open("http://pf.kakao.com/_yxcxhVn")}>
           <Icon src={IcFooterKakao} />
+        </OutLink>
+        <OutLink
+          onClick={() => window.open("https://www.youtube.com/@vahanacop")}
+        >
+          <Icon src={IcFooterYoutube} />
         </OutLink>
       </LinkContainer>
       @2025 VAHANA. All rights reserved.
