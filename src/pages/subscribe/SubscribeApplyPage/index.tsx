@@ -283,13 +283,6 @@ const SubscribeApplyPage = () => {
       ...(selectedCouponId ? { coupon_id: selectedCouponId } : {}),
     };
 
-    console.log("API 요청 데이터:", {
-      carId: carInfo?.id,
-      requestData,
-      selectedCouponId,
-      selectedCoupon: selectedCoupon ? selectedCoupon.coupon.name : null
-    });
-
     fetch(`https://alpha.vahana.kr/subscriptions/cars/${carInfo?.id}/request`, {
       method: "POST",
       headers: {
@@ -472,15 +465,7 @@ const SubscribeApplyPage = () => {
                       name="coupon-main"
                       value={coupon.id}
                       checked={selectedCouponId === coupon.id}
-                      onChange={() => {
-                        console.log("메인 페이지 쿠폰 선택:", {
-                          couponId: coupon.id,
-                          couponName: coupon.coupon.name,
-                          discountType: coupon.coupon.discount_type,
-                          discountRate: coupon.coupon.discount_rate
-                        });
-                        setSelectedCouponId(coupon.id);
-                      }}
+                      onChange={() => setSelectedCouponId(coupon.id)}
                     />
                     <CouponInfo>
                       <CouponName>{coupon.coupon.name}</CouponName>
