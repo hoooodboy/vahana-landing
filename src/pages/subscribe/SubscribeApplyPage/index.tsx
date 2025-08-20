@@ -46,6 +46,10 @@ const SubscribeApplyPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [coupons, setCoupons] = useState<any[]>([]);
+  const [selectedCouponId, setSelectedCouponId] = useState<number | null>(null);
+  const [couponLoading, setCouponLoading] = useState(false);
 
   // 약관 동의 상태
   const [isAgreed1, setIsAgreed1] = useState(false);
@@ -82,6 +86,44 @@ const SubscribeApplyPage = () => {
     fetchCarDetail();
   }, [id]);
 
+  // 쿠폰 데이터 가져오기
+  useEffect(() => {
+    const fetchCoupons = async () => {
+      const token = localStorage.getItem("subscribeAccessToken");
+      if (!token) return;
+
+      try {
+        setCouponLoading(true);
+        const response = await fetch(
+          "https://alpha.vahana.kr/subscriptions/coupons",
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        if (!response.ok) {
+          throw new Error("Failed to fetch coupons");
+        }
+        const data = await response.json();
+        console.log("전체 쿠폰 데이터:", data);
+        // 사용 가능한 쿠폰만 필터링 (유효하고 사용되지 않은 쿠폰)
+        const availableCoupons = data.filter(
+          (coupon: any) => coupon.is_valid && !coupon.is_used
+        );
+        console.log("사용 가능한 쿠폰:", availableCoupons);
+        setCoupons(availableCoupons);
+      } catch (err) {
+        console.error("Error fetching coupons:", err);
+      } finally {
+        setCouponLoading(false);
+      }
+    };
+
+    fetchCoupons();
+  }, []);
+
   // 현재 차량 정보 찾기
   const currentCar = subscriptionData.find((model) => model.id === Number(id));
   const carInfo = currentCar?.car[0];
@@ -104,6 +146,95 @@ const SubscribeApplyPage = () => {
   };
 
   const selectedPrice = getSelectedPrice();
+
+  // 쿠폰 할인 계산 함수
+  const calculateDiscount = (originalPrice: number, coupon: any) => {
+    if (!coupon) return 0;
+
+    const couponData = coupon.coupon;
+    console.log("쿠폰 할인 계산:", {
+      originalPrice,
+      couponData,
+      discount_type: couponData.discount_type,
+      discount_rate: couponData.discount_rate,
+      discount: couponData.discount,
+    });
+
+    if (couponData.discount_type === "PERCENTAGE" && couponData.discount_rate) {
+      // 퍼센트 할인
+      const discount = Math.floor(
+        originalPrice * (couponData.discount_rate / 100)
+      );
+      console.log("퍼센트 할인 계산:", {
+        originalPrice,
+        discount_rate: couponData.discount_rate,
+        calculated_discount: discount,
+      });
+      return discount;
+    } else if (couponData.discount_type === "FIXED" && couponData.discount) {
+      // 고정 금액 할인
+      console.log("고정 금액 할인:", couponData.discount);
+      return couponData.discount;
+    } else if (couponData.discount_type === "FREE") {
+      // 무료 할인 (전액 할인)
+      console.log("무료 할인:", originalPrice);
+      return originalPrice;
+    }
+    return 0;
+  };
+
+  // 최종 가격 계산 (할인 적용)
+  const getFinalPrice = () => {
+    if (!selectedCouponId) return selectedPrice;
+
+    const selectedCoupon = coupons.find(
+      (coupon) => coupon.id === selectedCouponId
+    );
+    if (!selectedCoupon) return selectedPrice;
+
+    const discountAmount = calculateDiscount(selectedPrice, selectedCoupon);
+    return selectedPrice - discountAmount;
+  };
+
+  // 선택된 쿠폰 정보
+  const selectedCoupon = coupons.find(
+    (coupon) => coupon.id === selectedCouponId
+  );
+  const finalPrice = getFinalPrice();
+  const discountAmount = selectedCoupon
+    ? calculateDiscount(selectedPrice, selectedCoupon)
+    : 0;
+
+  // 가격 범위에 적용 가능한 쿠폰 필터링
+  const applicableCoupons = coupons.filter((coupon) => {
+    const couponData = coupon.coupon;
+    console.log("쿠폰 필터링:", {
+      couponName: couponData.name,
+      selectedPrice,
+      min_price: couponData.min_price,
+      max_price: couponData.max_price,
+      isApplicable:
+        selectedPrice >= couponData.min_price &&
+        selectedPrice <= couponData.max_price,
+    });
+    return (
+      selectedPrice >= couponData.min_price &&
+      selectedPrice <= couponData.max_price
+    );
+  });
+
+  // 선택된 쿠폰이 더 이상 적용 가능하지 않으면 선택 해제
+  useEffect(() => {
+    if (selectedCouponId && selectedCoupon) {
+      const couponData = selectedCoupon.coupon;
+      const isStillApplicable =
+        selectedPrice >= couponData.min_price &&
+        selectedPrice <= couponData.max_price;
+      if (!isStillApplicable) {
+        setSelectedCouponId(null);
+      }
+    }
+  }, [selectedPrice, selectedCouponId, selectedCoupon]);
 
   // 전체 동의 상태
   const isAllAgreed =
@@ -139,6 +270,50 @@ const SubscribeApplyPage = () => {
     setIsModalOpen(false);
     setIsLoading(true);
 
+    // 구독 신청 API 호출
+    const token = localStorage.getItem("subscribeAccessToken");
+    if (!token) {
+      alert("로그인이 필요합니다.");
+      setIsLoading(false);
+      return;
+    }
+
+    const requestData = {
+      month: selectedOption,
+      ...(selectedCouponId ? { coupon_id: selectedCouponId } : {}),
+    };
+
+    console.log("API 요청 데이터:", {
+      carId: carInfo?.id,
+      requestData,
+      selectedCouponId,
+      selectedCoupon: selectedCoupon ? selectedCoupon.coupon.name : null
+    });
+
+    fetch(`https://alpha.vahana.kr/subscriptions/cars/${carInfo?.id}/request`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(requestData),
+    })
+      .then((response) => {
+        if (response.status === 201) {
+          setIsLoading(false);
+          setIsSuccessModalOpen(true);
+        } else {
+          throw new Error(`Failed to subscribe: ${response.status}`);
+        }
+      })
+      .catch((err) => {
+        console.error("구독 신청 실패:", err);
+        alert("구독 신청에 실패했습니다.");
+        setIsLoading(false);
+      });
+
+    // 기존 PG 관련 코드 주석 처리
+    /*
     // 구매 준비 API 호출
     postPurchasePrepare({
       packId: id || "",
@@ -177,6 +352,7 @@ const SubscribeApplyPage = () => {
         alert("구매 준비에 실패했습니다.");
         setIsLoading(false);
       });
+    */
   };
 
   // 구독 신청하기
@@ -245,15 +421,76 @@ const SubscribeApplyPage = () => {
               </ProductInfo>
               <PriceInfo>
                 <PriceRow>
+                  {selectedCoupon && (
+                    <OriginalPriceText>
+                      {Math.floor((selectedPrice || 0) / 10000)}만원
+                    </OriginalPriceText>
+                  )}
                   <PriceText>
-                    {Math.floor((selectedPrice || 0) / 10000)}만원/월
+                    {Math.floor((finalPrice || 0) / 10000)}만원/월
                   </PriceText>
                 </PriceRow>
-                <VatText>보험료 / VAT 포함</VatText>
+
+                <VatText>
+                  보험료 / VAT 포함
+                  {selectedCoupon && (
+                    <DiscountText>
+                      {selectedCoupon.coupon.discount_type === "PERCENTAGE"
+                        ? `${selectedCoupon.coupon.discount_rate}% 할인`
+                        : selectedCoupon.coupon.discount_type === "FREE"
+                          ? "무료"
+                          : `${Math.floor((discountAmount || 0) / 10000)}만원 할인`}
+                    </DiscountText>
+                  )}
+                </VatText>
               </PriceInfo>
             </ProductCard>
           </Section>
-
+          {/* 쿠폰 선택 섹션 */}
+          <Section>
+            <SectionTitle>쿠폰 선택</SectionTitle>
+            {couponLoading ? (
+              <CouponLoadingText>쿠폰을 불러오는 중...</CouponLoadingText>
+            ) : coupons.length === 0 ? (
+              <CouponEmptyText>사용 가능한 쿠폰이 없습니다.</CouponEmptyText>
+            ) : (
+              <CouponList>
+                <CouponOption>
+                  <CouponRadio
+                    type="radio"
+                    name="coupon-main"
+                    value=""
+                    checked={selectedCouponId === null}
+                    onChange={() => setSelectedCouponId(null)}
+                  />
+                  <CouponLabel>쿠폰 사용 안함</CouponLabel>
+                </CouponOption>
+                {applicableCoupons.map((coupon) => (
+                  <CouponOption key={coupon.id}>
+                    <CouponRadio
+                      type="radio"
+                      name="coupon-main"
+                      value={coupon.id}
+                      checked={selectedCouponId === coupon.id}
+                      onChange={() => {
+                        console.log("메인 페이지 쿠폰 선택:", {
+                          couponId: coupon.id,
+                          couponName: coupon.coupon.name,
+                          discountType: coupon.coupon.discount_type,
+                          discountRate: coupon.coupon.discount_rate
+                        });
+                        setSelectedCouponId(coupon.id);
+                      }}
+                    />
+                    <CouponInfo>
+                      <CouponName>{coupon.coupon.name}</CouponName>
+                      <CouponDesc>{coupon.coupon.description}</CouponDesc>
+                    </CouponInfo>
+                  </CouponOption>
+                ))}
+              </CouponList>
+            )}
+          </Section>
           <Section>
             <SectionTitle>이용약관</SectionTitle>
             <TermsLink onClick={handleTerms}>
@@ -383,9 +620,32 @@ const SubscribeApplyPage = () => {
               <InfoSection>
                 <InfoLabel>구독료</InfoLabel>
                 <InfoValue>
-                  {Math.floor((selectedPrice || 0) / 10000)}만원/월
+                  {selectedCoupon && (
+                    <span
+                      style={{
+                        textDecoration: "line-through",
+                        color: "#c7c4c4",
+                        marginRight: "8px",
+                      }}
+                    >
+                      {Math.floor((selectedPrice || 0) / 10000)}만원
+                    </span>
+                  )}
+                  {Math.floor((finalPrice || 0) / 10000)}만원/월
                 </InfoValue>
               </InfoSection>
+              {selectedCoupon && (
+                <InfoSection>
+                  <InfoLabel>할인</InfoLabel>
+                  <InfoValue style={{ color: "#8cff20" }}>
+                    {selectedCoupon.coupon.discount_type === "PERCENTAGE"
+                      ? `${selectedCoupon.coupon.discount_rate}% 할인`
+                      : selectedCoupon.coupon.discount_type === "FREE"
+                        ? "무료"
+                        : `${Math.floor((discountAmount || 0) / 10000)}만원 할인`}
+                  </InfoValue>
+                </InfoSection>
+              )}
 
               <InfoSection>
                 <InfoLabel>구독약관</InfoLabel>
@@ -410,6 +670,46 @@ const SubscribeApplyPage = () => {
                   발생합니다.
                 </TermsText>
               </TermsSection>
+
+              {/* 쿠폰 선택 섹션 */}
+              <CouponSection>
+                <CouponSectionTitle>쿠폰 선택</CouponSectionTitle>
+                {couponLoading ? (
+                  <CouponLoadingText>쿠폰을 불러오는 중...</CouponLoadingText>
+                ) : applicableCoupons.length === 0 ? (
+                  <CouponEmptyText>
+                    이 차량에 적용 가능한 쿠폰이 없습니다.
+                  </CouponEmptyText>
+                ) : (
+                  <CouponList>
+                    <CouponOption>
+                      <CouponRadio
+                        type="radio"
+                        name="coupon-modal"
+                        value=""
+                        checked={selectedCouponId === null}
+                        onChange={() => setSelectedCouponId(null)}
+                      />
+                      <CouponLabel>쿠폰 사용 안함</CouponLabel>
+                    </CouponOption>
+                    {applicableCoupons.map((coupon) => (
+                      <CouponOption key={coupon.id}>
+                        <CouponRadio
+                          type="radio"
+                          name="coupon-modal"
+                          value={coupon.id}
+                          checked={selectedCouponId === coupon.id}
+                          onChange={() => setSelectedCouponId(coupon.id)}
+                        />
+                        <CouponInfo>
+                          <CouponName>{coupon.coupon.name}</CouponName>
+                          <CouponDesc>{coupon.coupon.description}</CouponDesc>
+                        </CouponInfo>
+                      </CouponOption>
+                    ))}
+                  </CouponList>
+                )}
+              </CouponSection>
 
               <ModalCheckboxSection>
                 <ModalCheckboxItem>
@@ -550,6 +850,29 @@ const SubscribeApplyPage = () => {
           </ModalContainer>
         </ModalOverlay>
       )}
+
+      {/* 성공 모달 */}
+      {isSuccessModalOpen && (
+        <ModalOverlay>
+          <SuccessModalContainer>
+            <SuccessModalHeader>
+              <SuccessIcon>✓</SuccessIcon>
+              <SuccessTitle>신청이 완료되었습니다</SuccessTitle>
+              <SuccessSubtitle>담당자가 연락드리겠습니다</SuccessSubtitle>
+            </SuccessModalHeader>
+            <SuccessModalButtons>
+              <SuccessModalButton
+                onClick={() => {
+                  setIsSuccessModalOpen(false);
+                  navigate("/subscribe/my");
+                }}
+              >
+                확인
+              </SuccessModalButton>
+            </SuccessModalButtons>
+          </SuccessModalContainer>
+        </ModalOverlay>
+      )}
     </Container>
   );
 };
@@ -652,6 +975,8 @@ const PriceRow = styled.div`
   display: flex;
   align-items: flex-end;
   gap: 8px;
+  min-height: 36px;
+  flex-wrap: wrap;
 `;
 
 const PriceText = styled.div`
@@ -660,10 +985,28 @@ const PriceText = styled.div`
   color: #8cff20;
 `;
 
+const OriginalPriceText = styled.div`
+  font-size: 16px;
+  font-weight: 500;
+  color: #c7c4c4;
+  text-decoration: line-through;
+  margin-right: 8px;
+  white-space: nowrap;
+`;
+
+const DiscountText = styled.div`
+  font-size: 12px;
+  font-weight: 600;
+  color: #8cff20;
+  margin-bottom: 4px;
+`;
+
 const VatText = styled.div`
   font-size: 12px;
   font-weight: 700;
   color: #c7c4c4;
+  display: flex;
+  gap: 8px;
 `;
 
 const TermsLink = styled.button`
@@ -929,6 +1272,150 @@ const ModalAgreeButton = styled.button`
   &:hover:not(:disabled) {
     background: #7aff1a;
   }
+`;
+
+// 성공 모달 스타일 컴포넌트
+const SuccessModalContainer = styled.div`
+  width: 100%;
+  max-width: 400px;
+  background: #202020;
+  border-radius: 16px;
+  padding: 32px 24px;
+  color: #fff;
+  text-align: center;
+`;
+
+const SuccessModalHeader = styled.div`
+  margin-bottom: 32px;
+`;
+
+const SuccessIcon = styled.div`
+  width: 60px;
+  height: 60px;
+  background: #8cff20;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  color: #000;
+  margin: 0 auto 16px;
+  font-weight: bold;
+`;
+
+const SuccessTitle = styled.h2`
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  color: #fff;
+`;
+
+const SuccessSubtitle = styled.p`
+  font-size: 16px;
+  font-weight: 500;
+  margin: 0;
+  color: #c7c4c4;
+`;
+
+const SuccessModalButtons = styled.div`
+  display: flex;
+  justify-content: center;
+`;
+
+const SuccessModalButton = styled.button`
+  width: 100%;
+  height: 48px;
+  border: none;
+  border-radius: 12px;
+  background: #8cff20;
+  color: #000;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: #7aff1a;
+  }
+`;
+
+// 쿠폰 선택 스타일 컴포넌트
+const CouponSection = styled.div`
+  margin: 16px 0;
+  padding: 16px;
+  background: #333;
+  border-radius: 8px;
+`;
+
+const CouponSectionTitle = styled.h3`
+  font-size: 14px;
+  font-weight: 700;
+  margin: 0 0 12px 0;
+  color: #fff;
+`;
+
+const CouponLoadingText = styled.div`
+  font-size: 12px;
+  color: #c7c4c4;
+  text-align: center;
+`;
+
+const CouponEmptyText = styled.div`
+  font-size: 12px;
+  color: #c7c4c4;
+  text-align: center;
+`;
+
+const CouponList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
+
+const CouponOption = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border-radius: 6px;
+  background: #2a2a2a;
+  cursor: pointer;
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: #3a3a3a;
+  }
+`;
+
+const CouponRadio = styled.input`
+  width: 16px;
+  height: 16px;
+  accent-color: #8cff20;
+`;
+
+const CouponLabel = styled.label`
+  font-size: 13px;
+  font-weight: 500;
+  color: #fff;
+  cursor: pointer;
+`;
+
+const CouponInfo = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+`;
+
+const CouponName = styled.div`
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+`;
+
+const CouponDesc = styled.div`
+  font-size: 11px;
+  color: #c7c4c4;
 `;
 
 export default SubscribeApplyPage;
