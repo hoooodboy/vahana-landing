@@ -19,7 +19,7 @@ const SubscribeKakaoLoadingPage = () => {
     const redirectUri = `${window.location.origin}/subscribe/accounts/kakao`;
     (async () => {
       try {
-        const res = await subscribeKakaoExchange(code, redirectUri);
+        const res = await subscribeKakaoExchange(code);
         localStorage.setItem("subscribeAccessToken", res.accessToken);
         if (res.refreshToken)
           localStorage.setItem("subscribeRefreshToken", res.refreshToken);
