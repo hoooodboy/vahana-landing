@@ -17,15 +17,32 @@ const Header = () => {
   const { toggleRootPage, isUck } = useRootPage();
 
   const isLoggedIn = LocalStorage.get("accessToken");
+  const isSubscribeLoggedIn = !!localStorage.getItem("subscribeAccessToken");
   const isHomePage = location.pathname === "/";
   const isScrolledOrMenuOpen = scrolled || isMenuOpen;
-  const isWhite = isHomePage && !scrolled;
 
-  // 현재 페이지에 따른 selectedIndex 계산
+  // URL에 subscribe가 포함되어 있는지 확인
+  const isSubscribePath = location.pathname.includes("/subscribe");
+
+  // subscribe 경로이거나 홈페이지에서 스크롤되지 않은 경우 흰색
+  const isWhite = (isHomePage && !scrolled) || isSubscribePath;
+
+  // 현재 페이지에 따른 selectedIndex 계산 (subscribe 전용 네비게이션 분기)
   const getSelectedIndex = () => {
+    if (isSubscribePath) {
+      if (location.pathname === "/subscribe") return 0; // 서비스 소개
+      if (location.pathname.startsWith("/subscribe/cars")) return 1; // 차고
+      if (location.pathname.startsWith("/subscribe/faq")) return 2; // FAQ
+      if (
+        location.pathname.startsWith("/subscribe/login") ||
+        location.pathname.startsWith("/subscribe/my")
+      )
+        return 3; // 로그인/마이
+      return -1;
+    }
     if (location.pathname === "/info") return 0;
     if (location.pathname === "/cars") return 1;
-    if (location.pathname === "/faqs") return 2;
+    if (location.pathname === "/faq") return 2;
     return -1;
   };
 
@@ -54,12 +71,19 @@ const Header = () => {
     }
   };
 
-  // 현재 도메인에서 subscribe 서브도메인으로 이동
+  // 구독 페이지로 이동
   const goToSubscribe = () => {
-    const { host, protocol } = window.location;
-    const base = host.replace(/^([^.]+\.)?/, "subscribe.");
-    window.location.href = `${protocol}//${base}/#/cars`;
+    navigate("/subscribe/cars");
   };
+
+  // 의전 페이지로 이동
+  const goToMain = () => {
+    navigate("/");
+  };
+
+  // 현재 경로에 따라 토글 버튼 상태 결정
+  const isSubscribeActive = isSubscribePath;
+  const isMainActive = !isSubscribePath;
 
   return (
     <>
@@ -72,10 +96,13 @@ const Header = () => {
             </LogoLink>
             <TopRightSection>
               <ToggleTab $isWhite={isWhite}>
-                <ToggleButton active={false} onClick={goToSubscribe}>
+                <ToggleButton
+                  active={isSubscribeActive}
+                  onClick={goToSubscribe}
+                >
                   구독
                 </ToggleButton>
-                <ToggleButton active={true} onClick={() => {}}>
+                <ToggleButton active={isMainActive} onClick={goToMain}>
                   의전
                 </ToggleButton>
               </ToggleTab>
@@ -91,46 +118,87 @@ const Header = () => {
           {/* 하단 30px 영역 */}
           <BottomRow>
             <MenuContainer>
-              <StyledMenuItem
-                to="/"
-                $scrolled={isScrolledOrMenuOpen}
-                $isWhite={isWhite}
-                $isActive={selectedIndex === 0}
-              >
-                서비스 소개
-              </StyledMenuItem>
-              <StyledMenuItem
-                to="/cars"
-                $scrolled={isScrolledOrMenuOpen}
-                $isWhite={isWhite}
-                $isActive={selectedIndex === 1}
-              >
-                차고
-              </StyledMenuItem>
-              <StyledMenuItem
-                to="/pricing"
-                $scrolled={isScrolledOrMenuOpen}
-                $isWhite={isWhite}
-                $isActive={selectedIndex === 2}
-              >
-                가격
-              </StyledMenuItem>
-              <StyledMenuItem
-                to="/calendar"
-                $scrolled={isScrolledOrMenuOpen}
-                $isWhite={isWhite}
-                $isActive={selectedIndex === 2}
-              >
-                예약
-              </StyledMenuItem>
-              <StyledMenuItem
-                to="/my"
-                $scrolled={isScrolledOrMenuOpen}
-                $isWhite={isWhite}
-                $isActive={selectedIndex === 2}
-              >
-                마이
-              </StyledMenuItem>
+              {isSubscribePath ? (
+                <>
+                  <StyledMenuItem
+                    to="/subscribe"
+                    $scrolled={isScrolledOrMenuOpen}
+                    $isWhite={isWhite}
+                    $isActive={selectedIndex === 0}
+                  >
+                    서비스 소개
+                  </StyledMenuItem>
+                  <StyledMenuItem
+                    to="/subscribe/cars"
+                    $scrolled={isScrolledOrMenuOpen}
+                    $isWhite={isWhite}
+                    $isActive={selectedIndex === 1}
+                  >
+                    차고
+                  </StyledMenuItem>
+                  <StyledMenuItem
+                    to="/subscribe/faq"
+                    $scrolled={isScrolledOrMenuOpen}
+                    $isWhite={isWhite}
+                    $isActive={selectedIndex === 2}
+                  >
+                    FAQ
+                  </StyledMenuItem>
+                  <StyledMenuItem
+                    to={
+                      isSubscribeLoggedIn ? "/subscribe/my" : "/subscribe/login"
+                    }
+                    $scrolled={isScrolledOrMenuOpen}
+                    $isWhite={isWhite}
+                    $isActive={selectedIndex === 3}
+                  >
+                    {isSubscribeLoggedIn ? "마이" : "로그인"}
+                  </StyledMenuItem>
+                </>
+              ) : (
+                <>
+                  <StyledMenuItem
+                    to="/"
+                    $scrolled={isScrolledOrMenuOpen}
+                    $isWhite={isWhite}
+                    $isActive={selectedIndex === 0}
+                  >
+                    서비스 소개
+                  </StyledMenuItem>
+                  <StyledMenuItem
+                    to="/cars"
+                    $scrolled={isScrolledOrMenuOpen}
+                    $isWhite={isWhite}
+                    $isActive={selectedIndex === 1}
+                  >
+                    차고
+                  </StyledMenuItem>
+                  <StyledMenuItem
+                    to="/pricing"
+                    $scrolled={isScrolledOrMenuOpen}
+                    $isWhite={isWhite}
+                    $isActive={selectedIndex === 2}
+                  >
+                    가격
+                  </StyledMenuItem>
+                  <StyledMenuItem
+                    to="/calendar"
+                    $scrolled={isScrolledOrMenuOpen}
+                    $isWhite={isWhite}
+                    $isActive={selectedIndex === 2}
+                  >
+                    예약
+                  </StyledMenuItem>
+                  <StyledMenuItem
+                    to="/my"
+                    $scrolled={isScrolledOrMenuOpen}
+                    $isWhite={isWhite}
+                    $isActive={selectedIndex === 2}
+                  >
+                    마이
+                  </StyledMenuItem>
+                </>
+              )}
             </MenuContainer>
           </BottomRow>
         </HeaderContainer>

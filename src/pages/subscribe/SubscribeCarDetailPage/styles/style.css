@@ -1,0 +1,70 @@
+.carouselDot8 {
+  display: block;
+  width: 8px !important;
+  height: 8px !important;
+  max-width: 8px !important;
+  min-width: 8px !important;
+
+  min-height: 8px !important;
+  max-height: 8px !important;
+
+  padding: 0 !important;
+
+  border: none;
+
+  border-radius: 8px;
+  background: #8e8e8e;
+  transition: 0.8s all ease;
+  box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.85);
+}
+
+.carousel__dot--selected {
+  background: #fff;
+  width: 8px !important;
+  max-width: 8px !important;
+  min-width: 8px !important;
+
+  border-radius: 8px;
+  border-radius: 8px;
+  box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.85);
+}
+
+.carousel {
+  width: 100%;
+  padding: 0;
+}
+
+.carousel__inner-slide {
+  width: 100%;
+}
+
+.carousel__slide {
+  width: 100%;
+}
+
+button.SlideCounter.carousel__dot {
+  width: 100% !important;
+  display: none !important;
+  outline: none !important;
+  background: none !important;
+  width: fit-content !important;
+  color: #8e8e8e !important;
+  /* padding: 6px 10px; */
+  white-space: nowrap !important;
+  border: 1px solid #8e8e8e !important;
+
+  height: fit-content !important;
+  box-sizing: border-box !important;
+}
+
+button.SlideCounter.carousel__dot--selected {
+  display: flex !important;
+  width: 100% !important;
+  max-width: none !important;
+  align-items: center;
+  gap: 4px;
+
+  color: #8e8e8e;
+  font-size: 10px;
+  font-weight: 600;
+}

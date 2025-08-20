@@ -29,9 +29,9 @@ function BaseLayout() {
 
   return (
     <Container>
-      <LogoContainer width={leftWidth}>
+      {/* <LogoContainer width={leftWidth}>
         <LogoImg src={Logo} />
-      </LogoContainer>
+      </LogoContainer> */}
       <Content rightMargin={rightMargin}>
         <Outlet />
         <Footer />
@@ -50,7 +50,7 @@ const Container = styled.div`
   width: 100%;
   height: 100%;
   overflow: scroll;
-  background: #151711;
+  background: #000;
   display: flex;
   align-items: flex-start;
 
@@ -84,8 +84,9 @@ const Content = styled.div<{ rightMargin: number }>`
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  margin-left: auto;
-  margin-right: ${(p) => `${p.rightMargin}px`};
+  /* margin-left: auto;
+  margin-right: ${(p) => `${p.rightMargin}px`}; */
+  margin: 0 auto;
   position: relative;
   box-shadow: rgba(0, 0, 0, 0.9) 0px 3px 12px;
   box-sizing: border-box;

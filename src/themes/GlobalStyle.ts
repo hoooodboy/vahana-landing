@@ -57,7 +57,8 @@ const GlobalStyle = createGlobalStyle`
   }
 
   html, body {
-    background: #151711;
+    /* background: #151711; */
+    background: #000;
   }
 
   h1, h2, h3, h4, h5, h6, p {

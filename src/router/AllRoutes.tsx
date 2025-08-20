@@ -95,6 +95,43 @@ function AllRoutes() {
           element: <Pages.FindAccountPage />,
         },
         {
+          path: "/subscribe",
+          element: <Pages.SubscribeIntroPage />,
+        },
+        {
+          path: "/subscribe/cars",
+          element: <Pages.SubscribeCarsPage />,
+        },
+        {
+          path: "/subscribe/cars/:id",
+          element: <Pages.SubscribeCarDetailPage />,
+        },
+        {
+          path: "/subscribe/faq",
+          element: <Pages.SubscribeFaqPage />,
+        },
+
+        {
+          path: "/subscribe/:id/apply",
+          element: <Pages.SubscribeApplyPage />,
+        },
+        {
+          path: "/subscribe/success",
+          element: <Pages.SubscribeSuccessPage />,
+        },
+        {
+          path: "/subscribe/login",
+          element: <Pages.SubscribeLoginPage />,
+        },
+        {
+          path: "/subscribe/accounts/kakao",
+          element: <Pages.SubscribeKakaoLoadingPage />,
+        },
+        {
+          path: "/subscribe/my",
+          element: <Pages.SubscribeMyPage />,
+        },
+        {
           path: "/*",
           element: <Pages.HomePage />,
         },
@@ -119,6 +156,42 @@ function AllRoutes() {
         {
           path: "/cars",
           element: <Pages.CarPage />,
+        },
+        {
+          path: "/subscribe/cars",
+          element: <Pages.SubscribeCarsPage />,
+        },
+        {
+          path: "/subscribe/cars/:id",
+          element: <Pages.SubscribeCarDetailPage />,
+        },
+        {
+          path: "/subscribe/faq",
+          element: <Pages.SubscribeFaqPage />,
+        },
+        {
+          path: "/subscribe/:id/apply",
+          element: <Pages.SubscribeApplyPage />,
+        },
+        {
+          path: "/subscribe/success",
+          element: <Pages.SubscribeSuccessPage />,
+        },
+        {
+          path: "/subscribe/login",
+          element: <Pages.SubscribeLoginPage />,
+        },
+        {
+          path: "/subscribe/accounts/kakao",
+          element: <Pages.SubscribeKakaoLoadingPage />,
+        },
+        {
+          path: "/subscribe/my",
+          element: <Pages.SubscribeMyPage />,
+        },
+        {
+          path: "/subscribe",
+          element: <Pages.SubscribeIntroPage />,
         },
         {
           path: "/pricing",
