@@ -32,12 +32,18 @@ export async function subscribeLogin(email: string, password: string) {
 }
 
 export async function subscribeKakaoExchange(code: string) {
+  // 코드에서 불필요한 부분 제거 (code= 접두사가 있다면 제거)
+  const cleanCode = code.replace(/^code=/, "");
+
+  console.log("API 요청 코드:", cleanCode);
+  console.log("API 요청 URL:", `${BASE_URL}/accounts/kakao`);
+
   const res = await fetch(`${BASE_URL}/accounts/kakao`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ code }),
+    body: JSON.stringify({ code: cleanCode }),
   });
   if (!res.ok) {
     const text = await res.text();

@@ -41,6 +41,7 @@ const SubscribeLoginPage = () => {
 
       if (code) {
         console.log("카카오 콜백 처리 시작:", code);
+        console.log("코드 길이:", code.length);
         handleKakaoCallback(code);
       } else {
         console.log("카카오 코드가 없습니다.");
@@ -69,7 +70,21 @@ const SubscribeLoginPage = () => {
       navigate("/subscribe/my");
     } catch (e: any) {
       console.error("카카오 로그인 처리 실패:", e);
-      setError(e?.message || "카카오 로그인 처리 실패");
+
+      // 에러 메시지 파싱
+      let errorMessage = "카카오 로그인 처리 실패";
+      try {
+        if (e?.message) {
+          const errorData = JSON.parse(e.message);
+          if (errorData.message) {
+            errorMessage = errorData.message;
+          }
+        }
+      } catch (parseError) {
+        errorMessage = e?.message || "카카오 로그인 처리 실패";
+      }
+
+      setError(errorMessage);
     } finally {
       setKakaoLoading(false);
     }
@@ -97,7 +112,8 @@ const SubscribeLoginPage = () => {
     setKakaoLoading(true);
     const url = `https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_CLIENT_ID}&redirect_uri=${encodeURIComponent(
       KAKAO_REDIRECT
-    )}&response_type=code`;
+    )}&response_type=code&state=${Date.now()}`;
+    console.log("카카오 로그인 URL:", url);
     window.location.href = url;
   };
 
