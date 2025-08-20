@@ -2,6 +2,7 @@ import { RouteObject, useRoutes, Navigate } from "react-router-dom";
 import * as Pages from "../pages/index";
 
 import BaseLayout from "./layouts/BaseLayout";
+import FirstVisitRedirect from "./FirstVisitRedirect";
 
 import tokens from "../tokens";
 import PCLayout from "./layouts/PCLayout";
@@ -52,7 +53,7 @@ function AllRoutes() {
       children: [
         {
           path: "/",
-          element: <Pages.HomePage />,
+          element: <FirstVisitRedirect />,
         },
         {
           path: "/vahana",
@@ -151,7 +152,7 @@ function AllRoutes() {
         // 로그인 여부와 관계 없이 접근 가능한 페이지들
         {
           path: "/",
-          element: <Pages.HomePage />,
+          element: <FirstVisitRedirect />,
         },
         {
           path: "/vahana",
