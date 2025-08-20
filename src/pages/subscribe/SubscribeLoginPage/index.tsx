@@ -1,19 +1,79 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import Header from "@/src/components/Header";
-import { useNavigate } from "react-router-dom";
-import { subscribeLogin } from "@/src/api/subscribeAuth";
+import { useNavigate, useLocation } from "react-router-dom";
+import {
+  subscribeLogin,
+  subscribeKakaoExchange,
+} from "@/src/api/subscribeAuth";
 import IcKakao from "@/src/assets/ic-kakao.png";
 
 const KAKAO_CLIENT_ID = "380f187ca9b2e8a5e562fd259d68708e";
-const KAKAO_REDIRECT = "https://subscribe.vahana.kr/accounts/kakao";
+const KAKAO_REDIRECT = "https://www.vahana.kr/subscribe/login/kakao";
 
 const SubscribeLoginPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [kakaoLoading, setKakaoLoading] = useState(false);
+
+  // 카카오 로그인 콜백 처리
+  useEffect(() => {
+    console.log("현재 경로:", location.pathname);
+    console.log("현재 search:", location.search);
+
+    // /subscribe/login/kakao 경로인지 확인
+    if (location.pathname === "/subscribe/login/kakao") {
+      const params = new URLSearchParams(location.search);
+      const code = params.get("code");
+      const error = params.get("error");
+
+      console.log("카카오 코드:", code);
+      console.log("카카오 에러:", error);
+
+      if (error) {
+        setError("카카오 로그인에 실패했습니다.");
+        return;
+      }
+
+      if (code) {
+        console.log("카카오 콜백 처리 시작:", code);
+        handleKakaoCallback(code);
+      } else {
+        console.log("카카오 코드가 없습니다.");
+      }
+    }
+  }, [location.pathname, location.search]);
+
+  const handleKakaoCallback = async (code: string) => {
+    console.log("카카오 콜백 처리 함수 실행, 코드:", code);
+    setKakaoLoading(true);
+    setError(null);
+    try {
+      console.log("API 요청 시작...");
+      const res = await subscribeKakaoExchange(code);
+      console.log("API 응답:", res);
+
+      localStorage.setItem("subscribeAccessToken", res.accessToken);
+      console.log("구독 액세스 토큰 저장됨:", res.accessToken);
+
+      if (res.refreshToken) {
+        localStorage.setItem("subscribeRefreshToken", res.refreshToken);
+        console.log("리프레시 토큰 저장됨:", res.refreshToken);
+      }
+
+      console.log("로그인 성공, 리다이렉트 중...");
+      navigate("/subscribe/my");
+    } catch (e: any) {
+      console.error("카카오 로그인 처리 실패:", e);
+      setError(e?.message || "카카오 로그인 처리 실패");
+    } finally {
+      setKakaoLoading(false);
+    }
+  };
 
   const onSubmit = async () => {
     if (!email || !password) return;
@@ -34,11 +94,26 @@ const SubscribeLoginPage = () => {
   };
 
   const onKakaoLogin = () => {
+    setKakaoLoading(true);
     const url = `https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_CLIENT_ID}&redirect_uri=${encodeURIComponent(
       KAKAO_REDIRECT
     )}&response_type=code`;
     window.location.href = url;
   };
+
+  // 카카오 로그인 콜백 처리 중일 때는 로딩 화면 표시
+  if (location.pathname === "/subscribe/login/kakao" && kakaoLoading) {
+    return (
+      <Container>
+        <Header />
+        <Content>
+          <Title>카카오 로그인 처리 중...</Title>
+          <LoadingSpinner />
+          <LoadingText>잠시만 기다려주세요.</LoadingText>
+        </Content>
+      </Container>
+    );
+  }
 
   return (
     <Container>
@@ -63,9 +138,9 @@ const SubscribeLoginPage = () => {
         >
           {isLoading ? "로그인 중..." : "이메일 로그인"}
         </SubmitButton>
-        <KakaoButton onClick={onKakaoLogin}>
+        <KakaoButton onClick={onKakaoLogin} disabled={kakaoLoading}>
           <img src={IcKakao} width={36} alt="kakao" />
-          카카오 로그인
+          {kakaoLoading ? "카카오 로그인 처리 중..." : "카카오 로그인"}
         </KakaoButton>
       </Content>
     </Container>
@@ -128,7 +203,7 @@ const KakaoButton = styled.button`
   height: 52px;
   border: none;
   border-radius: 12px;
-  background: #fddc3f;
+  background: ${(props) => (props.disabled ? "#ccc" : "#fddc3f")};
   color: #3a2929;
   font-weight: 700;
   margin-top: 12px;
@@ -136,6 +211,30 @@ const KakaoButton = styled.button`
   align-items: center;
   justify-content: center;
   gap: 12px;
+  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
+  opacity: ${(props) => (props.disabled ? 0.6 : 1)};
+`;
+
+const LoadingSpinner = styled.div`
+  width: 40px;
+  height: 40px;
+  border: 3px solid #333;
+  border-top-color: #8cff20;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 24px auto;
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+`;
+
+const LoadingText = styled.div`
+  text-align: center;
+  font-size: 16px;
+  color: #c7c4c4;
+  margin-top: 16px;
 `;
 
 export default SubscribeLoginPage;

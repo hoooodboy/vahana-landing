@@ -31,20 +31,26 @@ export async function subscribeLogin(email: string, password: string) {
   return { accessToken, refreshToken } as SubscribeLoginResponse;
 }
 
-export async function subscribeKakaoExchange(
-  code: string,
-  redirectUri: string
-) {
-  const res = await fetch(`${BASE_URL}/subscriptions/auth/kakao`, {
+export async function subscribeKakaoExchange(code: string) {
+  const res = await fetch(`${BASE_URL}/accounts/kakao`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ code, redirect_uri: redirectUri }),
+    body: JSON.stringify({ code }),
   });
   if (!res.ok) {
     const text = await res.text();
     throw new Error(text || `Kakao exchange failed: ${res.status}`);
   }
-  return (await res.json()) as SubscribeLoginResponse;
+  const data = await res.json();
+  // 구독 액세스 토큰 형태에 맞게 파싱
+  const accessToken: string | undefined =
+    data?.token?.access_token || data?.accessToken;
+  const refreshToken: string | undefined =
+    data?.token?.refresh_token || data?.refreshToken;
+  if (!accessToken) {
+    throw new Error("No access_token in response");
+  }
+  return { accessToken, refreshToken } as SubscribeLoginResponse;
 }
