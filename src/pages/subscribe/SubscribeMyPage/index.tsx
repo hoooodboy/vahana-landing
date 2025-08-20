@@ -65,7 +65,12 @@ const SubscribeMyPage = () => {
                 </Col>
               </Row>
             </Card>
-            <Button onClick={onLogout}>로그아웃</Button>
+            <Actions>
+              <ActionButton onClick={() => navigate("/subscribe/coupons")}>
+                쿠폰함 보기
+              </ActionButton>
+              <ActionButton onClick={onLogout}>로그아웃</ActionButton>
+            </Actions>
             <FooterWrap>
               <Footer />
             </FooterWrap>
@@ -149,6 +154,21 @@ const Badge = styled.span<{ $verified: boolean }>`
 
 const Button = styled.button`
   width: 100%;
+  height: 56px;
+  border: none;
+  border-radius: 18px;
+  background: #202020;
+  color: #fff;
+  font-weight: 700;
+`;
+
+const Actions = styled.div`
+  display: flex;
+  gap: 8px;
+`;
+
+const ActionButton = styled.button`
+  flex: 1;
   height: 56px;
   border: none;
   border-radius: 18px;

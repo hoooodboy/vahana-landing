@@ -25,3 +25,4 @@ export { default as SubscribeFaqPage } from "./subscribe/SubscribeFaqPage";
 export { default as SubscribeLoginPage } from "./subscribe/SubscribeLoginPage";
 export { default as SubscribeKakaoLoadingPage } from "./subscribe/SubscribeKakaoLoadingPage";
 export { default as SubscribeMyPage } from "./subscribe/SubscribeMyPage";
+export { default as SubscribeCouponsPage } from "./subscribe/SubscribeCouponsPage";

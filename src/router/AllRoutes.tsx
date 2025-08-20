@@ -132,6 +132,10 @@ function AllRoutes() {
           element: <Pages.SubscribeMyPage />,
         },
         {
+          path: "/subscribe/coupons",
+          element: <Pages.SubscribeCouponsPage />,
+        },
+        {
           path: "/*",
           element: <Pages.HomePage />,
         },
@@ -188,6 +192,10 @@ function AllRoutes() {
         {
           path: "/subscribe/my",
           element: <Pages.SubscribeMyPage />,
+        },
+        {
+          path: "/subscribe/coupons",
+          element: <Pages.SubscribeCouponsPage />,
         },
         {
           path: "/subscribe",

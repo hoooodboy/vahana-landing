@@ -24,7 +24,7 @@ const SubscribeLoginPage = () => {
       localStorage.setItem("subscribeAccessToken", res.accessToken);
       if (res.refreshToken)
         localStorage.setItem("subscribeRefreshToken", res.refreshToken);
-      alert("구독 로그인 성공");
+      //   alert("구독 로그인 성공");
       navigate("/subscribe/my");
     } catch (e: any) {
       setError(e?.message || "로그인 실패");
