@@ -290,7 +290,7 @@ const SubscribeCarDetailPage = () => {
           <PriceAmount>
             {Math.floor((selectedPrice || 0) / 10000)}만원/월
           </PriceAmount>
-          <PriceLabel>VAT 포함</PriceLabel>
+          <PriceLabel>보험료 / VAT 포함</PriceLabel>
         </PriceDisplay>
       </PriceSection>
 

@@ -249,7 +249,7 @@ const SubscribeApplyPage = () => {
                     {Math.floor((selectedPrice || 0) / 10000)}만원/월
                   </PriceText>
                 </PriceRow>
-                <VatText>VAT 포함</VatText>
+                <VatText>보험료 / VAT 포함</VatText>
               </PriceInfo>
             </ProductCard>
           </Section>
