@@ -249,15 +249,32 @@ const SubscribeCarsPage = () => {
                 </CardInfoRow>
 
                 <PriceSection>
-                  {(carInfo as any).release_date &&
-                  carInfo.subscription_fee_6 ? (
-                    <PriceText>
-                      월 {Math.floor(carInfo.subscription_fee_6 / 10000)}만원
-                      부터
-                    </PriceText>
-                  ) : (
-                    <PriceText>출고예정</PriceText>
-                  )}
+                  {(() => {
+                    const fees = [
+                      carInfo.subscription_fee_1,
+                      carInfo.subscription_fee_3,
+                      carInfo.subscription_fee_6,
+                      (carInfo as any).subscription_fee_12,
+                      (carInfo as any).subscription_fee_24,
+                      (carInfo as any).subscription_fee_36,
+                      (carInfo as any).subscription_fee_48,
+                      (carInfo as any).subscription_fee_60,
+                      (carInfo as any).subscription_fee_72,
+                      (carInfo as any).subscription_fee_84,
+                      (carInfo as any).subscription_fee_96,
+                    ].filter(
+                      (v) => typeof v === "number" && v != null
+                    ) as number[];
+                    if (fees.length > 0) {
+                      const min = Math.min(...fees);
+                      return (
+                        <PriceText>
+                          월 {Math.floor(min / 10000)}만원 부터
+                        </PriceText>
+                      );
+                    }
+                    return <PriceText>출고예정</PriceText>;
+                  })()}
                 </PriceSection>
               </CarCard>
             );

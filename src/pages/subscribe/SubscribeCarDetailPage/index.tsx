@@ -65,7 +65,7 @@ interface SubscriptionModel {
 const SubscribeCarDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [selectedOption, setSelectedOption] = useState(1);
+  const [selectedOption, setSelectedOption] = useState<number | null>(null);
 
   const [subscriptionData, setSubscriptionData] = useState<SubscriptionModel[]>(
     []
@@ -104,6 +104,24 @@ const SubscribeCarDetailPage = () => {
   const currentCar = subscriptionData.find((model) => model.id === Number(id));
   const carInfo = currentCar?.car[0];
 
+  // 사용 가능한 구독 옵션들 (개월 수 큰 것 포함)
+  const getAvailableOptions = () => {
+    if (!carInfo) return [];
+    const options: number[] = [];
+    if (carInfo.subscription_fee_1) options.push(1);
+    if (carInfo.subscription_fee_3) options.push(3);
+    if (carInfo.subscription_fee_6) options.push(6);
+    if (carInfo.subscription_fee_12) options.push(12);
+    if (carInfo.subscription_fee_24) options.push(24);
+    if (carInfo.subscription_fee_36) options.push(36);
+    if (carInfo.subscription_fee_48) options.push(48);
+    if (carInfo.subscription_fee_60) options.push(60);
+    if (carInfo.subscription_fee_72) options.push(72);
+    if (carInfo.subscription_fee_84) options.push(84);
+    if (carInfo.subscription_fee_96) options.push(96);
+    return options.sort((a, b) => a - b);
+  };
+
   // 날짜 포맷팅 함수
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -124,45 +142,34 @@ const SubscribeCarDetailPage = () => {
     return `${formatPrice(mileage)}km`;
   };
 
-  // 브랜드 로고 매핑
-  const getBrandLogo = (brandName: string) => {
-    const brandLogos: { [key: string]: string } = {
-      BMW: IcBenz,
-      Ferrari: IcFerarri,
-      Lamborghini: IcFerarri,
-      PORSCHE: IcBenz,
-      Tesla: IcTesla,
-      Toyota: IcToyota,
-    };
-    return brandLogos[brandName] || IcBenz;
-  };
-
-  // 사용 가능한 구독 옵션들
-  const getAvailableOptions = () => {
-    if (!carInfo) return [];
-    const options = [];
-    if (carInfo.subscription_fee_1) options.push(1);
-    if (carInfo.subscription_fee_3) options.push(3);
-    if (carInfo.subscription_fee_6) options.push(6);
-    if (carInfo.subscription_fee_12) options.push(12);
-    return options;
-  };
+  // 데이터 로드된 후, 가장 큰 개월 수 기본 선택
+  useEffect(() => {
+    if (carInfo) {
+      const available = getAvailableOptions();
+      if (available.length > 0) {
+        const lastOption = available[available.length - 1];
+        setSelectedOption(lastOption);
+      }
+    }
+  }, [carInfo]);
 
   // 선택된 옵션의 가격
   const getSelectedPrice = () => {
-    if (!carInfo) return 0;
-    switch (selectedOption) {
-      case 1:
-        return carInfo.subscription_fee_1;
-      case 3:
-        return carInfo.subscription_fee_3;
-      case 6:
-        return carInfo.subscription_fee_6;
-      case 12:
-        return carInfo.subscription_fee_12;
-      default:
-        return carInfo.subscription_fee_6;
-    }
+    if (!carInfo || selectedOption === null) return 0;
+    const map: { [k: number]: number | null } = {
+      1: carInfo.subscription_fee_1,
+      3: carInfo.subscription_fee_3,
+      6: carInfo.subscription_fee_6,
+      12: carInfo.subscription_fee_12,
+      24: carInfo.subscription_fee_24,
+      36: carInfo.subscription_fee_36,
+      48: carInfo.subscription_fee_48,
+      60: carInfo.subscription_fee_60,
+      72: carInfo.subscription_fee_72,
+      84: carInfo.subscription_fee_84,
+      96: carInfo.subscription_fee_96,
+    };
+    return map[selectedOption] ?? 0;
   };
 
   const handleSubscribe = () => {
