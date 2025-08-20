@@ -87,6 +87,7 @@ const SubscribeCarsPage = () => {
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [sortOrder, setSortOrder] = useState<"high" | "low">("high");
 
   // API 데이터 가져오기
   useEffect(() => {
@@ -114,6 +115,7 @@ const SubscribeCarsPage = () => {
 
   // 날짜 포맷팅 함수
   const formatDate = (dateString: string) => {
+    if (!dateString || `${dateString}`.trim() === "") return "출고예정";
     const date = new Date(dateString);
     return date.toLocaleDateString("ko-KR", {
       year: "numeric",
@@ -168,6 +170,17 @@ const SubscribeCarsPage = () => {
     );
   }
 
+  // NEW 우선, 이후 가격 정렬
+  const sortedModels = [...subscriptionData].sort((a, b) => {
+    const carA = a.car[0];
+    const carB = b.car[0];
+    const newDiff = (carB?.is_new ? 1 : 0) - (carA?.is_new ? 1 : 0);
+    if (newDiff !== 0) return newDiff;
+    const priceA = carA?.retail_price ?? 0;
+    const priceB = carB?.retail_price ?? 0;
+    return sortOrder === "high" ? priceB - priceA : priceA - priceB;
+  });
+
   return (
     <Container>
       <Header />
@@ -177,12 +190,28 @@ const SubscribeCarsPage = () => {
           <br />
           슈퍼카를 구독하세요
         </Title>
-        <Subtitle>실시간 구독 가능 차량</Subtitle>
+        <SubtitleWrapper>
+          <Subtitle>실시간 구독 가능 차량</Subtitle>
+          <SortBar>
+            <SortButton
+              $active={sortOrder === "high"}
+              onClick={() => setSortOrder("high")}
+            >
+              높은가격순
+            </SortButton>
+            <SortButton
+              $active={sortOrder === "low"}
+              onClick={() => setSortOrder("low")}
+            >
+              낮은가격순
+            </SortButton>
+          </SortBar>
+        </SubtitleWrapper>
       </TitleContainer>
 
       <CarContainer>
         <CarList>
-          {subscriptionData.map((model, index) => {
+          {sortedModels.map((model, index) => {
             const carInfo = model.car[0]; // 첫 번째 차량 정보 사용
 
             return (
@@ -205,7 +234,9 @@ const SubscribeCarsPage = () => {
                 <CardInfoRow>
                   <InfoColumn>
                     <InfoLabel>출고일</InfoLabel>
-                    <InfoValue>{formatDate(carInfo.release_date)}</InfoValue>
+                    <InfoValue>
+                      {formatDate((carInfo as any).release_date)}
+                    </InfoValue>
                   </InfoColumn>
                   <InfoColumn>
                     <InfoLabel>주행거리</InfoLabel>
@@ -218,11 +249,14 @@ const SubscribeCarsPage = () => {
                 </CardInfoRow>
 
                 <PriceSection>
-                  {carInfo.subscription_fee_6 && (
+                  {(carInfo as any).release_date &&
+                  carInfo.subscription_fee_6 ? (
                     <PriceText>
                       월 {Math.floor(carInfo.subscription_fee_6 / 10000)}만원
                       부터
                     </PriceText>
+                  ) : (
+                    <PriceText>출고예정</PriceText>
                   )}
                 </PriceSection>
               </CarCard>
@@ -287,6 +321,23 @@ const Subtitle = styled.p`
   font-size: 16px;
   color: #999;
   font-weight: 500;
+`;
+
+const SortBar = styled.div`
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+`;
+
+const SortButton = styled.button<{ $active?: boolean }>`
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid #333;
+  background: ${(p) => (p.$active ? "#8cff20" : "#202020")};
+  color: ${(p) => (p.$active ? "#000" : "#fff")};
+  font-size: 12px;
+  font-weight: 700;
 `;
 
 const CarContainer = styled.div`
@@ -405,6 +456,12 @@ const PriceText = styled.div`
   font-weight: 700;
   color: #8cff20;
   line-height: 1;
+`;
+
+const SubtitleWrapper = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 `;
 
 export default SubscribeCarsPage;
