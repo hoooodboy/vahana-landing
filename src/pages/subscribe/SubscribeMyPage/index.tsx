@@ -572,7 +572,6 @@ const ReferralEmptyText = styled.div`
 const BlackLink = styled.button`
   bottom: 20px;
   right: 20px;
-  background: #8cff20;
   color: #000;
   border: none;
   border-radius: 50px;
@@ -580,15 +579,7 @@ const BlackLink = styled.button`
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(140, 255, 32, 0.3);
-  transition: all 0.2s ease;
-  z-index: 1000;
-
-  &:hover {
-    background: #7aff1a;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(140, 255, 32, 0.4);
-  }
+  background: #000;
 `;
 
 // TypeScript 타입 선언
