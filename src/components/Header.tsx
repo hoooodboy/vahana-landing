@@ -33,16 +33,18 @@ const Header = () => {
       if (location.pathname === "/subscribe") return 0; // 서비스 소개
       if (location.pathname.startsWith("/subscribe/cars")) return 1; // 차고
       if (location.pathname.startsWith("/subscribe/faq")) return 2; // FAQ
+      if (location.pathname.startsWith("/subscribe/event")) return 3; // 이벤트
       if (
         location.pathname.startsWith("/subscribe/login") ||
         location.pathname.startsWith("/subscribe/my")
       )
-        return 3; // 로그인/마이
+        return 4; // 로그인/마이
       return -1;
     }
     if (location.pathname === "/info") return 0;
     if (location.pathname === "/cars") return 1;
     if (location.pathname === "/faq") return 2;
+    if (location.pathname === "/event") return 3;
     return -1;
   };
 
@@ -145,12 +147,20 @@ const Header = () => {
                     FAQ
                   </StyledMenuItem>
                   <StyledMenuItem
+                    to="/subscribe/event"
+                    $scrolled={isScrolledOrMenuOpen}
+                    $isWhite={isWhite}
+                    $isActive={selectedIndex === 3}
+                  >
+                    이벤트
+                  </StyledMenuItem>
+                  <StyledMenuItem
                     to={
                       isSubscribeLoggedIn ? "/subscribe/my" : "/subscribe/login"
                     }
                     $scrolled={isScrolledOrMenuOpen}
                     $isWhite={isWhite}
-                    $isActive={selectedIndex === 3}
+                    $isActive={selectedIndex === 4}
                   >
                     {isSubscribeLoggedIn ? "마이" : "로그인"}
                   </StyledMenuItem>

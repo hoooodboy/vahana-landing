@@ -133,6 +133,14 @@ function AllRoutes() {
           element: <Pages.SubscribeSignupPage />,
         },
         {
+          path: "/subscribe/referrer",
+          element: <Pages.SubscribeReferrerPage />,
+        },
+        {
+          path: "/subscribe/event",
+          element: <Pages.SubscribeEventPage />,
+        },
+        {
           path: "/subscribe/accounts/kakao",
           element: <Pages.SubscribeKakaoLoadingPage />,
         },
@@ -201,6 +209,14 @@ function AllRoutes() {
         {
           path: "/subscribe/signup",
           element: <Pages.SubscribeSignupPage />,
+        },
+        {
+          path: "/subscribe/referrer",
+          element: <Pages.SubscribeReferrerPage />,
+        },
+        {
+          path: "/subscribe/event",
+          element: <Pages.SubscribeEventPage />,
         },
         {
           path: "/subscribe/accounts/kakao",

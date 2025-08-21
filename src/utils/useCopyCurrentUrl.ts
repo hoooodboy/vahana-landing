@@ -13,12 +13,19 @@ const useCopyCurrentUrl = () => {
   };
 
   const onShare = () => {
-    if (navigator.share) {
+    // 모바일 환경에서만 공유 다이얼로그 사용
+    const isMobile =
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent
+      );
+
+    if (navigator.share && isMobile) {
       navigator.share({
-        title: "fandly",
+        title: "VAHANA",
         url: window.location.href,
       });
     } else {
+      // PC에서는 항상 복사 기능 사용
       handleCopyClick();
     }
   };
