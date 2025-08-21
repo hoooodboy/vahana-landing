@@ -5,6 +5,7 @@ export type SubscribeUser = {
   username?: string;
   name?: string;
   email?: string;
+  mobile?: string;
   profileImage?: string | null;
   ciVerified?: boolean;
   referralCode?: string;
@@ -33,6 +34,7 @@ export async function getSubscribeCurrentUser(
     username: u.username,
     name: u.name,
     email: u.email,
+    mobile: u.mobile,
     profileImage: u.profile_image ?? null,
     ciVerified: u.ci_verified ?? false,
     referralCode: u.referral_code,
