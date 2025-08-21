@@ -16,8 +16,8 @@ const handleApiError = (status: number, message?: string) => {
       return "접근 권한이 없습니다.";
     case 404:
       return "요청한 리소스를 찾을 수 없습니다.";
-    case 400:
-      return "잘못된 요청입니다.";
+    // case 400:
+    //   return "잘못된 요청입니다.";
     case 409:
       return "이미 존재하는 이메일입니다.";
     case 429:
