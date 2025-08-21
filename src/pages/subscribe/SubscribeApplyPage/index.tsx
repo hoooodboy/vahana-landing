@@ -310,32 +310,63 @@ const SubscribeApplyPage = () => {
     setIsModalOpen(false);
     setIsLoading(true);
 
+    // 화면에 표시되는 가격과 동일하게 내림 처리
+    const displayPrice = Math.floor((finalPrice || 0) / 10000) * 10000;
+
+    // 금액이 0원이면 PG 사용 없이 바로 구독 신청 API로 처리 (무료/전액할인 케이스)
+    if (displayPrice <= 0) {
+      const token = localStorage.getItem("subscribeAccessToken");
+      if (!token) {
+        alert("로그인이 필요합니다.");
+        navigate("/subscribe/login");
+        setIsLoading(false);
+        return;
+      }
+
+      if (!id) {
+        alert("잘못된 요청입니다. 차량 정보를 확인해주세요.");
+        setIsLoading(false);
+        return;
+      }
+
+      fetch(`https://alpha.vahana.kr/subscriptions/cars/${id}/request`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          month: selectedOption,
+          ...(selectedCouponId && { coupon_id: selectedCouponId }),
+        }),
+      })
+        .then((response) => {
+          if (response.ok) {
+            setIsPaymentSuccessModalOpen(true);
+          } else {
+            console.error("구독 신청 실패:", response.status);
+            alert("구독 신청에 실패했습니다. 잠시 후 다시 시도해주세요.");
+          }
+        })
+        .catch((err) => {
+          console.error("구독 신청 API 호출 실패:", err);
+          alert("구독 신청 처리 중 오류가 발생했습니다.");
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+
+      return;
+    }
+
     // 구매 준비 API 호출
     postPurchasePrepare({
       packId: id || "",
-      price: selectedPrice || 0,
+      price: displayPrice,
       amount: 1,
       currency: "KRW",
     })
       .then((res) => {
-        // 구독 신청 API 호출 (알림 메일 발송용)
-        const token = localStorage.getItem("subscribeAccessToken");
-        if (token && id) {
-          fetch(`https://alpha.vahana.kr/subscriptions/cars/${id}/request`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({
-              month: selectedOption,
-              ...(selectedCouponId && { coupon_id: selectedCouponId }),
-            }),
-          }).catch((err) => {
-            console.error("구독 신청 API 호출 실패:", err);
-          });
-        }
-
         // 키움페이 무통장입금/가상계좌입금 결제
         (window as any).IMP.init("imp61282785");
 
@@ -346,7 +377,7 @@ const SubscribeApplyPage = () => {
             merchant_uid: `${res.result.id}-${new Date().getTime()}`,
             name: `${currentCar?.brand.name} ${currentCar?.name} ${selectedOption}개월 구독`,
             // amount: 1000,
-            amount: selectedPrice || 0,
+            amount: displayPrice,
             buyer_email: userData?.email || "test@test.com",
             buyer_name: userData?.name || userData?.username || "구매자",
             buyer_tel: userData?.mobile || "010-1234-5678", // 전화번호는 API에서 제공되지 않으므로 기본값 사용
@@ -366,12 +397,49 @@ const SubscribeApplyPage = () => {
 
             if (isSuccess) {
               console.log("결제 완료:", rsp);
-              setIsPaymentSuccessModalOpen(true);
+
+              // PG 결제 성공 후 구독 신청 API 호출
+              const token = localStorage.getItem("subscribeAccessToken");
+              if (token && id) {
+                fetch(
+                  `https://alpha.vahana.kr/subscriptions/cars/${id}/request`,
+                  {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                      Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({
+                      month: selectedOption,
+                      ...(selectedCouponId && { coupon_id: selectedCouponId }),
+                    }),
+                  }
+                )
+                  .then((response) => {
+                    if (response.ok) {
+                      console.log("구독 신청 성공");
+                      setIsPaymentSuccessModalOpen(true);
+                    } else {
+                      console.error("구독 신청 실패:", response.status);
+                      alert("결제는 완료되었지만 구독 신청에 실패했습니다.");
+                    }
+                  })
+                  .catch((err) => {
+                    console.error("구독 신청 API 호출 실패:", err);
+                    alert("결제는 완료되었지만 구독 신청에 실패했습니다.");
+                  })
+                  .finally(() => {
+                    setIsLoading(false);
+                  });
+              } else {
+                setIsPaymentSuccessModalOpen(true);
+                setIsLoading(false);
+              }
             } else {
               console.error("결제 실패:", error_msg);
               alert("결제에 실패했습니다: " + error_msg);
+              setIsLoading(false);
             }
-            setIsLoading(false);
           }
         );
       })
