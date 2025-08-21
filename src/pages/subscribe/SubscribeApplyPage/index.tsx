@@ -531,10 +531,10 @@ const SubscribeApplyPage = () => {
                   {selectedCoupon && (
                     <DiscountText>
                       {selectedCoupon.coupon.discount_type === "PERCENTAGE"
-                        ? `${selectedCoupon.coupon.discount_rate}% 할인`
+                        ? `${selectedCoupon.coupon.discount_rate}% 할인 (첫 1개월만)`
                         : selectedCoupon.coupon.discount_type === "FREE"
                           ? "무료"
-                          : `${Math.floor((discountAmount || 0) / 10000)}만원 할인`}
+                          : `${Math.floor((discountAmount || 0) / 10000)}만원 할인 (첫 1개월만)`}
                     </DiscountText>
                   )}
                 </VatText>
@@ -726,10 +726,10 @@ const SubscribeApplyPage = () => {
                   <InfoLabel>할인</InfoLabel>
                   <InfoValue style={{ color: "#8cff20" }}>
                     {selectedCoupon.coupon.discount_type === "PERCENTAGE"
-                      ? `${selectedCoupon.coupon.discount_rate}% 할인`
+                      ? `${selectedCoupon.coupon.discount_rate}% 할인 (첫 1개월만)`
                       : selectedCoupon.coupon.discount_type === "FREE"
                         ? "무료"
-                        : `${Math.floor((discountAmount || 0) / 10000)}만원 할인`}
+                        : `${Math.floor((discountAmount || 0) / 10000)}만원 할인 (첫 1개월만)`}
                   </InfoValue>
                 </InfoSection>
               )}

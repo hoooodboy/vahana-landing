@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Header from "@/src/components/Header";
+import { toast } from "react-toastify";
 
 type Coupon = {
   id: number;
@@ -32,6 +33,8 @@ const SubscribeCouponsPage = () => {
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [newCode, setNewCode] = useState("");
+  const [adding, setAdding] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("subscribeAccessToken");
@@ -68,6 +71,52 @@ const SubscribeCouponsPage = () => {
       <Header />
       <Content>
         <Title>내 쿠폰함</Title>
+
+        {/* 쿠폰 코드 입력 */}
+        <InputRow>
+          <CodeInput
+            placeholder="쿠폰 코드를 입력하세요"
+            value={newCode}
+            onChange={(e) => setNewCode(e.target.value)}
+          />
+          <AddButton
+            disabled={!newCode.trim() || adding}
+            onClick={async () => {
+              const token = localStorage.getItem("subscribeAccessToken");
+              if (!token) {
+                toast.error("로그인이 필요합니다.");
+                return;
+              }
+              try {
+                setAdding(true);
+                const res = await fetch(
+                  `https://alpha.vahana.kr/subscriptions/coupons/${newCode.trim()}`,
+                  {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                      Authorization: `Bearer ${token}`,
+                    },
+                  }
+                );
+                if (!res.ok) {
+                  const txt = await res.text();
+                  throw new Error(txt || `쿠폰 추가 실패: ${res.status}`);
+                }
+                const created: Coupon = await res.json();
+                setCoupons((prev) => [created, ...prev]);
+                setNewCode("");
+                toast.success("쿠폰이 추가되었습니다!");
+              } catch (e: any) {
+                toast.error(e?.message || "쿠폰 추가에 실패했습니다.");
+              } finally {
+                setAdding(false);
+              }
+            }}
+          >
+            추가
+          </AddButton>
+        </InputRow>
         {loading ? (
           <Center>로딩 중...</Center>
         ) : error ? (
@@ -170,6 +219,39 @@ const Title = styled.h1`
   font-size: 24px;
   font-weight: 700;
   margin-bottom: 18px;
+`;
+
+const InputRow = styled.div`
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+`;
+
+const CodeInput = styled.input`
+  flex: 1;
+  height: 46px;
+  border-radius: 12px;
+  border: 1px solid #333;
+  background: #111;
+  color: #fff;
+  padding: 0 14px;
+  font-size: 14px;
+  outline: none;
+
+  &::placeholder {
+    color: #666;
+  }
+`;
+
+const AddButton = styled.button`
+  height: 46px;
+  min-width: 74px;
+  border: none;
+  border-radius: 12px;
+  background: ${(p) => (p.disabled ? "#333" : "#8cff20")};
+  color: ${(p) => (p.disabled ? "#666" : "#000")};
+  font-weight: 700;
+  cursor: ${(p) => (p.disabled ? "not-allowed" : "pointer")};
 `;
 
 const SectionTitle = styled.h2`
