@@ -197,7 +197,7 @@ const SubscribeCarDetailPage = () => {
   };
 
   const handleFAQ = () => {
-    navigate("/qna");
+    navigate("/subscribe/faq");
   };
 
   if (loading) {
