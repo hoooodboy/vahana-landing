@@ -93,7 +93,7 @@ const Header = () => {
         <HeaderContainer>
           {/* 상단 56px 영역 */}
           <TopRow>
-            <LogoLink to="/cars">
+            <LogoLink to={isSubscribePath ? "/subscribe" : "/"}>
               <Logo src={isWhite ? LogoImg : LogoDarkImg} $isWhite={isWhite} />
             </LogoLink>
             <TopRightSection>

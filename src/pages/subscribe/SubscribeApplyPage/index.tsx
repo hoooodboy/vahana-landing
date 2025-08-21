@@ -340,8 +340,32 @@ const SubscribeApplyPage = () => {
           ...(selectedCouponId && { coupon_id: selectedCouponId }),
         }),
       })
-        .then((response) => {
+        .then(async (response) => {
           if (response.ok) {
+            // 추가 구독 요청(로그) API 호출
+            try {
+              const description = [
+                "구독 신청(전액할인): 0",
+                `결제ID(imp_uid): -`,
+                `주문번호(merchant_uid): -`,
+                `금액: ${displayPrice}`,
+                `개월: ${selectedOption}`,
+                `차량ID: ${id}`,
+                `차량명: ${currentCar?.brand.name} ${currentCar?.name}`,
+                `쿠폰ID: ${selectedCouponId ?? "-"}`,
+                `쿠폰명: ${selectedCoupon?.coupon?.name ?? "-"}`,
+              ].join(", ");
+              await fetch(`https://alpha.vahana.kr/subscriptions/request`, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ description }),
+              });
+            } catch (e) {
+              console.error("구독 추가 요청(API) 실패:", e);
+            }
             setIsPaymentSuccessModalOpen(true);
           } else {
             console.error("구독 신청 실패:", response.status);
@@ -415,9 +439,36 @@ const SubscribeApplyPage = () => {
                     }),
                   }
                 )
-                  .then((response) => {
+                  .then(async (response) => {
                     if (response.ok) {
                       console.log("구독 신청 성공");
+                      // 추가 구독 요청(로그) API 호출
+                      try {
+                        const description = [
+                          "구독 신청: (PG)",
+                          `결제ID(imp_uid): ${imp_uid ?? ""}`,
+                          `주문번호(merchant_uid): ${merchant_uid ?? ""}`,
+                          `금액: ${displayPrice}`,
+                          `개월: ${selectedOption}`,
+                          `차량ID: ${id}`,
+                          `차량명: ${currentCar?.brand.name} ${currentCar?.name}`,
+                          `쿠폰ID: ${selectedCouponId ?? "-"}`,
+                          `쿠폰명: ${selectedCoupon?.coupon?.name ?? "-"}`,
+                        ].join(", ");
+                        await fetch(
+                          `https://alpha.vahana.kr/subscriptions/request`,
+                          {
+                            method: "POST",
+                            headers: {
+                              "Content-Type": "application/json",
+                              Authorization: `Bearer ${token}`,
+                            },
+                            body: JSON.stringify({ description }),
+                          }
+                        );
+                      } catch (e) {
+                        console.error("구독 추가 요청(API) 실패:", e);
+                      }
                       setIsPaymentSuccessModalOpen(true);
                     } else {
                       console.error("구독 신청 실패:", response.status);
