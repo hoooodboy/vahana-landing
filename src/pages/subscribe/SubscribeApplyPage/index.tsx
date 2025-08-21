@@ -1,9 +1,13 @@
 import Header from "@/src/components/Header";
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { usePG } from "../../../utils/usePG";
 import { postPurchasePrepare } from "../../../api/purchase";
+import {
+  getSubscribeCurrentUser,
+  SubscribeUser,
+} from "../../../api/subscribeUser";
 
 // API 데이터 타입 정의
 interface CarData {
@@ -16,6 +20,13 @@ interface CarData {
   subscription_fee_3: number | null;
   subscription_fee_6: number | null;
   subscription_fee_12: number | null;
+  subscription_fee_24: number | null;
+  subscription_fee_36: number | null;
+  subscription_fee_48: number | null;
+  subscription_fee_60: number | null;
+  subscription_fee_72: number | null;
+  subscription_fee_84: number | null;
+  subscription_fee_96: number | null;
   images: string[];
 }
 
@@ -35,9 +46,17 @@ interface SubscriptionModel {
 }
 
 const SubscribeApplyPage = () => {
-  const { id, month } = useParams<{ id: string; month: string }>();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const selectedOption = month ? parseInt(month) : 1;
+  const [searchParams] = useSearchParams();
+  const selectedOption = parseInt(searchParams.get("month") || "1");
+
+  // 디버깅용 로그
+  console.log("URL 파라미터:", {
+    id,
+    month: searchParams.get("month"),
+    selectedOption,
+  });
 
   const [subscriptionData, setSubscriptionData] = useState<SubscriptionModel[]>(
     []
@@ -46,10 +65,12 @@ const SubscribeApplyPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [isPaymentSuccessModalOpen, setIsPaymentSuccessModalOpen] =
+    useState(false);
   const [coupons, setCoupons] = useState<any[]>([]);
   const [selectedCouponId, setSelectedCouponId] = useState<number | null>(null);
   const [couponLoading, setCouponLoading] = useState(false);
+  const [userData, setUserData] = useState<any | null>(null);
 
   // 약관 동의 상태
   const [isAgreed1, setIsAgreed1] = useState(false);
@@ -85,6 +106,23 @@ const SubscribeApplyPage = () => {
 
     fetchCarDetail();
   }, [id]);
+
+  // 사용자 데이터 가져오기
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const token = localStorage.getItem("subscribeAccessToken");
+      if (!token) return;
+
+      try {
+        const user = await getSubscribeCurrentUser(token);
+        setUserData(user);
+      } catch (err) {
+        console.error("Error fetching user data:", err);
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   // 쿠폰 데이터 가져오기
   useEffect(() => {
@@ -131,18 +169,20 @@ const SubscribeApplyPage = () => {
   // 선택된 옵션의 가격
   const getSelectedPrice = () => {
     if (!carInfo) return 0;
-    switch (selectedOption) {
-      case 1:
-        return carInfo.subscription_fee_1;
-      case 3:
-        return carInfo.subscription_fee_3;
-      case 6:
-        return carInfo.subscription_fee_6;
-      case 12:
-        return carInfo.subscription_fee_12;
-      default:
-        return carInfo.subscription_fee_6;
-    }
+    const map: { [k: number]: number | null } = {
+      1: carInfo.subscription_fee_1,
+      3: carInfo.subscription_fee_3,
+      6: carInfo.subscription_fee_6,
+      12: carInfo.subscription_fee_12,
+      24: carInfo.subscription_fee_24,
+      36: carInfo.subscription_fee_36,
+      48: carInfo.subscription_fee_48,
+      60: carInfo.subscription_fee_60,
+      72: carInfo.subscription_fee_72,
+      84: carInfo.subscription_fee_84,
+      96: carInfo.subscription_fee_96,
+    };
+    return map[selectedOption] ?? 0;
   };
 
   const selectedPrice = getSelectedPrice();
@@ -270,43 +310,6 @@ const SubscribeApplyPage = () => {
     setIsModalOpen(false);
     setIsLoading(true);
 
-    // 구독 신청 API 호출
-    const token = localStorage.getItem("subscribeAccessToken");
-    if (!token) {
-      alert("로그인이 필요합니다.");
-      setIsLoading(false);
-      return;
-    }
-
-    const requestData = {
-      month: selectedOption,
-      ...(selectedCouponId ? { coupon_id: selectedCouponId } : {}),
-    };
-
-    fetch(`https://alpha.vahana.kr/subscriptions/cars/${carInfo?.id}/request`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(requestData),
-    })
-      .then((response) => {
-        if (response.status === 201) {
-          setIsLoading(false);
-          setIsSuccessModalOpen(true);
-        } else {
-          throw new Error(`Failed to subscribe: ${response.status}`);
-        }
-      })
-      .catch((err) => {
-        console.error("구독 신청 실패:", err);
-        alert("구독 신청에 실패했습니다.");
-        setIsLoading(false);
-      });
-
-    // 기존 PG 관련 코드 주석 처리
-    /*
     // 구매 준비 API 호출
     postPurchasePrepare({
       packId: id || "",
@@ -315,37 +318,68 @@ const SubscribeApplyPage = () => {
       currency: "KRW",
     })
       .then((res) => {
-        // usePG 훅 사용
-        usePG({
-          orderId: `${res.result.id}-${new Date().getTime()}`,
-          amount: 1,
-          price: selectedPrice || 0,
-          userInfo: {
-            email: "test@test.com",
-            name: "구매자",
-            number: "010-1234-5678",
-            month: selectedOption,
+        // 구독 신청 API 호출 (알림 메일 발송용)
+        const token = localStorage.getItem("subscribeAccessToken");
+        if (token && id) {
+          fetch(`https://alpha.vahana.kr/subscriptions/cars/${id}/request`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              month: selectedOption,
+              ...(selectedCouponId && { coupon_id: selectedCouponId }),
+            }),
+          }).catch((err) => {
+            console.error("구독 신청 API 호출 실패:", err);
+          });
+        }
+
+        // 키움페이 무통장입금/가상계좌입금 결제
+        (window as any).IMP.init("imp61282785");
+
+        (window as any).IMP.request_pay(
+          {
+            channelKey: "channel-key-286b71fe-5b22-4193-9659-048f6000ef8c",
+            pay_method: "vbank",
+            merchant_uid: `${res.result.id}-${new Date().getTime()}`,
+            name: `${currentCar?.brand.name} ${currentCar?.name} ${selectedOption}개월 구독`,
+            // amount: 1000,
+            amount: selectedPrice || 0,
+            buyer_email: userData?.email || "test@test.com",
+            buyer_name: userData?.name || userData?.username || "구매자",
+            buyer_tel: userData?.mobile || "010-1234-5678", // 전화번호는 API에서 제공되지 않으므로 기본값 사용
+            m_redirect_url: window.location.href,
+            digital: false,
+            bypass: {
+              daou: {
+                PRODUCTCODE: "portone",
+                CASHRECEIPTFLAG: 0,
+              },
+            },
           },
-          name: `${currentCar?.brand.name} ${currentCar?.name} ${selectedOption}개월 구독`, // EUC-KR 인코딩 가능한 한글
-          buyer_name: "구매자", // EUC-KR 인코딩 가능한 한글
-          buyer_email: "test@test.com",
-          setIsLoading,
-          setResultCards: (result: any) => {
-            console.log("결제 완료:", result);
-            alert("구독 신청이 완료되었습니다.");
-            navigate("/my");
-          },
-          setIsOpen: () => {},
-          packId: id || "",
-          userInfoCurrency: "KRW",
-        });
+          function (rsp: any) {
+            const { imp_uid, merchant_uid, error_msg, success, imp_success } =
+              rsp;
+            const isSuccess = success || imp_success;
+
+            if (isSuccess) {
+              console.log("결제 완료:", rsp);
+              setIsPaymentSuccessModalOpen(true);
+            } else {
+              console.error("결제 실패:", error_msg);
+              alert("결제에 실패했습니다: " + error_msg);
+            }
+            setIsLoading(false);
+          }
+        );
       })
       .catch((err) => {
         console.error("구매 준비 실패:", err);
         alert("구매 준비에 실패했습니다.");
         setIsLoading(false);
       });
-    */
   };
 
   // 구독 신청하기
@@ -836,26 +870,28 @@ const SubscribeApplyPage = () => {
         </ModalOverlay>
       )}
 
-      {/* 성공 모달 */}
-      {isSuccessModalOpen && (
+      {/* 결제 성공 모달 */}
+      {isPaymentSuccessModalOpen && (
         <ModalOverlay>
-          <SuccessModalContainer>
-            <SuccessModalHeader>
-              <SuccessIcon>✓</SuccessIcon>
-              <SuccessTitle>신청이 완료되었습니다</SuccessTitle>
-              <SuccessSubtitle>담당자가 연락드리겠습니다</SuccessSubtitle>
-            </SuccessModalHeader>
-            <SuccessModalButtons>
-              <SuccessModalButton
+          <PaymentSuccessModalContainer>
+            <PaymentSuccessModalHeader>
+              <PaymentSuccessIcon>✓</PaymentSuccessIcon>
+              <PaymentSuccessTitle>신청이 완료되었습니다</PaymentSuccessTitle>
+              <PaymentSuccessSubtitle>
+                입금 확인 후 담당자가 연락드릴 예정입니다
+              </PaymentSuccessSubtitle>
+            </PaymentSuccessModalHeader>
+            <PaymentSuccessModalButtons>
+              <PaymentSuccessModalButton
                 onClick={() => {
-                  setIsSuccessModalOpen(false);
+                  setIsPaymentSuccessModalOpen(false);
                   navigate("/subscribe/my");
                 }}
               >
                 확인
-              </SuccessModalButton>
-            </SuccessModalButtons>
-          </SuccessModalContainer>
+              </PaymentSuccessModalButton>
+            </PaymentSuccessModalButtons>
+          </PaymentSuccessModalContainer>
         </ModalOverlay>
       )}
     </Container>
@@ -1259,8 +1295,8 @@ const ModalAgreeButton = styled.button`
   }
 `;
 
-// 성공 모달 스타일 컴포넌트
-const SuccessModalContainer = styled.div`
+// 결제 성공 모달 스타일 컴포넌트
+const PaymentSuccessModalContainer = styled.div`
   width: 100%;
   max-width: 400px;
   background: #202020;
@@ -1270,11 +1306,11 @@ const SuccessModalContainer = styled.div`
   text-align: center;
 `;
 
-const SuccessModalHeader = styled.div`
+const PaymentSuccessModalHeader = styled.div`
   margin-bottom: 32px;
 `;
 
-const SuccessIcon = styled.div`
+const PaymentSuccessIcon = styled.div`
   width: 60px;
   height: 60px;
   background: #8cff20;
@@ -1288,26 +1324,27 @@ const SuccessIcon = styled.div`
   font-weight: bold;
 `;
 
-const SuccessTitle = styled.h2`
+const PaymentSuccessTitle = styled.h2`
   font-size: 20px;
   font-weight: 700;
   margin: 0 0 8px 0;
   color: #fff;
 `;
 
-const SuccessSubtitle = styled.p`
+const PaymentSuccessSubtitle = styled.p`
   font-size: 16px;
   font-weight: 500;
   margin: 0;
   color: #c7c4c4;
+  line-height: 1.5;
 `;
 
-const SuccessModalButtons = styled.div`
+const PaymentSuccessModalButtons = styled.div`
   display: flex;
   justify-content: center;
 `;
 
-const SuccessModalButton = styled.button`
+const PaymentSuccessModalButton = styled.button`
   width: 100%;
   height: 48px;
   border: none;
