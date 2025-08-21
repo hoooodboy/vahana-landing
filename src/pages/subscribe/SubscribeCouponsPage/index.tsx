@@ -72,31 +72,79 @@ const SubscribeCouponsPage = () => {
           <Center>로딩 중...</Center>
         ) : error ? (
           <Center>{error}</Center>
-        ) : coupons.length === 0 ? (
-          <Center>보유 중인 쿠폰이 없습니다.</Center>
         ) : (
-          <List>
-            {coupons.map((item) => (
-              <Card key={item.id}>
-                <Row>
-                  <Name>{item.coupon.name}</Name>
-                  <Badge $active={item.is_valid && !item.is_used}>
-                    {item.is_used
-                      ? "사용됨"
-                      : item.is_valid
-                        ? "사용 가능"
-                        : "만료"}
-                  </Badge>
-                </Row>
-                <Desc>{item.coupon.description}</Desc>
-                <Meta>
-                  유효기간:{" "}
-                  {new Date(item.coupon.valid_from).toLocaleDateString()} ~{" "}
-                  {new Date(item.coupon.valid_to).toLocaleDateString()}
-                </Meta>
-              </Card>
-            ))}
-          </List>
+          <>
+            {(() => {
+              const available = coupons.filter((c) => c.is_valid && !c.is_used);
+              const used = coupons.filter((c) => c.is_used || !c.is_valid);
+
+              if (coupons.length === 0) {
+                return <Center>보유 중인 쿠폰이 없습니다.</Center>;
+              }
+
+              return (
+                <>
+                  <SectionTitle>사용 가능 ({available.length})</SectionTitle>
+                  {available.length === 0 ? (
+                    <Center>사용 가능한 쿠폰이 없습니다.</Center>
+                  ) : (
+                    <List>
+                      {available.map((item) => (
+                        <Card key={item.id}>
+                          <Row>
+                            <Name>{item.coupon.name}</Name>
+                            <Badge $active>사용 가능</Badge>
+                          </Row>
+                          <Desc>{item.coupon.description}</Desc>
+                          <Meta>
+                            유효기간:{" "}
+                            {new Date(
+                              item.coupon.valid_from
+                            ).toLocaleDateString()}{" "}
+                            ~{" "}
+                            {new Date(
+                              item.coupon.valid_to
+                            ).toLocaleDateString()}
+                          </Meta>
+                        </Card>
+                      ))}
+                    </List>
+                  )}
+
+                  <SectionTitle style={{ marginTop: 24 }}>
+                    사용됨/만료 ({used.length})
+                  </SectionTitle>
+                  {used.length === 0 ? (
+                    <Center>사용됨/만료된 쿠폰이 없습니다.</Center>
+                  ) : (
+                    <List>
+                      {used.map((item) => (
+                        <Card key={item.id}>
+                          <Row>
+                            <Name>{item.coupon.name}</Name>
+                            <Badge $active={false}>
+                              {item.is_used ? "사용됨" : "만료"}
+                            </Badge>
+                          </Row>
+                          <Desc>{item.coupon.description}</Desc>
+                          <Meta>
+                            유효기간:{" "}
+                            {new Date(
+                              item.coupon.valid_from
+                            ).toLocaleDateString()}{" "}
+                            ~{" "}
+                            {new Date(
+                              item.coupon.valid_to
+                            ).toLocaleDateString()}
+                          </Meta>
+                        </Card>
+                      ))}
+                    </List>
+                  )}
+                </>
+              );
+            })()}
+          </>
         )}
       </Content>
     </Container>
@@ -109,6 +157,7 @@ const Container = styled.div`
   background: #000;
   color: #fff;
   padding-top: 86px;
+  padding-bottom: 338px;
 `;
 
 const Content = styled.div`
@@ -121,6 +170,13 @@ const Title = styled.h1`
   font-size: 24px;
   font-weight: 700;
   margin-bottom: 18px;
+`;
+
+const SectionTitle = styled.h2`
+  font-size: 16px;
+  font-weight: 700;
+  margin: 12px 0;
+  color: #c7c4c4;
 `;
 
 const Center = styled.div`
