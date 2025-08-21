@@ -6,12 +6,12 @@ import { toast } from "react-toastify";
 
 const SubscribeReferrerPage = () => {
   const navigate = useNavigate();
-  const [description, setDescription] = useState("");
+  const [referralCode, setReferralCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async () => {
-    if (!description.trim()) {
-      toast.error("추천인 정보를 입력해주세요.");
+    if (!referralCode.trim()) {
+      toast.error("추천인 코드를 입력해주세요.");
       return;
     }
 
@@ -27,24 +27,19 @@ const SubscribeReferrerPage = () => {
       }
 
       const response = await fetch(
-        "https://alpha.vahana.kr/subscriptions/request",
+        `https://alpha.vahana.kr/users/referrals/${referralCode.trim()}`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${accessToken}`,
           },
-          body: JSON.stringify({
-            description: description.trim(),
-          }),
         }
       );
 
-      if (response.status === 201) {
-        toast.success("추천인 정보가 성공적으로 제출되었습니다! 🎉");
-        setTimeout(() => {
-          navigate("/subscribe/event");
-        }, 2000);
+      if (response.ok) {
+        toast.success("추천인 코드가 등록되었습니다! 🎉");
+        navigate("/subscribe/my");
       } else {
         const errorData = await response.json();
         throw new Error(errorData.message || "제출에 실패했습니다.");
@@ -62,22 +57,22 @@ const SubscribeReferrerPage = () => {
       <Content>
         <LogoSection>
           <Logo>추천인 입력</Logo>
-          <Subtitle>추천인 전화번호를 입력해주세요</Subtitle>
+          <Subtitle>추천인 코드를 입력해주세요</Subtitle>
         </LogoSection>
 
         <FormSection>
           <InputGroup>
-            <InputLabel>추천인 전화번호 *</InputLabel>
+            <InputLabel>추천인 코드 *</InputLabel>
             <TextArea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="추천인 전화번호를 입력해주세요"
+              value={referralCode}
+              onChange={(e) => setReferralCode(e.target.value)}
+              placeholder="추천인 코드를 입력해주세요"
               rows={6}
             />
           </InputGroup>
 
           <SubmitButton
-            disabled={!description.trim() || isLoading}
+            disabled={!referralCode.trim() || isLoading}
             onClick={handleSubmit}
           >
             {isLoading ? "제출 중..." : "제출하기"}
