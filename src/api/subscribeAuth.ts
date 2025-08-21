@@ -130,6 +130,32 @@ export async function verifyEmailCode(email: string, code: string) {
   return data;
 }
 
+// 회원가입 응답 타입
+export interface SubscribeSignupResponse {
+  code: number;
+  user: {
+    id: number;
+    email: string;
+    mobile: string;
+    name: string;
+    username: string;
+    ci_verified: boolean;
+    birthday: string | null;
+    gender: string | null;
+    profile_image: string;
+    referral_code: string;
+    last_access: string;
+    created_at: string;
+    modified_at: string;
+  };
+  message: string;
+  token: {
+    access_token: string;
+    refresh_token: string;
+    expires_in: number;
+  };
+}
+
 // 회원가입
 export async function subscribeSignup(
   name: string,
@@ -137,7 +163,7 @@ export async function subscribeSignup(
   email: string,
   password: string,
   referrerPhone?: string
-) {
+): Promise<SubscribeSignupResponse> {
   const signupData: any = {
     name,
     mobile,

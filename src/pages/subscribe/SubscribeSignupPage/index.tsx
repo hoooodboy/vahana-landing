@@ -6,6 +6,7 @@ import {
   sendVerificationCode,
   verifyEmailCode,
   subscribeSignup,
+  SubscribeSignupResponse,
 } from "@/src/api/subscribeAuth";
 import { toast } from "react-toastify";
 
@@ -98,6 +99,34 @@ const SubscribeSignupPage = () => {
         password,
         referrerPhone.trim()
       );
+
+      // 회원가입 성공 시 추천인 추가 API 호출
+      if (response.token?.access_token && referrerPhone.trim()) {
+        try {
+          const referralResponse = await fetch(
+            `https://alpha.vahana.kr/users/referrals/${referrerPhone.trim()}`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${response.token.access_token}`,
+              },
+            }
+          );
+
+          if (referralResponse.ok) {
+            const referralData = await referralResponse.json();
+            console.log("추천인 추가 성공:", referralData);
+          } else {
+            console.error("추천인 추가 실패:", referralResponse.status);
+          }
+        } catch (referralError) {
+          console.error("추천인 추가 실패:", referralError);
+          // 추천인 추가 실패는 회원가입 성공에 영향을 주지 않음
+        }
+      }
+
+
 
       // 회원가입 성공 시 토스트 메시지 표시
       toast.success("회원가입이 완료되었습니다! 🎉");
@@ -230,7 +259,9 @@ const SubscribeSignupPage = () => {
                 {showPassword ? "숨기기" : "보기"}
               </PasswordToggle>
             </PasswordInputContainer>
-            <ErrorText>비밀번호는 6자 이상이어야 합니다.</ErrorText>
+            {password && password.length < 6 && (
+              <ErrorText>비밀번호는 6자 이상이어야 합니다.</ErrorText>
+            )}
           </InputGroup>
 
           {/* 비밀번호 확인 */}
@@ -256,7 +287,7 @@ const SubscribeSignupPage = () => {
 
           {/* 추천인 전화번호 */}
           <InputGroup>
-            <InputLabel>추천인 전화번호 (선택)</InputLabel>
+            <InputLabel>추천인 코드 (선택)</InputLabel>
             <Input
               value={referrerPhone}
               onChange={(e) => setReferrerPhone(e.target.value)}
