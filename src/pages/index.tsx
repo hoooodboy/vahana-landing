@@ -23,6 +23,7 @@ export { default as SubscribeSuccessPage } from "./subscribe/SubscribeSuccessPag
 export { default as SubscribeIntroPage } from "./subscribe/SubscribeIntroPage";
 export { default as SubscribeFaqPage } from "./subscribe/SubscribeFaqPage";
 export { default as SubscribeLoginPage } from "./subscribe/SubscribeLoginPage";
+export { default as SubscribeSignupPage } from "./subscribe/SubscribeSignupPage";
 export { default as SubscribeKakaoLoadingPage } from "./subscribe/SubscribeKakaoLoadingPage";
 export { default as SubscribeMyPage } from "./subscribe/SubscribeMyPage";
 export { default as SubscribeCouponsPage } from "./subscribe/SubscribeCouponsPage";

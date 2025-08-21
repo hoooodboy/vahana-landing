@@ -129,6 +129,10 @@ function AllRoutes() {
           element: <Pages.SubscribeLoginPage />,
         },
         {
+          path: "/subscribe/signup",
+          element: <Pages.SubscribeSignupPage />,
+        },
+        {
           path: "/subscribe/accounts/kakao",
           element: <Pages.SubscribeKakaoLoadingPage />,
         },
@@ -193,6 +197,10 @@ function AllRoutes() {
         {
           path: "/subscribe/login/*",
           element: <Pages.SubscribeLoginPage />,
+        },
+        {
+          path: "/subscribe/signup",
+          element: <Pages.SubscribeSignupPage />,
         },
         {
           path: "/subscribe/accounts/kakao",
