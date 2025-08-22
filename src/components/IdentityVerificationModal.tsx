@@ -84,8 +84,16 @@ const IdentityVerificationModal: React.FC<IdentityVerificationModalProps> = ({
         toast.success("본인인증이 완료되었습니다!");
         onVerificationComplete?.();
       } else {
-        console.error("본인인증 서버 처리 실패:", serverResponse.status);
-        toast.error("본인인증 처리에 실패했습니다.");
+        // 서버 에러 응답 파싱
+        const errorData = await serverResponse.json();
+        const errorMessage =
+          errorData?.message || "본인인증 처리에 실패했습니다.";
+        console.error(
+          "본인인증 서버 처리 실패:",
+          serverResponse.status,
+          errorMessage
+        );
+        toast.error(errorMessage);
       }
     } catch (error) {
       console.error("본인인증 오류:", error);
