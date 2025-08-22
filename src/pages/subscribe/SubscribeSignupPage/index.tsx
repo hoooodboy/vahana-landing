@@ -789,8 +789,9 @@ const PhoneInputContainer = styled.div`
 
 const IdentityVerifyButton = styled.button`
   min-width: 90px;
-  height: 48px;
-  background: #3e4730;
+  height: 56px;
+  background: rgba(140, 255, 32, 0.1);
+  border: 1px solid rgba(140, 255, 32, 0.3);
   color: white;
   border: none;
   border-radius: 12px;
