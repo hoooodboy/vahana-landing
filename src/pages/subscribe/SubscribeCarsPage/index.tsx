@@ -47,6 +47,7 @@ import "pure-react-carousel/dist/react-carousel.es.css";
 import { setupTokenRefresh } from "@/src/utils/tokenRefresh";
 import IdentityVerificationModal from "@/src/components/IdentityVerificationModal";
 import { useIdentityVerification } from "@/src/hooks/useIdentityVerification";
+import CarRequestModal from "@/src/components/CarRequestModal";
 import {
   getSubscribeCurrentUser,
   SubscribeUser,
@@ -98,6 +99,7 @@ const SubscribeCarsPage = () => {
   const [sortOrder, setSortOrder] = useState<"high" | "low">("high");
   const [user, setUser] = useState<SubscribeUser | null>(null);
   const [userLoading, setUserLoading] = useState(true);
+  const [showCarRequestModal, setShowCarRequestModal] = useState(false);
 
   // 인증 모달 관리
   const { showModal, handleVerificationComplete } = useIdentityVerification({
@@ -235,6 +237,10 @@ const SubscribeCarsPage = () => {
         isVisible={showModal}
         onVerificationComplete={handleVerificationComplete}
       />
+      <CarRequestModal
+        isVisible={showCarRequestModal}
+        onClose={() => setShowCarRequestModal(false)}
+      />
       <TitleContainer>
         <Title>
           클릭 한번으로
@@ -334,6 +340,13 @@ const SubscribeCarsPage = () => {
             );
           })}
         </CarList>
+
+        {/* 차량 요청 버튼 */}
+        <RequestButtonContainer>
+          <RequestButton onClick={() => setShowCarRequestModal(true)}>
+            + 차량요청
+          </RequestButton>
+        </RequestButtonContainer>
       </CarContainer>
     </Container>
   );
@@ -546,6 +559,35 @@ const SubtitleWrapper = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+`;
+
+const RequestButtonContainer = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 32px;
+  /* padding: 0 18px; */
+`;
+
+const RequestButton = styled.button`
+  width: 100%;
+  /* max-width: 200px; */
+  height: 56px;
+  border: 2px solid #8cff20;
+  border-radius: 16px;
+  background: transparent;
+  color: #8cff20;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: #8cff20;
+    color: #000;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(140, 255, 32, 0.3);
+  }
 `;
 
 export default SubscribeCarsPage;

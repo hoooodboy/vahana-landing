@@ -110,3 +110,23 @@ export async function getSubscriptionRequests(
   }
   return await res.json();
 }
+
+export async function requestCarModel(
+  token: string,
+  modelName: string
+): Promise<void> {
+  const res = await fetch(`${BASE_URL}/subscriptions/models/request`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      model: modelName,
+    }),
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(text || `Failed to request car model: ${res.status}`);
+  }
+}
