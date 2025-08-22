@@ -45,6 +45,20 @@ const SubscribeMyPage = () => {
         const me = await getSubscribeCurrentUser(token);
         setUser(me);
       } catch (e: any) {
+        console.error("Error fetching user info:", e);
+
+        // 토큰 만료 에러 체크
+        if (e.message && e.message.includes("token_not_valid")) {
+          console.log("토큰 만료 감지, 로그아웃 처리");
+          clearIdentityVerification();
+          localStorage.removeItem("subscribeAccessToken");
+          localStorage.removeItem("subscribeRefreshToken");
+          localStorage.removeItem("subscribeTokenExpiry");
+          alert("로그인이 만료되었습니다. 다시 로그인해주세요.");
+          navigate("/subscribe/login");
+          return;
+        }
+
         setError(e?.message || "사용자 정보 로드 실패");
       } finally {
         setLoading(false);
@@ -84,8 +98,20 @@ const SubscribeMyPage = () => {
         }
         const data = await response.json();
         setReferrals(data);
-      } catch (err) {
+      } catch (err: any) {
         console.error("Error fetching referrals:", err);
+
+        // 토큰 만료 에러 체크
+        if (err.message && err.message.includes("token_not_valid")) {
+          console.log("토큰 만료 감지, 로그아웃 처리");
+          clearIdentityVerification();
+          localStorage.removeItem("subscribeAccessToken");
+          localStorage.removeItem("subscribeRefreshToken");
+          localStorage.removeItem("subscribeTokenExpiry");
+          alert("로그인이 만료되었습니다. 다시 로그인해주세요.");
+          navigate("/subscribe/login");
+          return;
+        }
       } finally {
         setReferralsLoading(false);
       }
@@ -104,15 +130,27 @@ const SubscribeMyPage = () => {
         setRequestsLoading(true);
         const requests = await getSubscriptionRequests(token);
         setSubscriptionRequests(requests);
-      } catch (err) {
+      } catch (err: any) {
         console.error("Error fetching subscription requests:", err);
+
+        // 토큰 만료 에러 체크
+        if (err.message && err.message.includes("token_not_valid")) {
+          console.log("토큰 만료 감지, 로그아웃 처리");
+          clearIdentityVerification();
+          localStorage.removeItem("subscribeAccessToken");
+          localStorage.removeItem("subscribeRefreshToken");
+          localStorage.removeItem("subscribeTokenExpiry");
+          alert("로그인이 만료되었습니다. 다시 로그인해주세요.");
+          navigate("/subscribe/login");
+          return;
+        }
       } finally {
         setRequestsLoading(false);
       }
     };
 
     fetchSubscriptionRequests();
-  }, []);
+  }, [navigate]);
 
   const onLogout = () => {
     localStorage.removeItem("subscribeAccessToken");
