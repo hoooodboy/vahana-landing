@@ -531,13 +531,14 @@ const Input = styled.input`
 `;
 
 const EmailInputContainer = styled.div`
+  width: 100%;
   display: flex;
   gap: 8px;
   align-items: flex-start;
 `;
 
 const EmailInput = styled.input<{ verified?: boolean }>`
-  flex: 1;
+  width: 100%;
   height: 56px;
   border: 2px solid ${(props) => (props.verified ? "#8cff20" : "#333")};
   border-radius: 16px;

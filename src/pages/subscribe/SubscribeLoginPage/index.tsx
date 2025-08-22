@@ -241,6 +241,7 @@ const ErrorBox = styled.div`
 `;
 
 const FormSection = styled.div`
+  width: 100%;
   margin-bottom: 32px;
 `;
 
