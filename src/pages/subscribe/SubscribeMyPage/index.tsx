@@ -37,16 +37,16 @@ const SubscribeMyPage = () => {
     })();
   }, []);
 
-  // 아임포트 스크립트 로드
+  // PortOne V2 SDK 로드
   useEffect(() => {
     const script = document.createElement("script");
-    script.src = "https://cdn.iamport.kr/v1/iamport.js";
+    script.src = "https://cdn.portone.io/v2/browser-sdk.js";
     script.async = true;
     document.body.appendChild(script);
 
     return () => {
       const existingScript = document.querySelector(
-        'script[src="https://cdn.iamport.kr/v1/iamport.js"]'
+        'script[src="https://cdn.portone.io/v2/browser-sdk.js"]'
       );
       if (existingScript) {
         document.body.removeChild(existingScript);
@@ -123,7 +123,7 @@ const SubscribeMyPage = () => {
   };
 
   // 아임포트 본인인증 요청 함수
-  const handlePortOneVerification = () => {
+  const handlePortOneVerification = async () => {
     const token = localStorage.getItem("subscribeAccessToken");
     if (!token) {
       alert("로그인이 필요합니다.");
@@ -131,80 +131,58 @@ const SubscribeMyPage = () => {
     }
 
     try {
-      // window.IMP 객체가 있는지 확인
-      const { IMP } = window;
-      if (!IMP) {
-        toast.error("아임포트 SDK가 로드되지 않았습니다.");
+      // window.PortOne 객체가 있는지 확인
+      const { PortOne } = window;
+      if (!PortOne) {
+        toast.error("PortOne SDK가 로드되지 않았습니다.");
         return;
       }
 
-      // 아임포트 초기화
-      IMP.init("imp61282785");
+      // 본인인증 요청
+      const response = await PortOne.requestIdentityVerification({
+        // 고객사 storeId로 변경해주세요.
+        storeId: "store-3994153d-0f8c-46ef-bea0-9237d4dc101b",
+        identityVerificationId: `identity-verification-${crypto.randomUUID()}`,
+        // 연동 정보 메뉴의 채널 관리 탭에서 확인 가능합니다.
+        channelKey: "channel-key-1149864d-6a99-45f5-ae45-cac497973f23",
+        redirectUrl: `${window.location.origin}/subscribe/my`,
+      });
 
-      // 전화번호 형식 변환 (하이픈 제거)
-      const phoneNumberWithoutHyphen = user?.mobile?.replace(/-/g, "") || "";
+      // 응답 처리
+      if (response.code !== undefined) {
+        // 오류 발생
+        toast.error(`본인인증 실패: ${response.message}`);
+        return;
+      }
 
-      // 본인인증 데이터 정의
-      const data = {
-        merchant_uid: `mid_${new Date().getTime()}`, // 주문번호
-        company: window.location.host, // 회사명 또는 URL
-        // 통신사 정보 (선택)
-        // carrier: "SKT", // 통신사 (SKT, KT, LGT, MVNO)
-        // 이름, 전화번호 (미리 입력한 경우 전달)
-        // ...(user?.name && { name: user.name }),
-        // ...(phoneNumberWithoutHyphen.length > 0 && {
-        //   phone: phoneNumberWithoutHyphen,
-        // }),
-        // 리다이렉트 URL (모바일 환경에서 필요)
-        m_redirect_url: getCleanRedirectUrl(),
-      };
+      // 성공 시 서버로 인증 ID 전송
+      const serverResponse = await fetch(
+        "https://alpha.vahana.kr/accounts/portone",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            code: response.identityVerificationId,
+          }),
+        }
+      );
 
-      // 본인인증 창 호출
-      IMP.certification(data, callback);
+      if (serverResponse.ok) {
+        toast.success("본인인증이 완료되었습니다!");
+        // 사용자 정보 새로고침
+        window.location.reload();
+      } else {
+        console.error("본인인증 서버 처리 실패:", serverResponse.status);
+        toast.error("본인인증 처리에 실패했습니다.");
+      }
     } catch (error) {
       console.error("본인인증 오류:", error);
       toast.error("본인인증 중 오류가 발생했습니다.");
     }
   };
-
-  // 아임포트 콜백 함수
-  function callback(response: any) {
-    const { success, error_msg, imp_uid } = response;
-    const token = localStorage.getItem("subscribeAccessToken");
-
-    if (success) {
-      console.log("본인인증 성공:", response);
-
-      // 성공 시 서버로 인증 ID 전송
-      fetch("https://alpha.vahana.kr/accounts/portone", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          code: imp_uid,
-        }),
-      })
-        .then((response) => {
-          if (response.ok) {
-            toast.success("본인인증이 완료되었습니다!");
-            // 사용자 정보 새로고침
-            window.location.reload();
-          } else {
-            console.error("본인인증 서버 처리 실패:", response.status);
-            toast.error("본인인증 처리에 실패했습니다.");
-          }
-        })
-        .catch((err) => {
-          console.error("본인인증 API 호출 실패:", err);
-          toast.error("본인인증 처리 중 오류가 발생했습니다.");
-        });
-    } else {
-      console.error("본인인증 실패:", error_msg);
-      toast.error(`본인인증 실패: ${error_msg}`);
-    }
-  }
 
   return (
     <Container>
@@ -597,6 +575,7 @@ const BlackLink = styled.button`
 declare global {
   interface Window {
     IMP: any;
+    PortOne: any;
   }
 }
 
