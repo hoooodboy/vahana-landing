@@ -59,6 +59,7 @@ interface CarData {
   release_date: string;
   mileage: number;
   is_new: boolean;
+  is_hot: boolean;
   subscription_fee_1: number | null;
   subscription_fee_3: number | null;
   subscription_fee_6: number | null;
@@ -274,7 +275,10 @@ const SubscribeCarsPage = () => {
                     <BrandName>{model.brand.name}</BrandName>
                     <CarName>{model.name}</CarName>
                   </HeaderLeft>
-                  {carInfo.is_new && <NewTag>NEW</NewTag>}
+                  <TagContainer>
+                    {carInfo.is_new && <NewTag>NEW</NewTag>}
+                    {carInfo.is_hot && <HotTag>HOT</HotTag>}
+                  </TagContainer>
                 </CardHeader>
 
                 <CardImageContainer>
@@ -462,10 +466,23 @@ const CarName = styled.div`
   line-height: 1;
 `;
 
+const TagContainer = styled.div`
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+`;
+
 const NewTag = styled.div`
   font-size: 20px;
   font-weight: 700;
   color: #8cff20;
+  line-height: 1;
+`;
+
+const HotTag = styled.div`
+  font-size: 20px;
+  font-weight: 700;
+  color: #ff6b6b;
   line-height: 1;
 `;
 
