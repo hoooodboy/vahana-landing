@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Header from "@/src/components/Header";
 import Footer from "@/src/components/Footer";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   getSubscribeCurrentUser,
   getSubscriptionRequests,
@@ -17,6 +17,7 @@ import { clearIdentityVerification } from "@/src/utils/identityVerification";
 
 const SubscribeMyPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [user, setUser] = useState<SubscribeUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -32,6 +33,44 @@ const SubscribeMyPage = () => {
     serverVerified: user?.ciVerified,
     isLoading: loading,
   });
+
+  // PortOne 본인인증 리다이렉트 처리
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const identityVerificationId = urlParams.get("identityVerificationId");
+    const identityVerificationTxId = urlParams.get("identityVerificationTxId");
+    const transactionType = urlParams.get("transactionType");
+
+    // 본인인증 완료 후 리다이렉트인 경우
+    if (
+      identityVerificationId &&
+      identityVerificationTxId &&
+      transactionType === "IDENTITY_VERIFICATION"
+    ) {
+      console.log("PortOne 본인인증 완료 감지");
+
+      // URL 파라미터 제거
+      const cleanUrl = window.location.pathname;
+      window.history.replaceState({}, document.title, cleanUrl);
+
+      // 사용자 정보 새로고침
+      const token = localStorage.getItem("subscribeAccessToken");
+      if (token) {
+        (async () => {
+          try {
+            const me = await getSubscribeCurrentUser(token);
+            setUser(me);
+            // 인증 완료 시 로컬스토리지 업데이트
+            if (me?.ciVerified) {
+              localStorage.setItem("subscribeIdentityVerified", "true");
+            }
+          } catch (e: any) {
+            console.error("Error refreshing user info:", e);
+          }
+        })();
+      }
+    }
+  }, [location.search]);
 
   useEffect(() => {
     const token = localStorage.getItem("subscribeAccessToken");
