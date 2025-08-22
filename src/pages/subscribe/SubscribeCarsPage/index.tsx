@@ -45,6 +45,12 @@ import Cyber from "@/src/assets/cyber.png";
 import { CarouselProvider, Dot, Slide, Slider } from "pure-react-carousel";
 import "pure-react-carousel/dist/react-carousel.es.css";
 import { setupTokenRefresh } from "@/src/utils/tokenRefresh";
+import IdentityVerificationModal from "@/src/components/IdentityVerificationModal";
+import { useIdentityVerification } from "@/src/hooks/useIdentityVerification";
+import {
+  getSubscribeCurrentUser,
+  SubscribeUser,
+} from "@/src/api/subscribeUser";
 
 // API 데이터 타입 정의
 interface CarData {
@@ -89,6 +95,35 @@ const SubscribeCarsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<"high" | "low">("high");
+  const [user, setUser] = useState<SubscribeUser | null>(null);
+  const [userLoading, setUserLoading] = useState(true);
+
+  // 인증 모달 관리
+  const { showModal, handleVerificationComplete } = useIdentityVerification({
+    serverVerified: user?.ciVerified,
+    isLoading: userLoading,
+  });
+
+  // 사용자 정보 가져오기
+  useEffect(() => {
+    const token = localStorage.getItem("subscribeAccessToken");
+    if (!token) {
+      navigate("/subscribe/login");
+      return;
+    }
+
+    (async () => {
+      try {
+        setUserLoading(true);
+        const me = await getSubscribeCurrentUser(token);
+        setUser(me);
+      } catch (e: any) {
+        console.error("사용자 정보 로드 실패:", e);
+      } finally {
+        setUserLoading(false);
+      }
+    })();
+  }, [navigate]);
 
   // 토큰 자동 갱신 설정
   useEffect(() => {
@@ -195,6 +230,10 @@ const SubscribeCarsPage = () => {
   return (
     <Container>
       <Header />
+      <IdentityVerificationModal
+        isVisible={showModal}
+        onVerificationComplete={handleVerificationComplete}
+      />
       <TitleContainer>
         <Title>
           클릭 한번으로

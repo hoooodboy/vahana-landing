@@ -9,6 +9,9 @@ import {
 } from "@/src/api/subscribeUser";
 import { toast } from "react-toastify";
 import { setupTokenRefresh } from "@/src/utils/tokenRefresh";
+import IdentityVerificationModal from "@/src/components/IdentityVerificationModal";
+import { useIdentityVerification } from "@/src/hooks/useIdentityVerification";
+import { clearIdentityVerification } from "@/src/utils/identityVerification";
 
 const SubscribeMyPage = () => {
   const navigate = useNavigate();
@@ -17,6 +20,12 @@ const SubscribeMyPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [referrals, setReferrals] = useState<any>(null);
   const [referralsLoading, setReferralsLoading] = useState(false);
+
+  // 인증 모달 관리
+  const { showModal, handleVerificationComplete } = useIdentityVerification({
+    serverVerified: user?.ciVerified,
+    isLoading: loading,
+  });
 
   useEffect(() => {
     const token = localStorage.getItem("subscribeAccessToken");
@@ -35,23 +44,6 @@ const SubscribeMyPage = () => {
         setLoading(false);
       }
     })();
-  }, []);
-
-  // PortOne V2 SDK 로드
-  useEffect(() => {
-    const script = document.createElement("script");
-    script.src = "https://cdn.portone.io/v2/browser-sdk.js";
-    script.async = true;
-    document.body.appendChild(script);
-
-    return () => {
-      const existingScript = document.querySelector(
-        'script[src="https://cdn.portone.io/v2/browser-sdk.js"]'
-      );
-      if (existingScript) {
-        document.body.removeChild(existingScript);
-      }
-    };
   }, []);
 
   // 토큰 자동 갱신 설정
@@ -99,6 +91,7 @@ const SubscribeMyPage = () => {
   const onLogout = () => {
     localStorage.removeItem("subscribeAccessToken");
     localStorage.removeItem("subscribeRefreshToken");
+    clearIdentityVerification(); // 인증 상태 초기화
     alert("로그아웃되었습니다");
     navigate("/subscribe");
   };
@@ -115,75 +108,6 @@ const SubscribeMyPage = () => {
     }
   };
 
-  // 현재 URL에서 쿼리 파라미터 제거한 기본 경로 가져오기
-  const getCleanRedirectUrl = () => {
-    const url = new URL(window.location.href);
-    url.search = ""; // 모든 쿼리 파라미터 제거
-    return url.toString();
-  };
-
-  // 아임포트 본인인증 요청 함수
-  const handlePortOneVerification = async () => {
-    const token = localStorage.getItem("subscribeAccessToken");
-    if (!token) {
-      alert("로그인이 필요합니다.");
-      return;
-    }
-
-    try {
-      // window.PortOne 객체가 있는지 확인
-      const { PortOne } = window;
-      if (!PortOne) {
-        toast.error("PortOne SDK가 로드되지 않았습니다.");
-        return;
-      }
-
-      // 본인인증 요청
-      const response = await PortOne.requestIdentityVerification({
-        // 고객사 storeId로 변경해주세요.
-        storeId: "store-3994153d-0f8c-46ef-bea0-9237d4dc101b",
-        identityVerificationId: `identity-verification-${crypto.randomUUID()}`,
-        // 연동 정보 메뉴의 채널 관리 탭에서 확인 가능합니다.
-        channelKey: "channel-key-1149864d-6a99-45f5-ae45-cac497973f23",
-        redirectUrl: `${window.location.origin}/subscribe/my`,
-      });
-
-      // 응답 처리
-      if (response.code !== undefined) {
-        // 오류 발생
-        toast.error(`본인인증 실패: ${response.message}`);
-        return;
-      }
-
-      // 성공 시 서버로 인증 ID 전송
-      const serverResponse = await fetch(
-        "https://alpha.vahana.kr/accounts/portone",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            identity_code: response.identityVerificationId,
-          }),
-        }
-      );
-
-      if (serverResponse.ok) {
-        toast.success("본인인증이 완료되었습니다!");
-        // 사용자 정보 새로고침
-        window.location.reload();
-      } else {
-        console.error("본인인증 서버 처리 실패:", serverResponse.status);
-        toast.error("본인인증 처리에 실패했습니다.");
-      }
-    } catch (error) {
-      console.error("본인인증 오류:", error);
-      toast.error("본인인증 중 오류가 발생했습니다.");
-    }
-  };
-
   return (
     <Container>
       <Header />
@@ -194,6 +118,10 @@ const SubscribeMyPage = () => {
           <Center>{error}</Center>
         ) : user ? (
           <>
+            <IdentityVerificationModal
+              isVisible={showModal}
+              onVerificationComplete={handleVerificationComplete}
+            />
             <Card>
               <Row>
                 <Avatar
@@ -311,7 +239,6 @@ const SubscribeMyPage = () => {
           <Center>사용자 정보가 없습니다</Center>
         )}
       </Content>
-      <BlackLink onClick={handlePortOneVerification}>본인인증</BlackLink>
     </Container>
   );
 };
@@ -557,26 +484,5 @@ const ReferralEmptyText = styled.div`
   background: #2f2f2f;
   border-radius: 12px;
 `;
-
-const BlackLink = styled.button`
-  bottom: 20px;
-  right: 20px;
-  color: #000;
-  border: none;
-  border-radius: 50px;
-  padding: 12px 24px;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  background: #000;
-`;
-
-// TypeScript 타입 선언
-declare global {
-  interface Window {
-    IMP: any;
-    PortOne: any;
-  }
-}
 
 export default SubscribeMyPage;
