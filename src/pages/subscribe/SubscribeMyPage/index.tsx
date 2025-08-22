@@ -53,19 +53,49 @@ const SubscribeMyPage = () => {
       const cleanUrl = window.location.pathname;
       window.history.replaceState({}, document.title, cleanUrl);
 
-      // 사용자 정보 새로고침
+      // PortOne 인증 완료 처리
       const token = localStorage.getItem("subscribeAccessToken");
-      if (token) {
+      if (token && identityVerificationId) {
         (async () => {
           try {
-            const me = await getSubscribeCurrentUser(token);
-            setUser(me);
-            // 인증 완료 시 로컬스토리지 업데이트
-            if (me?.ciVerified) {
+            // PortOne 인증 ID를 서버로 전송
+            const response = await fetch(
+              "https://alpha.vahana.kr/accounts/portone",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                  identity_code: identityVerificationId,
+                }),
+              }
+            );
+
+            if (response.ok) {
+              console.log("PortOne 인증 완료 처리 성공");
+
+              // 서버 응답에서 사용자 정보 받아오기
+              const responseData = await response.json();
+              console.log("PortOne 인증 응답:", responseData);
+
+              // 로컬스토리지에 인증 완료 저장
               localStorage.setItem("subscribeIdentityVerified", "true");
+
+              // 사용자 정보 새로고침
+              const me = await getSubscribeCurrentUser(token);
+              setUser(me);
+
+              toast.success("본인인증이 완료되었습니다!");
+            } else {
+              const errorData = await response.json();
+              console.error("PortOne 인증 처리 실패:", errorData);
+              toast.error(errorData.message || "본인인증 처리에 실패했습니다.");
             }
           } catch (e: any) {
-            console.error("Error refreshing user info:", e);
+            console.error("Error processing PortOne verification:", e);
+            toast.error("본인인증 처리 중 오류가 발생했습니다.");
           }
         })();
       }

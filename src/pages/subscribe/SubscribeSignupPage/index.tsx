@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import Header from "@/src/components/Header";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   subscribeSignup,
   SubscribeSignupResponse,
@@ -10,6 +10,7 @@ import { toast } from "react-toastify";
 
 const SubscribeSignupPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   // 폼 상태
   const [name, setName] = useState("");
@@ -53,6 +54,102 @@ const SubscribeSignupPage = () => {
       }
     };
   }, []);
+
+  // PortOne 본인인증 리다이렉트 처리
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const identityVerificationId = urlParams.get("identityVerificationId");
+    const identityVerificationTxId = urlParams.get("identityVerificationTxId");
+    const transactionType = urlParams.get("transactionType");
+
+    // 본인인증 완료 후 리다이렉트인 경우
+    if (
+      identityVerificationId &&
+      identityVerificationTxId &&
+      transactionType === "IDENTITY_VERIFICATION"
+    ) {
+      console.log("PortOne 본인인증 완료 감지");
+
+      // URL 파라미터 제거
+      const cleanUrl = window.location.pathname;
+      window.history.replaceState({}, document.title, cleanUrl);
+
+      // 본인인증 완료 처리
+      setIsIdentityVerified(true);
+      setIdentityVerificationId(identityVerificationId);
+      setSuccessMessage("본인인증이 완료되었습니다.");
+      setError(null);
+
+      // 서버에서 PortOne 인증 결과를 조회해서 사용자 정보 받아오기
+      (async () => {
+        try {
+          const response = await fetch(
+            `https://alpha.vahana.kr/accounts/portone/verify?identityVerificationId=${identityVerificationId}`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
+
+          if (response.ok) {
+            const userData = await response.json();
+            console.log("PortOne 인증된 사용자 정보:", userData);
+
+            // 서버에서 받은 실제 인증된 정보로 폼 업데이트
+            if (userData.name) {
+              setName(userData.name);
+            }
+            if (userData.phone || userData.mobile) {
+              const phone = userData.phone || userData.mobile;
+              // 전화번호 형식 변환 (하이픈 추가)
+              const formattedPhone = formatPhoneNumber(phone);
+              setMobile(formattedPhone);
+            }
+
+            toast.success("본인인증 정보가 자동으로 입력되었습니다.");
+          } else {
+            console.log("PortOne 인증 정보 조회 실패, 사용자 입력 정보 사용");
+          }
+        } catch (error) {
+          console.error("PortOne 인증 정보 조회 오류:", error);
+          // 오류 발생 시 사용자가 입력한 정보 그대로 사용
+        }
+      })();
+    }
+  }, [location.search]);
+
+  // 전화번호 형식 변환 함수
+  const formatPhoneNumber = (value: string) => {
+    // 숫자만 추출
+    const phoneNumber = value.replace(/[^\d]/g, "");
+
+    // 02로 시작하는 경우 (서울)
+    if (phoneNumber.startsWith("02")) {
+      if (phoneNumber.length < 3) {
+        return phoneNumber;
+      } else if (phoneNumber.length < 6) {
+        return `${phoneNumber.slice(0, 2)}-${phoneNumber.slice(2)}`;
+      } else if (phoneNumber.length < 10) {
+        return `${phoneNumber.slice(0, 2)}-${phoneNumber.slice(2, 5)}-${phoneNumber.slice(5)}`;
+      } else {
+        return `${phoneNumber.slice(0, 2)}-${phoneNumber.slice(2, 6)}-${phoneNumber.slice(6, 10)}`;
+      }
+    }
+    // 휴대폰 번호인 경우
+    else {
+      if (phoneNumber.length < 4) {
+        return phoneNumber;
+      } else if (phoneNumber.length < 7) {
+        return `${phoneNumber.slice(0, 3)}-${phoneNumber.slice(3)}`;
+      } else if (phoneNumber.length < 11) {
+        return `${phoneNumber.slice(0, 3)}-${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6)}`;
+      } else {
+        return `${phoneNumber.slice(0, 3)}-${phoneNumber.slice(3, 7)}-${phoneNumber.slice(7, 11)}`;
+      }
+    }
+  };
 
   // 이메일 중복체크
   const handleCheckEmail = async () => {
