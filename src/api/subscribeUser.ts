@@ -14,17 +14,46 @@ export type SubscribeUser = {
 export type SubscriptionRequest = {
   id: number;
   user: number;
-  car: number;
-  model: {
+  car: {
     id: number;
-    brand: {
+    retail_price: number;
+    release_date: string;
+    mileage: number;
+    is_new: boolean;
+    is_hot: boolean;
+    subscription_info: any;
+    subscription_fee_1: number | null;
+    subscription_fee_3: number | null;
+    subscription_fee_6: number | null;
+    subscription_fee_12: number | null;
+    subscription_fee_24: number | null;
+    subscription_fee_36: number | null;
+    subscription_fee_48: number | null;
+    subscription_fee_60: number | null;
+    subscription_fee_72: number | null;
+    subscription_fee_84: number | null;
+    subscription_fee_96: number | null;
+    model: {
       id: number;
+      brand: {
+        id: number;
+        name: string;
+        image: string | null;
+      };
       name: string;
-      image: string | null;
+      image: string;
+      code: string;
     };
-    name: string;
-    image: string;
-    code: string;
+    vin_number: string;
+    license_plate: string | null;
+    description: string;
+    images: string[];
+    is_sellable: boolean;
+    sell_price: number | null;
+    is_subscriptable: boolean;
+    created_at: string;
+    modified_at: string;
+    is_active: boolean;
   };
   month: number;
   created_at: string;

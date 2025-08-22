@@ -264,7 +264,7 @@ const SubscribeMyPage = () => {
                   <RequestItem key={request.id}>
                     <RequestItemInfo>
                       <RequestItemTitle>
-                        {request.model.brand.name} {request.model.name}
+                        {request.car.model.brand.name} {request.car.model.name}
                       </RequestItemTitle>
                       <RequestItemDetails>
                         <RequestDetail>
