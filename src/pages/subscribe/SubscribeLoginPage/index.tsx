@@ -245,6 +245,7 @@ const FormSection = styled.div`
 `;
 
 const InputGroup = styled.div`
+  width: 100%;
   margin-bottom: 20px;
 `;
 

@@ -270,7 +270,11 @@ const SubscribeSignupPage = () => {
                 placeholder="전화번호를 입력해주세요"
                 type="tel"
                 disabled={isIdentityVerified}
-                style={{ background: isIdentityVerified ? "#f5f5f5" : "#fff" }}
+                style={{
+                  background: isIdentityVerified
+                    ? "#2f2f2f"
+                    : "rgba(255, 255, 255, 0.05)",
+                }}
               />
               <IdentityVerifyButton
                 onClick={handleIdentityVerification}
@@ -528,8 +532,8 @@ const Input = styled.input`
 
 const EmailInputContainer = styled.div`
   display: flex;
-  gap: 12px;
-  align-items: flex-end;
+  gap: 8px;
+  align-items: flex-start;
 `;
 
 const EmailInput = styled.input<{ verified?: boolean }>`
@@ -572,6 +576,7 @@ const VerifyButton = styled.button`
   cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
   transition: all 0.3s ease;
   white-space: nowrap;
+  min-width: 90px;
 
   &:hover:not(:disabled) {
     background: #7aff1a;
