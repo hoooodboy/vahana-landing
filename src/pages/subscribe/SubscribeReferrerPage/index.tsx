@@ -1,13 +1,24 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import Header from "@/src/components/Header";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { setupTokenRefresh } from "@/src/utils/tokenRefresh";
 
 const SubscribeReferrerPage = () => {
   const navigate = useNavigate();
   const [referralCode, setReferralCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  // 토큰 자동 갱신 설정
+  useEffect(() => {
+    const interval = setupTokenRefresh();
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, []);
 
   const handleSubmit = async () => {
     if (!referralCode.trim()) {

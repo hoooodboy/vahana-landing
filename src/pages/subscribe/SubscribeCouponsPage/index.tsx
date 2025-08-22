@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Header from "@/src/components/Header";
 import { toast } from "react-toastify";
+import { setupTokenRefresh } from "@/src/utils/tokenRefresh";
 
 type Coupon = {
   id: number;
@@ -35,6 +36,16 @@ const SubscribeCouponsPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [newCode, setNewCode] = useState("");
   const [adding, setAdding] = useState(false);
+
+  // 토큰 자동 갱신 설정
+  useEffect(() => {
+    const interval = setupTokenRefresh();
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const token = localStorage.getItem("subscribeAccessToken");

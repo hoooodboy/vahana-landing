@@ -8,6 +8,7 @@ import {
   SubscribeUser,
 } from "@/src/api/subscribeUser";
 import { toast } from "react-toastify";
+import { setupTokenRefresh } from "@/src/utils/tokenRefresh";
 
 const SubscribeMyPage = () => {
   const navigate = useNavigate();
@@ -49,6 +50,16 @@ const SubscribeMyPage = () => {
       );
       if (existingScript) {
         document.body.removeChild(existingScript);
+      }
+    };
+  }, []);
+
+  // 토큰 자동 갱신 설정
+  useEffect(() => {
+    const interval = setupTokenRefresh();
+    return () => {
+      if (interval) {
+        clearInterval(interval);
       }
     };
   }, []);

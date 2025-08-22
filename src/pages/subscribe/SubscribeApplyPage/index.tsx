@@ -8,6 +8,7 @@ import {
   getSubscribeCurrentUser,
   SubscribeUser,
 } from "../../../api/subscribeUser";
+import { setupTokenRefresh } from "../../../utils/tokenRefresh";
 
 // API 데이터 타입 정의
 interface CarData {
@@ -80,6 +81,16 @@ const SubscribeApplyPage = () => {
   const [isAgreed5, setIsAgreed5] = useState(false);
   const [isAgreed6, setIsAgreed6] = useState(false);
   const [isAgreed7, setIsAgreed7] = useState(false);
+
+  // 토큰 자동 갱신 설정
+  useEffect(() => {
+    const interval = setupTokenRefresh();
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, []);
 
   // API 데이터 가져오기
   useEffect(() => {

@@ -193,22 +193,25 @@ export async function subscribeSignup(
 }
 
 // 토큰 갱신
-export async function refreshSubscribeToken(refreshToken: string) {
-  const res = await fetch(`${BASE_URL}/accounts/refresh`, {
+export async function refreshSubscribeToken(
+  refreshToken: string
+): Promise<SubscribeSignupResponse> {
+  const response = await fetch(`${BASE_URL}/accounts/refresh`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ refresh_token: refreshToken }),
+    body: JSON.stringify({
+      refresh_token: refreshToken,
+    }),
   });
 
-  if (!res.ok) {
-    const errorMessage = handleApiError(res.status);
-    throw new Error(errorMessage);
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || `Token refresh failed: ${response.status}`);
   }
 
-  const data = await res.json();
-  return data;
+  return response.json();
 }
 
 // 로그아웃

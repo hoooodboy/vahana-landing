@@ -44,6 +44,7 @@ import Cyber from "@/src/assets/cyber.png";
 
 import { CarouselProvider, Dot, Slide, Slider } from "pure-react-carousel";
 import "pure-react-carousel/dist/react-carousel.es.css";
+import { setupTokenRefresh } from "@/src/utils/tokenRefresh";
 
 // API 데이터 타입 정의
 interface CarData {
@@ -88,6 +89,16 @@ const SubscribeCarsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<"high" | "low">("high");
+
+  // 토큰 자동 갱신 설정
+  useEffect(() => {
+    const interval = setupTokenRefresh();
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, []);
 
   // API 데이터 가져오기
   useEffect(() => {

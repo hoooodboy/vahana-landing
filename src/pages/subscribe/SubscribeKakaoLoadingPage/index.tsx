@@ -3,6 +3,7 @@ import styled from "styled-components";
 import Header from "@/src/components/Header";
 import { useLocation, useNavigate } from "react-router-dom";
 import { subscribeKakaoExchange } from "@/src/api/subscribeAuth";
+import { saveTokens } from "@/src/utils/tokenRefresh";
 
 const SubscribeKakaoLoadingPage = () => {
   const navigate = useNavigate();
@@ -20,9 +21,8 @@ const SubscribeKakaoLoadingPage = () => {
     (async () => {
       try {
         const res = await subscribeKakaoExchange(code);
-        localStorage.setItem("subscribeAccessToken", res.accessToken);
-        if (res.refreshToken)
-          localStorage.setItem("subscribeRefreshToken", res.refreshToken);
+        // 토큰과 만료 시간 저장 (기본 24시간)
+        saveTokens(res.accessToken, res.refreshToken, 86400);
         navigate("/subscribe");
       } catch (e: any) {
         setError(e?.message || "카카오 로그인 처리 실패");

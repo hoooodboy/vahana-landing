@@ -6,6 +6,7 @@ import {
   subscribeLogin,
   subscribeKakaoExchange,
 } from "@/src/api/subscribeAuth";
+import { saveTokens } from "@/src/utils/tokenRefresh";
 import IcKakao from "@/src/assets/ic-kakao.png";
 
 const KAKAO_CLIENT_ID = "380f187ca9b2e8a5e562fd259d68708e";
@@ -59,13 +60,9 @@ const SubscribeLoginPage = () => {
       const res = await subscribeKakaoExchange(code);
       console.log("API 응답:", res);
 
-      localStorage.setItem("subscribeAccessToken", res.accessToken);
-      console.log("구독 액세스 토큰 저장됨:", res.accessToken);
-
-      if (res.refreshToken) {
-        localStorage.setItem("subscribeRefreshToken", res.refreshToken);
-        console.log("리프레시 토큰 저장됨:", res.refreshToken);
-      }
+      // 토큰과 만료 시간 저장 (기본 24시간)
+      saveTokens(res.accessToken, res.refreshToken, 86400);
+      console.log("구독 토큰 저장됨:", res.accessToken);
 
       console.log("로그인 성공, 리다이렉트 중...");
       navigate("/subscribe/my");
@@ -97,9 +94,8 @@ const SubscribeLoginPage = () => {
     setError(null);
     try {
       const res = await subscribeLogin(email, password);
-      localStorage.setItem("subscribeAccessToken", res.accessToken);
-      if (res.refreshToken)
-        localStorage.setItem("subscribeRefreshToken", res.refreshToken);
+      // 토큰과 만료 시간 저장 (기본 24시간)
+      saveTokens(res.accessToken, res.refreshToken, 86400);
       //   alert("구독 로그인 성공");
       navigate("/subscribe/my");
     } catch (e: any) {
