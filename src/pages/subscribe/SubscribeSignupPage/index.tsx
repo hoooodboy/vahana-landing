@@ -430,7 +430,7 @@ const SubscribeSignupPage = () => {
 const Container = styled.div`
   width: 100%;
   min-height: 100vh;
-  background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+  background: #000;
   color: #fff;
   padding-top: 86px;
   padding-bottom: 338px;
@@ -439,29 +439,25 @@ const Container = styled.div`
 const Content = styled.div`
   max-width: 480px;
   margin: 0 auto;
-  padding: 48px 24px 80px;
+  padding: 24px 18px 80px;
 `;
 
 const LogoSection = styled.div`
   text-align: center;
-  margin-bottom: 48px;
+  margin-bottom: 32px;
 `;
 
 const Logo = styled.h1`
-  font-size: 32px;
+  font-size: 28px;
   font-weight: 800;
-  /* background: linear-gradient(135deg, #8cff20 0%, #7aff1a 100%); */
   color: #fff;
-  /* -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text; */
-  margin-bottom: 8px;
+  margin: 0;
 `;
 
 const Subtitle = styled.p`
   font-size: 16px;
   color: #c7c4c4;
-  font-weight: 500;
+  margin: 8px 0 0 0;
 `;
 
 const ErrorBox = styled.div`
@@ -485,7 +481,10 @@ const SuccessBox = styled.div`
 `;
 
 const FormSection = styled.div`
-  margin-bottom: 32px;
+  background: #202020;
+  border-radius: 20px;
+  padding: 24px;
+  margin-bottom: 24px;
 `;
 
 const InputGroup = styled.div`
@@ -720,7 +719,7 @@ const CheckboxLabel = styled.label`
   align-items: center;
   gap: 8px;
   font-size: 14px;
-  color: #fff;
+  color: #c7c4c4;
   cursor: pointer;
   flex: 1;
 `;
@@ -772,7 +771,7 @@ const LoginSection = styled.div`
 
 const LoginText = styled.p`
   font-size: 14px;
-  color: #666;
+  color: #c7c4c4;
   margin-bottom: 8px;
 `;
 

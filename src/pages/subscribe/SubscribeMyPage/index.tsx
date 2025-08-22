@@ -5,7 +5,9 @@ import Footer from "@/src/components/Footer";
 import { useNavigate } from "react-router-dom";
 import {
   getSubscribeCurrentUser,
+  getSubscriptionRequests,
   SubscribeUser,
+  SubscriptionRequest,
 } from "@/src/api/subscribeUser";
 import { toast } from "react-toastify";
 import { setupTokenRefresh } from "@/src/utils/tokenRefresh";
@@ -20,6 +22,10 @@ const SubscribeMyPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [referrals, setReferrals] = useState<any>(null);
   const [referralsLoading, setReferralsLoading] = useState(false);
+  const [subscriptionRequests, setSubscriptionRequests] = useState<
+    SubscriptionRequest[]
+  >([]);
+  const [requestsLoading, setRequestsLoading] = useState(false);
 
   // 인증 모달 관리
   const { showModal, handleVerificationComplete } = useIdentityVerification({
@@ -86,6 +92,26 @@ const SubscribeMyPage = () => {
     };
 
     fetchReferrals();
+  }, []);
+
+  // 차량 신청 리스트 가져오기
+  useEffect(() => {
+    const fetchSubscriptionRequests = async () => {
+      const token = localStorage.getItem("subscribeAccessToken");
+      if (!token) return;
+
+      try {
+        setRequestsLoading(true);
+        const requests = await getSubscriptionRequests(token);
+        setSubscriptionRequests(requests);
+      } catch (err) {
+        console.error("Error fetching subscription requests:", err);
+      } finally {
+        setRequestsLoading(false);
+      }
+    };
+
+    fetchSubscriptionRequests();
   }, []);
 
   const onLogout = () => {
@@ -225,6 +251,64 @@ const SubscribeMyPage = () => {
                 )}
               </ReferralSection>
             </ReferralListCard>
+
+            {/* 차량 신청 리스트 */}
+            <RequestListCard>
+              <RequestListTitle>
+                내 신청 차량 ({subscriptionRequests.length}대)
+              </RequestListTitle>
+              {requestsLoading ? (
+                <RequestLoadingText>로딩 중...</RequestLoadingText>
+              ) : subscriptionRequests.length > 0 ? (
+                subscriptionRequests.map((request, index) => (
+                  <RequestItem key={request.id}>
+                    <RequestItemInfo>
+                      <RequestItemTitle>
+                        {request.model.brand.name} {request.model.name}
+                      </RequestItemTitle>
+                      <RequestItemDetails>
+                        <RequestDetail>
+                          <RequestDetailLabel>구독 기간:</RequestDetailLabel>
+                          <RequestDetailValue>
+                            {request.month}개월
+                          </RequestDetailValue>
+                        </RequestDetail>
+                        <RequestDetail>
+                          <RequestDetailLabel>신청일:</RequestDetailLabel>
+                          <RequestDetailValue>
+                            {new Date(request.created_at).toLocaleDateString(
+                              "ko-KR"
+                            )}
+                          </RequestDetailValue>
+                        </RequestDetail>
+                        {request.coupon && (
+                          <RequestDetail>
+                            <RequestDetailLabel>사용 쿠폰:</RequestDetailLabel>
+                            <RequestDetailValue>
+                              {request.coupon.coupon.name} (
+                              {request.coupon.coupon.code})
+                            </RequestDetailValue>
+                          </RequestDetail>
+                        )}
+                      </RequestItemDetails>
+                    </RequestItemInfo>
+                    <RequestStatus>
+                      {request.coupon ? (
+                        <RequestStatusBadge $used={true}>
+                          쿠폰 사용됨
+                        </RequestStatusBadge>
+                      ) : (
+                        <RequestStatusBadge $used={false}>
+                          신청 완료
+                        </RequestStatusBadge>
+                      )}
+                    </RequestStatus>
+                  </RequestItem>
+                ))
+              ) : (
+                <RequestEmptyText>아직 신청한 차량이 없습니다</RequestEmptyText>
+              )}
+            </RequestListCard>
             <Actions>
               <ActionButton onClick={() => navigate("/subscribe/coupons")}>
                 쿠폰함 보기
@@ -477,6 +561,102 @@ const ReferralLoadingText = styled.div`
 `;
 
 const ReferralEmptyText = styled.div`
+  font-size: 12px;
+  color: #c7c4c4;
+  text-align: center;
+  padding: 20px 0;
+  background: #2f2f2f;
+  border-radius: 12px;
+`;
+
+// 차량 신청 리스트 스타일 컴포넌트
+const RequestListCard = styled.div`
+  background: #202020;
+  border-radius: 20px;
+  padding: 18px;
+  margin: 12px 0 24px;
+`;
+
+const RequestListTitle = styled.div`
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: #fff;
+`;
+
+const RequestItem = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 16px;
+  background: #2f2f2f;
+  border-radius: 12px;
+  margin-bottom: 12px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+`;
+
+const RequestItemInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+`;
+
+const RequestItemTitle = styled.div`
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+`;
+
+const RequestItemDetails = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+`;
+
+const RequestDetail = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const RequestDetailLabel = styled.div`
+  font-size: 12px;
+  color: #c7c4c4;
+  min-width: 60px;
+`;
+
+const RequestDetailValue = styled.div`
+  font-size: 12px;
+  color: #fff;
+  font-weight: 500;
+`;
+
+const RequestStatus = styled.div`
+  display: flex;
+  align-items: flex-start;
+`;
+
+const RequestStatusBadge = styled.div<{ $used: boolean }>`
+  font-size: 10px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 8px;
+  color: ${(p) => (p.$used ? "#000" : "#fff")};
+  background: ${(p) => (p.$used ? "#8cff20" : "#666")};
+`;
+
+const RequestLoadingText = styled.div`
+  font-size: 12px;
+  color: #c7c4c4;
+  text-align: center;
+  padding: 20px 0;
+`;
+
+const RequestEmptyText = styled.div`
   font-size: 12px;
   color: #c7c4c4;
   text-align: center;

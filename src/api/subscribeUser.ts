@@ -11,6 +11,56 @@ export type SubscribeUser = {
   referralCode?: string;
 };
 
+export type SubscriptionRequest = {
+  id: number;
+  user: number;
+  car: number;
+  model: {
+    id: number;
+    brand: {
+      id: number;
+      name: string;
+      image: string | null;
+    };
+    name: string;
+    image: string;
+    code: string;
+  };
+  month: number;
+  created_at: string;
+  modified_at: string;
+  coupon: {
+    id: number;
+    user: number;
+    coupon: {
+      id: number;
+      code: string;
+      name: string;
+      description: string;
+      brand_ids: number[];
+      model_ids: number[];
+      car_ids: number[];
+      discount_type: string;
+      discount_rate: number;
+      max_discount: number;
+      discount: number | null;
+      min_price: number;
+      max_price: number;
+      min_month: number;
+      max_month: number;
+      valid_from: string;
+      valid_to: string;
+      is_specific: boolean;
+    };
+    is_active: boolean;
+    is_used: boolean;
+    is_valid: boolean;
+    created_at: string;
+    used_at: string;
+  } | null;
+  is_active: boolean;
+};
+
 export async function getSubscribeCurrentUser(
   token: string
 ): Promise<SubscribeUser> {
@@ -40,4 +90,23 @@ export async function getSubscribeCurrentUser(
     referralCode: u.referral_code,
   };
   return mapped;
+}
+
+export async function getSubscriptionRequests(
+  token: string
+): Promise<SubscriptionRequest[]> {
+  const res = await fetch(`${BASE_URL}/subscriptions/requests`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(
+      text || `Failed to load subscription requests: ${res.status}`
+    );
+  }
+  return await res.json();
 }
