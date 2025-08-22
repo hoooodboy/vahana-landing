@@ -12,13 +12,41 @@ const SubscribeSignupPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // 초기 폼 데이터 구성
+  const getInitialFormData = () => {
+    // 세션 스토리지에서 저장된 값 가져오기
+    const savedFormData = sessionStorage.getItem("signupFormData");
+
+    if (savedFormData) {
+      try {
+        return JSON.parse(savedFormData);
+      } catch (e) {
+        console.error("저장된 폼 데이터 파싱 오류:", e);
+      }
+    }
+
+    // 기본값
+    return {
+      name: "",
+      mobile: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      referrerPhone: "",
+    };
+  };
+
   // 폼 상태
-  const [name, setName] = useState("");
-  const [mobile, setMobile] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [referrerPhone, setReferrerPhone] = useState("");
+  const [name, setName] = useState(getInitialFormData().name);
+  const [mobile, setMobile] = useState(getInitialFormData().mobile);
+  const [email, setEmail] = useState(getInitialFormData().email);
+  const [password, setPassword] = useState(getInitialFormData().password);
+  const [confirmPassword, setConfirmPassword] = useState(
+    getInitialFormData().confirmPassword
+  );
+  const [referrerPhone, setReferrerPhone] = useState(
+    getInitialFormData().referrerPhone
+  );
 
   // UI 상태
   const [isLoading, setIsLoading] = useState(false);
@@ -80,45 +108,24 @@ const SubscribeSignupPage = () => {
       setSuccessMessage("본인인증이 완료되었습니다.");
       setError(null);
 
-      // 서버에서 PortOne 인증 결과를 조회해서 사용자 정보 받아오기
-      (async () => {
-        try {
-          const response = await fetch(
-            `https://alpha.vahana.kr/accounts/portone/verify?identityVerificationId=${identityVerificationId}`,
-            {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-              },
-            }
-          );
-
-          if (response.ok) {
-            const userData = await response.json();
-            console.log("PortOne 인증된 사용자 정보:", userData);
-
-            // 서버에서 받은 실제 인증된 정보로 폼 업데이트
-            if (userData.name) {
-              setName(userData.name);
-            }
-            if (userData.phone || userData.mobile) {
-              const phone = userData.phone || userData.mobile;
-              // 전화번호 형식 변환 (하이픈 추가)
-              const formattedPhone = formatPhoneNumber(phone);
-              setMobile(formattedPhone);
-            }
-
-            toast.success("본인인증 정보가 자동으로 입력되었습니다.");
-          } else {
-            console.log("PortOne 인증 정보 조회 실패, 사용자 입력 정보 사용");
-          }
-        } catch (error) {
-          console.error("PortOne 인증 정보 조회 오류:", error);
-          // 오류 발생 시 사용자가 입력한 정보 그대로 사용
-        }
-      })();
+      // 본인인증 완료 처리
+      console.log("본인인증 완료");
+      toast.success("본인인증이 완료되었습니다!");
     }
   }, [location.search]);
+
+  // 폼 데이터가 변경될 때마다 세션 스토리지에 저장
+  useEffect(() => {
+    const formData = {
+      name,
+      mobile,
+      email,
+      password,
+      confirmPassword,
+      referrerPhone,
+    };
+    sessionStorage.setItem("signupFormData", JSON.stringify(formData));
+  }, [name, mobile, email, password, confirmPassword, referrerPhone]);
 
   // 전화번호 형식 변환 함수
   const formatPhoneNumber = (value: string) => {
@@ -205,6 +212,17 @@ const SubscribeSignupPage = () => {
     }
 
     if (isIdentityVerifying) return;
+
+    // 본인인증 전에 현재 입력 정보를 세션 스토리지에 저장
+    sessionStorage.setItem(
+      "signupFormData",
+      JSON.stringify({
+        name: name.trim(),
+        mobile: mobile.trim(),
+        email: email.trim(),
+        referrerPhone: referrerPhone.trim(),
+      })
+    );
 
     setIsIdentityVerifying(true);
     setError(null);
@@ -298,6 +316,10 @@ const SubscribeSignupPage = () => {
       toast.success("회원가입이 완료되었습니다! 🎉");
 
       setSuccessMessage("회원가입이 완료되었습니다.");
+
+      // 세션 스토리지 정리
+      sessionStorage.removeItem("signupFormData");
+
       // 즉시 로그인 페이지로 이동 (대기 시간 제거)
       navigate("/subscribe/login");
     } catch (e: any) {
@@ -354,6 +376,7 @@ const SubscribeSignupPage = () => {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="이름을 입력해주세요"
+              disabled={isIdentityVerified}
             />
           </InputGroup>
 
