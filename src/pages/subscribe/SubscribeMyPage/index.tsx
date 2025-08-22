@@ -165,7 +165,7 @@ const SubscribeMyPage = () => {
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
-            code: response.identityVerificationId,
+            identity_code: response.identityVerificationId,
           }),
         }
       );
