@@ -162,6 +162,7 @@ export async function subscribeSignup(
   mobile: string,
   email: string,
   password: string,
+  identity_code: string,
   referrerPhone?: string
 ): Promise<SubscribeSignupResponse> {
   const signupData: any = {
@@ -169,6 +170,7 @@ export async function subscribeSignup(
     mobile,
     email,
     password,
+    identity_code,
   };
 
   if (referrerPhone && referrerPhone.trim()) {

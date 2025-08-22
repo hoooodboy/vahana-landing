@@ -1,10 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import Header from "@/src/components/Header";
 import { useNavigate } from "react-router-dom";
 import {
-  sendVerificationCode,
-  verifyEmailCode,
   subscribeSignup,
   SubscribeSignupResponse,
 } from "@/src/api/subscribeAuth";
@@ -17,7 +15,6 @@ const SubscribeSignupPage = () => {
   const [name, setName] = useState("");
   const [mobile, setMobile] = useState("");
   const [email, setEmail] = useState("");
-  const [verificationCode, setVerificationCode] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [referrerPhone, setReferrerPhone] = useState("");
@@ -25,7 +22,6 @@ const SubscribeSignupPage = () => {
   // UI 상태
   const [isLoading, setIsLoading] = useState(false);
   const [isEmailVerified, setIsEmailVerified] = useState(false);
-  const [isVerificationCodeSent, setIsVerificationCodeSent] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -36,8 +32,30 @@ const SubscribeSignupPage = () => {
   const [agreeToPrivacy, setAgreeToPrivacy] = useState(false);
   const [agreeToMarketing, setAgreeToMarketing] = useState(false);
 
-  // 인증 코드 발송
-  const handleSendVerificationCode = async () => {
+  // 본인인증 상태
+  const [isIdentityVerified, setIsIdentityVerified] = useState(false);
+  const [isIdentityVerifying, setIsIdentityVerifying] = useState(false);
+  const [identityVerificationId, setIdentityVerificationId] = useState("");
+
+  // PortOne V2 SDK 로드
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://cdn.portone.io/v2/browser-sdk.js";
+    script.async = true;
+    document.body.appendChild(script);
+
+    return () => {
+      const existingScript = document.querySelector(
+        'script[src="https://cdn.portone.io/v2/browser-sdk.js"]'
+      );
+      if (existingScript) {
+        document.body.removeChild(existingScript);
+      }
+    };
+  }, []);
+
+  // 이메일 중복체크
+  const handleCheckEmail = async () => {
     if (!email.trim()) {
       setError("이메일을 입력해주세요.");
       setSuccessMessage(null);
@@ -48,39 +66,91 @@ const SubscribeSignupPage = () => {
     setError(null);
 
     try {
-      await sendVerificationCode(email.trim());
-      setIsVerificationCodeSent(true);
-      setSuccessMessage("인증 코드가 발송되었습니다.");
-      setError(null);
+      const response = await fetch(
+        "https://alpha.vahana.kr/accounts/check-email",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: email.trim(),
+          }),
+        }
+      );
+
+      if (response.ok) {
+        // 이메일 사용 가능
+        setIsEmailVerified(true);
+        setSuccessMessage("사용 가능한 이메일입니다.");
+        setError(null);
+      } else {
+        // 이메일 중복
+        const errorData = await response.json();
+        setError(errorData.message || "이미 사용 중인 이메일입니다.");
+        setSuccessMessage(null);
+        setIsEmailVerified(false);
+      }
     } catch (e: any) {
-      setError(`인증 코드 발송에 실패했습니다: ${e.message}`);
+      setError(`이메일 중복체크에 실패했습니다: ${e.message}`);
       setSuccessMessage(null);
+      setIsEmailVerified(false);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // 이메일 인증
-  const handleVerifyEmail = async () => {
-    if (!verificationCode.trim()) {
-      setError("인증 코드를 입력해주세요.");
-      setSuccessMessage(null);
+  // 본인인증 요청
+  const handleIdentityVerification = async () => {
+    if (!name.trim() || !mobile.trim()) {
+      setError("이름과 전화번호를 먼저 입력해주세요.");
       return;
     }
 
-    setIsLoading(true);
+    if (isIdentityVerifying) return;
+
+    setIsIdentityVerifying(true);
     setError(null);
 
     try {
-      await verifyEmailCode(email.trim(), verificationCode.trim());
-      setIsEmailVerified(true);
-      setSuccessMessage("이메일 인증이 완료되었습니다.");
+      const { PortOne } = window;
+      if (!PortOne) {
+        setError("PortOne SDK가 로드되지 않았습니다.");
+        setIsIdentityVerifying(false);
+        return;
+      }
+
+      const phoneNumberWithoutHyphen = mobile.replace(/-/g, "");
+
+      // 본인인증 요청
+      const response = await PortOne.requestIdentityVerification({
+        storeId: "store-3994153d-0f8c-46ef-bea0-9237d4dc101b",
+        identityVerificationId: `identity-verification-${crypto.randomUUID()}`,
+        channelKey: "channel-key-1149864d-6a99-45f5-ae45-cac497973f23",
+        redirectUrl: `${window.location.origin}/subscribe/signup`,
+
+        customer: {
+          fullName: name.trim(),
+          phoneNumber: phoneNumberWithoutHyphen,
+        },
+      });
+
+      if (response.code !== undefined) {
+        setError(`본인인증 실패: ${response.message}`);
+        setIsIdentityVerifying(false);
+        return;
+      }
+
+      // 성공 처리
+      setIsIdentityVerified(true);
+      setIdentityVerificationId(response.identityVerificationId);
+      setSuccessMessage("본인인증이 완료되었습니다.");
       setError(null);
-    } catch (e: any) {
-      setError(`인증 코드가 올바르지 않습니다: ${e.message}`);
-      setSuccessMessage(null);
+    } catch (error) {
+      console.error("본인인증 오류:", error);
+      setError("본인인증 중 오류가 발생했습니다.");
     } finally {
-      setIsLoading(false);
+      setIsIdentityVerifying(false);
     }
   };
 
@@ -97,6 +167,7 @@ const SubscribeSignupPage = () => {
         mobile.trim(),
         email.trim(),
         password,
+        identityVerificationId,
         referrerPhone.trim()
       );
 
@@ -126,15 +197,12 @@ const SubscribeSignupPage = () => {
         }
       }
 
-
-
       // 회원가입 성공 시 토스트 메시지 표시
       toast.success("회원가입이 완료되었습니다! 🎉");
 
       setSuccessMessage("회원가입이 완료되었습니다.");
-      setTimeout(() => {
-        navigate("/subscribe/login");
-      }, 2000);
+      // 즉시 로그인 페이지로 이동 (대기 시간 제거)
+      navigate("/subscribe/login");
     } catch (e: any) {
       setError(`회원가입에 실패했습니다: ${e.message}`);
       setSuccessMessage(null);
@@ -148,6 +216,7 @@ const SubscribeSignupPage = () => {
     name.trim() &&
     mobile.trim() &&
     isEmailVerified &&
+    isIdentityVerified &&
     password === confirmPassword &&
     password.length >= 6 &&
     agreeToTerms &&
@@ -194,15 +263,37 @@ const SubscribeSignupPage = () => {
           {/* 전화번호 입력 */}
           <InputGroup>
             <InputLabel>전화번호 *</InputLabel>
-            <Input
-              value={mobile}
-              onChange={(e) => setMobile(e.target.value)}
-              placeholder="전화번호를 입력해주세요"
-              type="tel"
-            />
+            <PhoneInputContainer>
+              <Input
+                value={mobile}
+                onChange={(e) => setMobile(e.target.value)}
+                placeholder="전화번호를 입력해주세요"
+                type="tel"
+                disabled={isIdentityVerified}
+                style={{ background: isIdentityVerified ? "#f5f5f5" : "#fff" }}
+              />
+              <IdentityVerifyButton
+                onClick={handleIdentityVerification}
+                disabled={
+                  !name.trim() ||
+                  !mobile.trim() ||
+                  isIdentityVerified ||
+                  isIdentityVerifying
+                }
+              >
+                {isIdentityVerified
+                  ? "인증완료"
+                  : isIdentityVerifying
+                    ? "인증중..."
+                    : "본인인증"}
+              </IdentityVerifyButton>
+            </PhoneInputContainer>
+            {isIdentityVerified && (
+              <SuccessText>본인인증이 완료되었습니다.</SuccessText>
+            )}
           </InputGroup>
 
-          {/* 이메일 입력 및 인증 */}
+          {/* 이메일 입력 및 중복체크 */}
           <InputGroup>
             <InputLabel>이메일 *</InputLabel>
             <EmailInputContainer>
@@ -215,35 +306,17 @@ const SubscribeSignupPage = () => {
                 verified={isEmailVerified}
               />
               <VerifyButton
-                onClick={handleSendVerificationCode}
+                onClick={handleCheckEmail}
                 disabled={isEmailVerified || isLoading}
               >
                 {isLoading
-                  ? "발송중..."
+                  ? "확인중..."
                   : isEmailVerified
-                    ? "인증완료"
-                    : "인증하기"}
+                    ? "사용가능"
+                    : "중복체크"}
               </VerifyButton>
             </EmailInputContainer>
           </InputGroup>
-
-          {/* 인증번호 입력 */}
-          {isVerificationCodeSent && !isEmailVerified && (
-            <InputGroup>
-              <InputLabel>인증번호 *</InputLabel>
-              <VerificationInputContainer>
-                <Input
-                  value={verificationCode}
-                  onChange={(e) => setVerificationCode(e.target.value)}
-                  placeholder="인증번호를 입력해주세요"
-                  type="text"
-                />
-                <VerifyCodeButton onClick={handleVerifyEmail}>
-                  확인
-                </VerifyCodeButton>
-              </VerificationInputContainer>
-            </InputGroup>
-          )}
 
           {/* 비밀번호 입력 */}
           <InputGroup>
@@ -583,6 +656,40 @@ const ErrorText = styled.div`
   margin-top: 4px;
 `;
 
+const PhoneInputContainer = styled.div`
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+`;
+
+const IdentityVerifyButton = styled.button`
+  min-width: 90px;
+  height: 48px;
+  background: #3e4730;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  &:disabled {
+    background: #c6c6c6;
+    cursor: not-allowed;
+  }
+
+  &:hover:not(:disabled) {
+    background: #2e3520;
+  }
+`;
+
+const SuccessText = styled.div`
+  color: #8cff20;
+  font-size: 12px;
+  margin-top: 4px;
+`;
+
 const TermsSection = styled.div`
   margin: 32px 0;
 `;
@@ -683,5 +790,12 @@ const LoginLink = styled.button`
     color: #7aff1a;
   }
 `;
+
+// TypeScript 타입 선언
+declare global {
+  interface Window {
+    PortOne: any;
+  }
+}
 
 export default SubscribeSignupPage;
