@@ -53,7 +53,7 @@ const IdentityVerificationModal: React.FC<IdentityVerificationModalProps> = ({
         identityVerificationId: `identity-verification-${crypto.randomUUID()}`,
         // 연동 정보 메뉴의 채널 관리 탭에서 확인 가능합니다.
         channelKey: "channel-key-1149864d-6a99-45f5-ae45-cac497973f23",
-        redirectUrl: `${window.location.origin}/my`,
+        redirectUrl: `${window.location.origin}/subscribe/my`,
       });
 
       // 응답 처리
