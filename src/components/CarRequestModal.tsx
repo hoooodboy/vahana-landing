@@ -29,7 +29,7 @@ const CarRequestModal: React.FC<CarRequestModalProps> = ({
 
     try {
       setIsSubmitting(true);
-      await requestCarModel(token, modelName.trim());
+      await requestCarModel(modelName.trim());
       toast.success("차량 요청이 완료되었습니다!");
       setModelName("");
       onClose();

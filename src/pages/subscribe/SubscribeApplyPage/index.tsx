@@ -125,7 +125,7 @@ const SubscribeApplyPage = () => {
       if (!token) return;
 
       try {
-        const user = await getSubscribeCurrentUser(token);
+        const user = await getSubscribeCurrentUser();
         setUserData(user);
       } catch (err) {
         console.error("Error fetching user data:", err);
