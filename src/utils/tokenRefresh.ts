@@ -90,19 +90,11 @@ export const saveTokens = (
   localStorage.setItem("subscribeTokenExpiry", expiryTime.toString());
 };
 
-// 주기적 토큰 갱신 설정
+// 주기적 토큰 갱신 설정 (API 호출 시 자동 리프레시로 대체)
 export const setupTokenRefresh = () => {
-  // 1분마다 토큰 상태 확인
-  const interval = setInterval(async () => {
-    await refreshTokenIfNeeded();
-  }, 60000); // 1분
-
-  // 페이지 언로드 시 인터벌 정리
-  window.addEventListener("beforeunload", () => {
-    clearInterval(interval);
-  });
-
-  return interval;
+  console.log("🔄 API 호출 시 자동 토큰 리프레시 설정 완료");
+  // 주기적 체크 대신 API 호출 시 자동으로 토큰 리프레시 처리
+  return null;
 };
 
 // 기존 코드와의 호환성을 위한 함수들

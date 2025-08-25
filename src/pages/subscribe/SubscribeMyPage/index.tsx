@@ -84,7 +84,7 @@ const SubscribeMyPage = () => {
               localStorage.setItem("subscribeIdentityVerified", "true");
 
               // 사용자 정보 새로고침
-              const me = await getSubscribeCurrentUser(token);
+              const me = await getSubscribeCurrentUser();
               setUser(me);
 
               toast.success("본인인증이 완료되었습니다!");
@@ -105,13 +105,15 @@ const SubscribeMyPage = () => {
   useEffect(() => {
     const token = localStorage.getItem("subscribeAccessToken");
     if (!token) {
-      navigate("/subscribe/login");
+      // 토큰이 없으면 로그인 페이지로 리다이렉트하지 않고 로그인 상태만 표시
+      setLoading(false);
+      setError("로그인이 필요합니다.");
       return;
     }
     (async () => {
       try {
         setLoading(true);
-        const me = await getSubscribeCurrentUser(token);
+        const me = await getSubscribeCurrentUser();
         setUser(me);
       } catch (e: any) {
         console.error("Error fetching user info:", e);
@@ -123,8 +125,7 @@ const SubscribeMyPage = () => {
           localStorage.removeItem("subscribeAccessToken");
           localStorage.removeItem("subscribeRefreshToken");
           localStorage.removeItem("subscribeTokenExpiry");
-          alert("로그인이 만료되었습니다. 다시 로그인해주세요.");
-          navigate("/subscribe/login");
+          setError("로그인이 만료되었습니다. 다시 로그인해주세요.");
           return;
         }
 
@@ -177,8 +178,7 @@ const SubscribeMyPage = () => {
           localStorage.removeItem("subscribeAccessToken");
           localStorage.removeItem("subscribeRefreshToken");
           localStorage.removeItem("subscribeTokenExpiry");
-          alert("로그인이 만료되었습니다. 다시 로그인해주세요.");
-          navigate("/subscribe/login");
+          console.log("로그인이 만료되었습니다. 다시 로그인해주세요.");
           return;
         }
       } finally {
@@ -197,7 +197,7 @@ const SubscribeMyPage = () => {
 
       try {
         setRequestsLoading(true);
-        const requests = await getSubscriptionRequests(token);
+        const requests = await getSubscriptionRequests();
         setSubscriptionRequests(requests);
       } catch (err: any) {
         console.error("Error fetching subscription requests:", err);
@@ -209,8 +209,7 @@ const SubscribeMyPage = () => {
           localStorage.removeItem("subscribeAccessToken");
           localStorage.removeItem("subscribeRefreshToken");
           localStorage.removeItem("subscribeTokenExpiry");
-          alert("로그인이 만료되었습니다. 다시 로그인해주세요.");
-          navigate("/subscribe/login");
+          console.log("로그인이 만료되었습니다. 다시 로그인해주세요.");
           return;
         }
       } finally {
@@ -248,7 +247,13 @@ const SubscribeMyPage = () => {
         {loading ? (
           <Center>로딩 중...</Center>
         ) : error ? (
-          <Center>{error}</Center>
+          <Center>
+            {error}
+            <br />
+            <LoginButton onClick={() => navigate("/subscribe/login")}>
+              로그인하기
+            </LoginButton>
+          </Center>
         ) : user ? (
           <>
             <IdentityVerificationModal
@@ -770,6 +775,23 @@ const RequestEmptyText = styled.div`
   padding: 20px 0;
   background: #2f2f2f;
   border-radius: 12px;
+`;
+
+const LoginButton = styled.button`
+  background: #8cff20;
+  color: #000;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background: #7aee1a;
+  }
 `;
 
 export default SubscribeMyPage;

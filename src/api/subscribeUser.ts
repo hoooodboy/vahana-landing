@@ -1,4 +1,4 @@
-const BASE_URL = "https://alpha.vahana.kr";
+import { subscribeApi } from "./subscribeApiClient";
 
 export type SubscribeUser = {
   id: number;
@@ -90,23 +90,8 @@ export type SubscriptionRequest = {
   is_active: boolean;
 };
 
-export async function getSubscribeCurrentUser(
-  token: string
-): Promise<SubscribeUser> {
-  // Switch to GET /accounts per provided spec
-  const res = await fetch(`${BASE_URL}/accounts`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      // Accounts API expects Authorization without Bearer? If Bearer fails, try raw token header
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(text || `Failed to load user: ${res.status}`);
-  }
-  const data = await res.json();
+export async function getSubscribeCurrentUser(): Promise<SubscribeUser> {
+  const data = await subscribeApi.get<{ user: any }>("/accounts");
   const u = data?.user ?? {};
   const mapped: SubscribeUser = {
     id: u.id,
@@ -121,41 +106,16 @@ export async function getSubscribeCurrentUser(
   return mapped;
 }
 
-export async function getSubscriptionRequests(
-  token: string
-): Promise<SubscriptionRequest[]> {
-  const res = await fetch(`${BASE_URL}/subscriptions/requests`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(
-      text || `Failed to load subscription requests: ${res.status}`
-    );
-  }
-  return await res.json();
+export async function getSubscriptionRequests(): Promise<
+  SubscriptionRequest[]
+> {
+  return await subscribeApi.get<SubscriptionRequest[]>(
+    "/subscriptions/requests"
+  );
 }
 
-export async function requestCarModel(
-  token: string,
-  modelName: string
-): Promise<void> {
-  const res = await fetch(`${BASE_URL}/subscriptions/models/request`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({
-      model: modelName,
-    }),
+export async function requestCarModel(modelName: string): Promise<void> {
+  await subscribeApi.post("/subscriptions/models/request", {
+    model: modelName,
   });
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(text || `Failed to request car model: ${res.status}`);
-  }
 }
