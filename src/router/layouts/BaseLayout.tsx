@@ -1,4 +1,4 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import { useEffect, useState } from "react";
 import Logo from "@/src/assets/ic-logo-white.png";
@@ -8,6 +8,7 @@ import ImgContact from "@/src/assets/img-contact.png";
 
 function BaseLayout() {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const location = useLocation();
 
   useEffect(() => {
     const handleResize = () => {
@@ -27,6 +28,9 @@ function BaseLayout() {
   const leftWidth = Math.max(0, (windowWidth - 480) * 0.75);
   const rightMargin = Math.max(0, (windowWidth - 480) * 0.25);
 
+  // 구독 페이지인지 확인
+  const isSubscribePage = location.pathname.startsWith("/subscribe");
+
   return (
     <Container>
       {/* <LogoContainer width={leftWidth}>
@@ -34,7 +38,7 @@ function BaseLayout() {
       </LogoContainer> */}
       <Content rightMargin={rightMargin}>
         <Outlet />
-        <Footer />
+        {!isSubscribePage && <Footer />}
         <ScrollToTop />
       </Content>
       <ContactButton

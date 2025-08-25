@@ -427,9 +427,9 @@ const SubscribeMyPage = () => {
               </ActionButton>
               <ActionButton onClick={onLogout}>로그아웃</ActionButton>
             </Actions>
-            <FooterWrap>
+            {/* <FooterWrap>
               <Footer />
-            </FooterWrap>
+            </FooterWrap> */}
           </>
         ) : (
           <Center>사용자 정보가 없습니다</Center>

@@ -98,9 +98,9 @@ const SubscribeFaqPage = () => {
           <ActionRight>→</ActionRight>
         </ActionRow>
 
-        <FooterWrap>
+        {/* <FooterWrap>
           <Footer />
-        </FooterWrap>
+        </FooterWrap> */}
       </Content>
     </Container>
   );

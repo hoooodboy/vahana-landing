@@ -38,9 +38,9 @@ const SubscribeEventPage = () => {
           <ActionButton onClick={handleReferrerClick}>추천인 입력</ActionButton>
         </ButtonGroup>
 
-        <FooterWrap>
+        {/* <FooterWrap>
           <Footer />
-        </FooterWrap>
+        </FooterWrap> */}
       </Content>
     </Container>
   );

@@ -118,7 +118,7 @@ const SubscribeCarsPage = () => {
     (async () => {
       try {
         setUserLoading(true);
-        const me = await getSubscribeCurrentUser(token);
+        const me = await getSubscribeCurrentUser();
         setUser(me);
       } catch (e: any) {
         console.error("사용자 정보 로드 실패:", e);

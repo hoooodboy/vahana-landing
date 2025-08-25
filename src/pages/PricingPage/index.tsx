@@ -17,6 +17,27 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
 const PricingPage = () => {
+  // 현재 날짜부터 한 달간의 이용 가능 기간 계산
+  const getMonthlyPeriod = () => {
+    const today = new Date();
+    const nextMonth = new Date(today);
+    nextMonth.setMonth(today.getMonth() + 1);
+
+    const formatDate = (date: Date) => {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}.${month}.${day}`;
+    };
+
+    return {
+      startDate: formatDate(today),
+      endDate: formatDate(nextMonth),
+    };
+  };
+
+  const monthlyPeriod = getMonthlyPeriod();
+
   const mainData = [
     {
       title: "1 TICKET",
@@ -112,9 +133,26 @@ const PricingPage = () => {
     return value;
   };
 
+  const handleKakaoTalk = () => {
+    // 카카오톡 앱으로 연결 (모바일) 또는 웹으로 연결 (데스크톱)
+    const isMobile =
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent
+      );
+
+    if (isMobile) {
+      // 모바일에서는 카카오톡 앱으로 연결
+      window.location.href = "kakaotalk://";
+    } else {
+      // 데스크톱에서는 카카오톡 채널 URL로 이동
+      window.open("https://open.kakao.com/o/your-channel-id", "_blank");
+    }
+  };
+
   return (
     <Container>
       <Header />
+
       <TitleContainer>
         <Title>
           PRICING
@@ -174,6 +212,40 @@ const PricingPage = () => {
                 </ContentsContainer>
               ))}
             </CarSection>
+          </StyledScrollContainer>
+        </HorizontalContainer>
+
+        {/* 월 1000만원 이용 안내 섹션 */}
+        <HorizontalContainer>
+          <SectionTitle>MONTHLY PLAN</SectionTitle>
+          <StyledScrollContainer>
+            <CarSection>
+              <MonthlyPlanCard>
+                <MonthlyPlanLeft>
+                  {/* <MonthlyPlanIcon>🚗</MonthlyPlanIcon> */}
+                  <MonthlyPlanContent>
+                    <MonthlyPlanTitle>월 1,000만원 으로</MonthlyPlanTitle>
+                    <MonthlyPlanSubtitle>
+                      자유롭게 이용해보세요
+                    </MonthlyPlanSubtitle>
+                    <MonthlyPlanDescription>
+                      프리미엄 차량을 월 정액으로 이용할 수 있는 특별한 혜택
+                    </MonthlyPlanDescription>
+                    <MonthlyPlanPeriod>
+                      {monthlyPeriod.startDate} ~ {monthlyPeriod.endDate}까지
+                      이용가능
+                    </MonthlyPlanPeriod>
+                  </MonthlyPlanContent>
+                </MonthlyPlanLeft>
+              </MonthlyPlanCard>
+            </CarSection>
+            <MonthlyPlanRight>
+              <KakaoTalkButton
+                onClick={() => window.open("http://pf.kakao.com/_yxcxhVn")}
+              >
+                문의하기
+              </KakaoTalkButton>
+            </MonthlyPlanRight>
           </StyledScrollContainer>
         </HorizontalContainer>
         {/* <HorizontalContainer>
@@ -362,6 +434,7 @@ const ReservationButton = styled.div`
   margin: 16px 24px;
   text-decoration: none;
   cursor: pointer;
+  margin-left: auto;
 `;
 
 const NoticeWrapper = styled.ul`
@@ -369,6 +442,7 @@ const NoticeWrapper = styled.ul`
   display: flex;
   flex-direction: column;
   gap: 8px;
+  margin-top: 86px;
 `;
 
 const Notice = styled.li`
@@ -474,6 +548,127 @@ const XIcon = styled.span`
 
 const StyledScrollContainer = styled(ScrollContainer)`
   padding: 0 16px;
+`;
+
+// 월 1000만원 이용 안내 영역 스타일 (가로형)
+const MonthlyPlanCard = styled.div`
+  width: 100%;
+  /* min-width: 400px; */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 32px;
+  border-radius: 20px;
+  /* background: linear-gradient(135deg, #8cff20 0%, #7aee1a 100%); */
+  box-shadow: 0px 0px 15px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      45deg,
+      rgba(255, 255, 255, 0.1) 0%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    pointer-events: none;
+  }
+`;
+
+const MonthlyPlanLeft = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex: 1;
+`;
+
+const MonthlyPlanIcon = styled.div`
+  font-size: 40px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  flex-shrink: 0;
+`;
+
+const MonthlyPlanContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+`;
+
+const MonthlyPlanTitle = styled.div`
+  color: #000;
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  line-height: 1.2;
+`;
+
+const MonthlyPlanSubtitle = styled.div`
+  color: #333;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  line-height: 1.3;
+`;
+
+const MonthlyPlanDescription = styled.div`
+  color: #555;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+`;
+
+const MonthlyPlanPeriod = styled.div`
+  color: #3e4730;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-top: 8px;
+  padding: 6px 12px;
+  background: rgba(62, 71, 48, 0.1);
+  border-radius: 8px;
+  display: inline-block;
+`;
+
+const MonthlyPlanRight = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  flex-shrink: 0;
+`;
+
+const KakaoTalkButton = styled.div`
+  width: 152px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 24px;
+  background: #3e4730;
+  color: #fff;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  /* box-shadow: 0 4px 12px rgba(254, 229, 0, 0.3); */
+  border: 2px solid transparent;
+
+  /* &:hover {
+    background: #fdd835;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(254, 229, 0, 0.4);
+    border-color: rgba(0, 0, 0, 0.1);
+  } */
+
+  &:active {
+    transform: translateY(0);
+  }
 `;
 
 export default PricingPage;
