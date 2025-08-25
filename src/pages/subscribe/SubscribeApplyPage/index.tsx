@@ -1,4 +1,5 @@
 import Header from "@/src/components/Header";
+import PortOne from "@portone/browser-sdk/v2";
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
@@ -47,6 +48,8 @@ interface SubscriptionModel {
 }
 
 const SubscribeApplyPage = () => {
+  // 심사용: 카드 등록 창만 띄우는 모드 (구독신청/결제 로직 미진행)
+  const REVIEW_MODE_CARD_REG_ONLY = true;
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -134,6 +137,74 @@ const SubscribeApplyPage = () => {
 
     fetchUserData();
   }, []);
+
+  // PortOne 결제 리다이렉트 결과 처리 (모바일 등 redirectUrl 사용 시)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("code");
+    const paymentId = params.get("paymentId");
+
+    // 성공 시에만 구독 신청 API 호출
+    if (code === "SUCCESS" && paymentId && id) {
+      const token = localStorage.getItem("subscribeAccessToken");
+      if (!token) return;
+
+      // 중복 호출 방지 키
+      const handledKey = `portone_payment_handled_${paymentId}`;
+      if (sessionStorage.getItem(handledKey)) {
+        // 이미 처리됨 → URL만 정리
+        window.history.replaceState(
+          {},
+          document.title,
+          window.location.pathname
+        );
+        return;
+      }
+
+      (async () => {
+        try {
+          const res = await fetch(
+            `https://alpha.vahana.kr/subscriptions/cars/${id}/request`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                month: selectedOption,
+                ...(selectedCouponId && { coupon_id: selectedCouponId }),
+              }),
+            }
+          );
+          if (res.ok) {
+            sessionStorage.setItem(handledKey, "1");
+            setIsPaymentSuccessModalOpen(true);
+          } else {
+            console.error("구독 신청 실패:", res.status);
+            alert("결제는 완료되었지만 구독 신청에 실패했습니다.");
+          }
+        } catch (e) {
+          console.error("구독 신청 API 호출 실패:", e);
+          alert("결제는 완료되었지만 구독 신청에 실패했습니다.");
+        } finally {
+          // URL 정리
+          window.history.replaceState(
+            {},
+            document.title,
+            window.location.pathname
+          );
+        }
+      })();
+    } else if (code && code !== "SUCCESS") {
+      // 실패/취소 케이스 → 안내만 하고 URL 정리
+      const message =
+        params.get("message") || "결제가 취소되었거나 실패했습니다.";
+      console.warn("결제 비성공 상태:", code, message);
+      alert(message);
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, [id, selectedOption, selectedCouponId]);
 
   // 쿠폰 데이터 가져오기
   useEffect(() => {
@@ -324,6 +395,40 @@ const SubscribeApplyPage = () => {
     // 화면에 표시되는 가격과 동일하게 내림 처리
     const displayPrice = Math.floor((finalPrice || 0) / 10000) * 10000;
 
+    // 심사 모드: PortOne Browser SDK로 카드 등록(결제창)만 띄우고 종료
+    if (REVIEW_MODE_CARD_REG_ONLY) {
+      (async () => {
+        try {
+          const paymentId = `card-reg-${Date.now()}`;
+          await PortOne.requestPayment({
+            storeId: "store-3994153d-0f8c-46ef-bea0-9237d4dc101b",
+            channelKey: "channel-key-f63c6247-aa64-479b-9733-53f10f590530",
+            paymentId,
+            orderName: `${currentCar?.brand.name} ${currentCar?.name} 카드 등록`,
+            totalAmount: displayPrice,
+            currency: "KRW",
+            payMethod: "CARD",
+            customer: {
+              customerId: `subscribe_${userData?.id || userData?.username || "guest"}`,
+              fullName: userData?.username || "guest",
+              email: userData?.email || "test@test.com",
+              phoneNumber: (userData?.mobile || "01012345678").replace(
+                /-/g,
+                ""
+              ),
+            },
+            redirectUrl: window.location.href,
+          });
+        } catch (e) {
+          // 창 닫힘/취소 포함 → 아무 처리 안 함
+          console.warn("카드 등록 창 종료/실패:", e);
+        } finally {
+          setIsLoading(false);
+        }
+      })();
+      return;
+    }
+
     // 금액이 0원이면 PG 사용 없이 바로 구독 신청 API로 처리 (무료/전액할인 케이스)
     if (displayPrice <= 0) {
       const token = localStorage.getItem("subscribeAccessToken");
@@ -401,109 +506,81 @@ const SubscribeApplyPage = () => {
       amount: 1,
       currency: "KRW",
     })
-      .then((res) => {
-        // 키움페이 무통장입금/가상계좌입금 결제
-        (window as any).IMP.init("imp61282785");
-
-        (window as any).IMP.request_pay(
-          {
-            channelKey: "channel-key-286b71fe-5b22-4193-9659-048f6000ef8c",
-            pay_method: "vbank",
-            merchant_uid: `${res.result.id}-${new Date().getTime()}`,
-            name: `${currentCar?.brand.name} ${currentCar?.name} ${selectedOption}개월 구독`,
-            // amount: 1000,
-            amount: displayPrice,
-            buyer_email: userData?.email || "test@test.com",
-            buyer_name: userData?.name || userData?.username || "구매자",
-            buyer_tel: userData?.mobile || "010-1234-5678", // 전화번호는 API에서 제공되지 않으므로 기본값 사용
-            m_redirect_url: window.location.href,
-            digital: false,
-            bypass: {
-              daou: {
-                PRODUCTCODE: "portone",
-                CASHRECEIPTFLAG: 0,
+      .then(async (res) => {
+        try {
+          const merchantUid = `${res.result.id}-${new Date().getTime()}`;
+          // PortOne(IMP) 빌링 발급: customer_uid로 정기결제용 키 발급
+          (window as any).IMP.init("imp61282785");
+          await new Promise<void>((resolve) => {
+            (window as any).IMP.request_pay(
+              {
+                channelKey: "channel-key-f63c6247-aa64-479b-9733-53f10f590530",
+                pay_method: "card",
+                customer_uid: `subscribe_${userData?.id || userData?.username || new Date().getTime()}`,
+                merchant_uid: merchantUid,
+                name: `${currentCar?.brand.name} ${currentCar?.name} ${selectedOption}개월 구독(정기결제)`,
+                amount: displayPrice,
+                buyer_email: userData?.email || "test@test.com",
+                buyer_name: userData?.name || userData?.username || "구매자",
+                buyer_tel: (userData?.mobile || "010-1234-5678").replace(
+                  /-/g,
+                  ""
+                ),
+                m_redirect_url: window.location.href,
+                digital: false,
               },
-            },
-          },
-          function (rsp: any) {
-            const { imp_uid, merchant_uid, error_msg, success, imp_success } =
-              rsp;
-            const isSuccess = success || imp_success;
+              async (rsp: any) => {
+                const { success, imp_success, error_msg } = rsp || {};
+                const isSuccess = success || imp_success;
+                if (!isSuccess) {
+                  console.warn("빌링 발급/결제 실패:", error_msg);
+                  resolve();
+                  return;
+                }
 
-            if (isSuccess) {
-              console.log("결제 완료:", rsp);
-
-              // PG 결제 성공 후 구독 신청 API 호출
-              const token = localStorage.getItem("subscribeAccessToken");
-              if (token && id) {
-                fetch(
-                  `https://alpha.vahana.kr/subscriptions/cars/${id}/request`,
-                  {
-                    method: "POST",
-                    headers: {
-                      "Content-Type": "application/json",
-                      Authorization: `Bearer ${token}`,
-                    },
-                    body: JSON.stringify({
-                      month: selectedOption,
-                      ...(selectedCouponId && { coupon_id: selectedCouponId }),
-                    }),
-                  }
-                )
-                  .then(async (response) => {
-                    if (response.ok) {
-                      console.log("구독 신청 성공");
-                      // 추가 구독 요청(로그) API 호출
-                      try {
-                        const description = [
-                          "구독 신청: (PG)",
-                          `결제ID(imp_uid): ${imp_uid ?? ""}`,
-                          `주문번호(merchant_uid): ${merchant_uid ?? ""}`,
-                          `금액: ${displayPrice}`,
-                          `개월: ${selectedOption}`,
-                          `차량ID: ${id}`,
-                          `차량명: ${currentCar?.brand.name} ${currentCar?.name}`,
-                          `쿠폰ID: ${selectedCouponId ?? "-"}`,
-                          `쿠폰명: ${selectedCoupon?.coupon?.name ?? "-"}`,
-                        ].join(", ");
-                        await fetch(
-                          `https://alpha.vahana.kr/subscriptions/request`,
-                          {
-                            method: "POST",
-                            headers: {
-                              "Content-Type": "application/json",
-                              Authorization: `Bearer ${token}`,
-                            },
-                            body: JSON.stringify({ description }),
-                          }
-                        );
-                      } catch (e) {
-                        console.error("구독 추가 요청(API) 실패:", e);
+                // 성공일 때만 구독 신청 API 호출
+                const token = localStorage.getItem("subscribeAccessToken");
+                if (token && id) {
+                  try {
+                    const response = await fetch(
+                      `https://alpha.vahana.kr/subscriptions/cars/${id}/request`,
+                      {
+                        method: "POST",
+                        headers: {
+                          "Content-Type": "application/json",
+                          Authorization: `Bearer ${token}`,
+                        },
+                        body: JSON.stringify({
+                          month: selectedOption,
+                          ...(selectedCouponId && {
+                            coupon_id: selectedCouponId,
+                          }),
+                        }),
                       }
+                    );
+                    if (response.ok) {
                       setIsPaymentSuccessModalOpen(true);
                     } else {
                       console.error("구독 신청 실패:", response.status);
                       alert("결제는 완료되었지만 구독 신청에 실패했습니다.");
                     }
-                  })
-                  .catch((err) => {
-                    console.error("구독 신청 API 호출 실패:", err);
+                  } catch (e) {
+                    console.error("구독 신청 API 호출 실패:", e);
                     alert("결제는 완료되었지만 구독 신청에 실패했습니다.");
-                  })
-                  .finally(() => {
-                    setIsLoading(false);
-                  });
-              } else {
-                setIsPaymentSuccessModalOpen(true);
-                setIsLoading(false);
+                  }
+                } else {
+                  setIsPaymentSuccessModalOpen(true);
+                }
+                resolve();
               }
-            } else {
-              console.error("결제 실패:", error_msg);
-              alert("결제에 실패했습니다: " + error_msg);
-              setIsLoading(false);
-            }
-          }
-        );
+            );
+          });
+        } catch (error: any) {
+          console.error("결제 실패:", error?.message || error);
+          alert(`결제에 실패했습니다: ${error?.message || "결제창 오류"}`);
+        } finally {
+          setIsLoading(false);
+        }
       })
       .catch((err) => {
         console.error("구매 준비 실패:", err);
@@ -1035,7 +1112,7 @@ const Container = styled.div`
   color: #fff;
   padding-top: 86px;
   position: relative;
-  padding-bottom: 338px;
+  padding-bottom: 428px;
 `;
 
 const ContentContainer = styled.div`

@@ -12,7 +12,7 @@
     "orval": "npx orval --config src/api/orval.config.ts"
   },
   "dependencies": {
-    "@portone/browser-sdk": "^0.0.15",
+    "@portone/browser-sdk": "^0.1.0",
     "@reduxjs/toolkit": "^2.5.1",
     "@tanstack/react-query": "^5.66.0",
     "@tanstack/react-query-devtools": "^5.66.0",

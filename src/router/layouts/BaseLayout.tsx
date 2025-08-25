@@ -38,7 +38,7 @@ function BaseLayout() {
       </LogoContainer> */}
       <Content rightMargin={rightMargin}>
         <Outlet />
-        {!isSubscribePage && <Footer />}
+        <Footer />
         <ScrollToTop />
       </Content>
       <ContactButton

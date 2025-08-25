@@ -21,6 +21,6 @@ export const postPurchasePrepare = async ({
   currency: string;
 }) => {
   // 실제로는 서버에서 구매 준비 API 호출
-  const orderId = `subscription_${packId}_${Date.now()}`;
+  const orderId = `subscription_${Date.now()}`;
   return Promise.resolve({ result: { id: orderId } });
 };
