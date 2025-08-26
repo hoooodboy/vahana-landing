@@ -289,7 +289,10 @@ const SubscribeApplyPage = () => {
 
   // 선택된 옵션의 가격
   const getSelectedPrice = () => {
-    if (!carInfo) return 0;
+    if (!carInfo) {
+      console.warn("차량 정보가 없습니다.");
+      return 1000000; // 기본값 100만원
+    }
     const map: { [k: number]: number | null } = {
       1: carInfo.subscription_fee_1,
       3: carInfo.subscription_fee_3,
@@ -303,7 +306,12 @@ const SubscribeApplyPage = () => {
       84: carInfo.subscription_fee_84,
       96: carInfo.subscription_fee_96,
     };
-    return map[selectedOption] ?? 0;
+    const price = map[selectedOption] ?? 0;
+    if (price === 0 || price === null) {
+      console.warn(`${selectedOption}개월 구독료가 설정되지 않았습니다.`);
+      return 1000000; // 기본값 100만원
+    }
+    return price;
   };
 
   const selectedPrice = getSelectedPrice();
@@ -431,8 +439,9 @@ const SubscribeApplyPage = () => {
     setIsModalOpen(false);
     setIsLoading(true);
 
-    // 화면에 표시되는 가격과 동일하게 내림 처리
+    // 화면에 표시되는 가격과 동일하게 내림 처리 (최소 1000원 보장)
     const displayPrice = Math.floor((finalPrice || 0) / 10000) * 10000;
+    console.log("화면에 표시되는 가격:", displayPrice);
 
     // 정기결제 플로우: PortOne V2 빌링키 발급 → 결제 요청
     if (REVIEW_MODE_CARD_REG_ONLY) {
@@ -446,6 +455,9 @@ const SubscribeApplyPage = () => {
             issueId: `issue-${userData?.id}-${Date.now()}`,
             issueName: `${currentCar?.brand.name} ${currentCar?.name} 정기결제 빌링키 발급`,
             redirectUrl: window.location.href,
+            // 빌링키 발급 UI에 표시할 금액과 통화 설정
+            displayAmount: displayPrice,
+            currency: "KRW",
 
             offerPeriod: {
               range: {
@@ -642,7 +654,7 @@ const SubscribeApplyPage = () => {
                 customer_uid: `subscribe_${userData?.id || userData?.name || new Date().getTime()}`,
                 merchant_uid: merchantUid,
                 name: `${currentCar?.brand.name} ${currentCar?.name} ${selectedOption}개월 구독(정기결제)`,
-                amount: Math.max(displayPrice),
+                amount: displayPrice,
                 buyer_email: userData?.email || "test@test.com",
                 buyer_name: userData?.name || userData?.name || "구매자",
                 buyer_tel: (userData?.mobile || "010-1234-5678").replace(
