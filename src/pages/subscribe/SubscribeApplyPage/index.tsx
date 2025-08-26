@@ -140,70 +140,109 @@ const SubscribeApplyPage = () => {
 
   // PortOne 결제 리다이렉트 결과 처리 (모바일 등 redirectUrl 사용 시)
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const code = params.get("code");
-    const paymentId = params.get("paymentId");
+    // 페이지 로드 시 즉시 URL 파라미터 확인
+    const checkRedirectParams = () => {
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get("code");
+      const paymentId = params.get("paymentId");
+      const pgCode = params.get("pgCode");
+      const pgMessage = params.get("pgMessage");
+      const billingKey = params.get("billingKey");
+      const month = params.get("month");
+      const transactionType = params.get("transactionType");
 
-    // 성공 시에만 구독 신청 API 호출
-    if (code === "SUCCESS" && paymentId && id) {
-      const token = localStorage.getItem("subscribeAccessToken");
-      if (!token) return;
+      console.log("리디렉션 파라미터 확인:", {
+        code,
+        paymentId,
+        pgCode,
+        pgMessage,
+        billingKey,
+        month,
+        transactionType,
+      });
 
-      // 중복 호출 방지 키
-      const handledKey = `portone_payment_handled_${paymentId}`;
-      if (sessionStorage.getItem(handledKey)) {
-        // 이미 처리됨 → URL만 정리
-        window.history.replaceState(
-          {},
-          document.title,
-          window.location.pathname
-        );
-        return;
-      }
+      // 빌링키 발급 성공 시 구독 신청 API 호출
+      if (billingKey && transactionType === "ISSUE_BILLING_KEY" && id) {
+        const token = localStorage.getItem("subscribeAccessToken");
+        if (!token) {
+          console.error("토큰이 없습니다.");
+          return;
+        }
 
-      (async () => {
-        try {
-          const res = await fetch(
-            `https://alpha.vahana.kr/subscriptions/cars/${id}/request`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
-              body: JSON.stringify({
-                month: selectedOption,
-                ...(selectedCouponId && { coupon_id: selectedCouponId }),
-              }),
-            }
-          );
-          if (res.ok) {
-            sessionStorage.setItem(handledKey, "1");
-            setIsPaymentSuccessModalOpen(true);
-          } else {
-            console.error("구독 신청 실패:", res.status);
-            alert("결제는 완료되었지만 구독 신청에 실패했습니다.");
-          }
-        } catch (e) {
-          console.error("구독 신청 API 호출 실패:", e);
-          alert("결제는 완료되었지만 구독 신청에 실패했습니다.");
-        } finally {
-          // URL 정리
+        // 중복 호출 방지 키
+        const handledKey = `billing_key_handled_${billingKey}`;
+        if (sessionStorage.getItem(handledKey)) {
+          console.log("이미 처리된 빌링키:", billingKey);
+          // 이미 처리됨 → URL만 정리하고 성공 모달 표시
           window.history.replaceState(
             {},
             document.title,
             window.location.pathname
           );
+          setIsPaymentSuccessModalOpen(true);
+          return;
         }
-      })();
-    } else if (code && code !== "SUCCESS") {
-      // 실패/취소 케이스 → 안내만 하고 URL 정리
-      const message =
-        params.get("message") || "결제가 취소되었거나 실패했습니다.";
-      console.warn("결제 비성공 상태:", code, message);
-      alert(message);
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
+
+        console.log("빌링키 발급 성공 처리 시작:", billingKey);
+
+        (async () => {
+          try {
+            const res = await fetch(
+              `https://alpha.vahana.kr/subscriptions/cars/${id}/request`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                  month: month ? parseInt(month) : selectedOption,
+                  ...(selectedCouponId && { coupon_id: selectedCouponId }),
+                  ...(billingKey && { billing_key: billingKey }),
+                }),
+              }
+            );
+            if (res.ok) {
+              console.log("구독 신청 성공:", billingKey);
+              sessionStorage.setItem(handledKey, "1");
+              setIsPaymentSuccessModalOpen(true);
+            } else {
+              console.error("구독 신청 실패:", res.status);
+              alert("빌링키 발급은 완료되었지만 구독 신청에 실패했습니다.");
+            }
+          } catch (e) {
+            console.error("구독 신청 API 호출 실패:", e);
+            alert("빌링키 발급은 완료되었지만 구독 신청에 실패했습니다.");
+          } finally {
+            // URL 정리
+            window.history.replaceState(
+              {},
+              document.title,
+              window.location.pathname
+            );
+          }
+        })();
+      } else if (code && code !== "SUCCESS") {
+        // 실패/취소 케이스 → 안내만 하고 URL 정리
+        const message =
+          pgMessage ||
+          params.get("message") ||
+          "결제가 취소되었거나 실패했습니다.";
+        console.warn("결제 비성공 상태:", code, message);
+        alert(message);
+        window.history.replaceState(
+          {},
+          document.title,
+          window.location.pathname
+        );
+      } else if (billingKey && transactionType === "ISSUE_BILLING_KEY") {
+        // 빌링키 발급 성공 케이스는 위에서 처리됨
+        console.log("빌링키 발급 성공 처리 완료");
+      }
+    };
+
+    // 페이지 로드 시 즉시 실행
+    checkRedirectParams();
   }, [id, selectedOption, selectedCouponId]);
 
   // 쿠폰 데이터 가져오기
@@ -750,7 +789,7 @@ const SubscribeApplyPage = () => {
                 </PriceRow>
 
                 <VatText>
-                  보험료 / VAT 포함
+                  VAT 포함
                   {selectedCoupon && (
                     <DiscountText>
                       {selectedCoupon.coupon.discount_type === "PERCENTAGE"
