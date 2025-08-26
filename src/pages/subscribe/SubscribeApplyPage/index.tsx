@@ -519,7 +519,7 @@ const SubscribeApplyPage = () => {
                 customer_uid: `subscribe_${userData?.id || userData?.username || new Date().getTime()}`,
                 merchant_uid: merchantUid,
                 name: `${currentCar?.brand.name} ${currentCar?.name} ${selectedOption}개월 구독(정기결제)`,
-                amount: displayPrice,
+                amount: Math.max(displayPrice, 1000),
                 buyer_email: userData?.email || "test@test.com",
                 buyer_name: userData?.name || userData?.username || "구매자",
                 buyer_tel: (userData?.mobile || "010-1234-5678").replace(
