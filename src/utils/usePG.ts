@@ -56,7 +56,7 @@ export const usePG = ({
         pay_method: "card",
         merchant_uid: orderId,
         escrow: false,
-        amount: 1000,
+        amount: amount * price,
         name: name,
         buyer_name: buyer_name,
         buyer_email: buyer_email,
