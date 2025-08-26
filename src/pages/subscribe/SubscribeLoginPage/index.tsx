@@ -188,6 +188,14 @@ const SubscribeLoginPage = () => {
             회원가입하기
           </SignupLink>
         </SignupSection>
+
+        <ForgotPasswordSection>
+          <ForgotPasswordLink
+            onClick={() => navigate("/subscribe/forgot-password")}
+          >
+            비밀번호를 잊으셨나요?
+          </ForgotPasswordLink>
+        </ForgotPasswordSection>
       </Content>
     </Container>
   );
@@ -446,6 +454,26 @@ const LoadingText = styled.div`
   font-size: 16px;
   color: #c7c4c4;
   margin-top: 16px;
+`;
+
+const ForgotPasswordSection = styled.div`
+  text-align: center;
+  padding: 16px 0;
+`;
+
+const ForgotPasswordLink = styled.button`
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: all 0.3s ease;
+
+  &:hover {
+    color: #8cff20;
+  }
 `;
 
 export default SubscribeLoginPage;

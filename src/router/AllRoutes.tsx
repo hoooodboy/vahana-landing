@@ -149,6 +149,10 @@ function AllRoutes() {
           element: <Pages.SubscribeMyPage />,
         },
         {
+          path: "/subscribe/forgot-password",
+          element: <Pages.SubscribeForgotPasswordPage />,
+        },
+        {
           path: "/subscribe/coupons",
           element: <Pages.SubscribeCouponsPage />,
         },
@@ -229,6 +233,10 @@ function AllRoutes() {
         {
           path: "/subscribe/coupons",
           element: <Pages.SubscribeCouponsPage />,
+        },
+        {
+          path: "/subscribe/forgot-password",
+          element: <Pages.SubscribeForgotPasswordPage />,
         },
         {
           path: "/subscribe",
