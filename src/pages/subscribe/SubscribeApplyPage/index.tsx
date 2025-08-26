@@ -417,8 +417,8 @@ const SubscribeApplyPage = () => {
               },
             } as any, // 시작일부터 선택한 개월 수만큼의 종료일
             customer: {
-              customerId: `subscribe_${userData?.id || userData?.username || "guest"}`,
-              fullName: userData?.username || "guest",
+              customerId: `subscribe_${userData?.id || userData?.name || "guest"}`,
+              fullName: userData?.name || "guest",
               email: userData?.email || "test@test.com",
               phoneNumber: (userData?.mobile || "01012345678").replace(
                 /-/g,
@@ -449,8 +449,8 @@ const SubscribeApplyPage = () => {
                 billingKey: issueResponse.billingKey,
                 orderName: `${currentCar?.brand.name} ${currentCar?.name} 정기결제`,
                 customer: {
-                  id: `subscribe_${userData?.id || userData?.username || "guest"}`,
-                  name: userData?.username || "guest",
+                  id: `subscribe_${userData?.id || userData?.name || "guest"}`,
+                  name: userData?.name || "guest",
                   email: userData?.email || "test@test.com",
                   phoneNumber: (userData?.mobile || "01012345678").replace(
                     /-/g,
@@ -600,12 +600,12 @@ const SubscribeApplyPage = () => {
               {
                 channelKey: "channel-key-f63c6247-aa64-479b-9733-53f10f590530",
                 pay_method: "card",
-                customer_uid: `subscribe_${userData?.id || userData?.username || new Date().getTime()}`,
+                customer_uid: `subscribe_${userData?.id || userData?.name || new Date().getTime()}`,
                 merchant_uid: merchantUid,
                 name: `${currentCar?.brand.name} ${currentCar?.name} ${selectedOption}개월 구독(정기결제)`,
                 amount: Math.max(displayPrice),
                 buyer_email: userData?.email || "test@test.com",
-                buyer_name: userData?.name || userData?.username || "구매자",
+                buyer_name: userData?.name || userData?.name || "구매자",
                 buyer_tel: (userData?.mobile || "010-1234-5678").replace(
                   /-/g,
                   ""
