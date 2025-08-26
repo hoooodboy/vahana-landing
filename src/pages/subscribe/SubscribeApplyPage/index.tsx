@@ -409,18 +409,16 @@ const SubscribeApplyPage = () => {
             redirectUrl: window.location.href,
 
             offerPeriod: {
-              from: new Date().toISOString(),
-              to: new Date(
-                Date.now() + selectedOption * 30 * 24 * 60 * 60 * 1000
-              ).toISOString(),
+              range: {
+                from: new Date().toISOString(),
+                to: new Date(
+                  Date.now() + selectedOption * 30 * 24 * 60 * 60 * 1000
+                ).toISOString(),
+              },
             } as any, // 시작일부터 선택한 개월 수만큼의 종료일
             customer: {
               customerId: `subscribe_${userData?.id || userData?.username || "guest"}`,
-              name: {
-                full: userData?.username || "guest",
-              },
               fullName: userData?.username || "guest",
-
               email: userData?.email || "test@test.com",
               phoneNumber: (userData?.mobile || "01012345678").replace(
                 /-/g,
