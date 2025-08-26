@@ -19,7 +19,9 @@ const Footer = () => {
         <FooterContents>통신판매신고번호 | 2022-경기시흥-2355</FooterContents>
         <FooterContents>유선번호 | 010-4824-4562</FooterContents>
         <FooterContents>대표문의 | vahanacop@gmail.com</FooterContents>
-        <FooterContents>주소 | 서울시 연세로2다길 20, 205호</FooterContents>
+        <FooterContents>
+          주소 | 서울시 구로구 경인로 53길 90, 1104호
+        </FooterContents>
       </FooterContentsWrapper>
       <FooterContentsWrapper2>
         <Link to="/privacy" style={{ color: "#fff !important" }}>
