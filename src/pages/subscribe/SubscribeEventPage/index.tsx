@@ -5,7 +5,7 @@ import Footer from "@/src/components/Footer";
 import { useNavigate } from "react-router-dom";
 import useCopyCurrentUrl from "@/src/utils/useCopyCurrentUrl";
 import { setupTokenRefresh } from "@/src/utils/tokenRefresh";
-import banner from "@/src/assets//event-banner-1.png";
+import banner from "@/src/assets/event-banner-2.png";
 
 const SubscribeEventPage = () => {
   const navigate = useNavigate();
