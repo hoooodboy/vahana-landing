@@ -1,6 +1,6 @@
 import Header from "@/src/components/Header";
 import PortOne from "@portone/browser-sdk/v2";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { usePG } from "../../../utils/usePG";
@@ -110,6 +110,11 @@ const SubscribeApplyPage = () => {
     setPointAmount(newAmount);
   };
 
+  // 포인트가 만원 단위인지 확인하는 함수
+  const isPointValid = () => {
+    return pointAmount === 0 || pointAmount % 10000 === 0;
+  };
+
   // 약관 동의 상태
   const [isAgreed1, setIsAgreed1] = useState(false);
   const [isAgreed2, setIsAgreed2] = useState(false);
@@ -185,6 +190,9 @@ const SubscribeApplyPage = () => {
 
   // PortOne 결제 리다이렉트 결과 처리 (모바일 등 redirectUrl 사용 시)
   useEffect(() => {
+    const isRequestingRef = {
+      current: false,
+    } as React.MutableRefObject<boolean>;
     // 페이지 로드 시 즉시 URL 파라미터 확인
     const checkRedirectParams = () => {
       const params = new URLSearchParams(window.location.search);
@@ -216,7 +224,7 @@ const SubscribeApplyPage = () => {
 
         // 중복 호출 방지 키
         const handledKey = `billing_key_handled_${billingKey}`;
-        if (sessionStorage.getItem(handledKey)) {
+        if (sessionStorage.getItem(handledKey) || isRequestingRef.current) {
           console.log("이미 처리된 빌링키:", billingKey);
           // 이미 처리됨 → URL만 정리하고 성공 모달 표시
           window.history.replaceState(
@@ -232,6 +240,24 @@ const SubscribeApplyPage = () => {
 
         (async () => {
           try {
+            // 즉시 중복 방지 플래그 및 핸들 키 설정, URL 정리 선반영
+            isRequestingRef.current = true;
+            sessionStorage.setItem(handledKey, "1");
+            window.history.replaceState(
+              {},
+              document.title,
+              window.location.pathname
+            );
+
+            // 세션스토리지에서 포인트와 쿠폰 정보 가져오기
+            const savedPointAmount = parseInt(
+              sessionStorage.getItem("subscribePointAmount") || "0"
+            );
+            const savedCouponId = sessionStorage.getItem(
+              "subscribeSelectedCouponId"
+            );
+            const couponId = savedCouponId ? parseInt(savedCouponId) : null;
+
             const res = await fetch(
               `https://alpha.vahana.kr/subscriptions/cars/${id}/request`,
               {
@@ -242,15 +268,19 @@ const SubscribeApplyPage = () => {
                 },
                 body: JSON.stringify({
                   month: month ? parseInt(month) : selectedOption,
-                  ...(selectedCouponId && { coupon_id: selectedCouponId }),
-                  ...(pointAmount > 0 && { point_amount: pointAmount }),
+                  ...(couponId && { coupon_id: couponId }),
+                  ...(savedPointAmount > 0 && {
+                    point_amount: savedPointAmount,
+                  }),
                   ...(billingKey && { billing_key: billingKey }),
                 }),
               }
             );
             if (res.ok) {
               console.log("구독 신청 성공:", billingKey);
-              sessionStorage.setItem(handledKey, "1");
+              // 세션스토리지 정리
+              sessionStorage.removeItem("subscribePointAmount");
+              sessionStorage.removeItem("subscribeSelectedCouponId");
               setIsPaymentSuccessModalOpen(true);
             } else {
               console.error("구독 신청 실패:", res.status);
@@ -260,12 +290,7 @@ const SubscribeApplyPage = () => {
             console.error("구독 신청 API 호출 실패:", e);
             alert("빌링키 발급은 완료되었지만 구독 신청에 실패했습니다.");
           } finally {
-            // URL 정리
-            window.history.replaceState(
-              {},
-              document.title,
-              window.location.pathname
-            );
+            isRequestingRef.current = false;
           }
         })();
       } else if (code && code !== "SUCCESS") {
@@ -289,7 +314,7 @@ const SubscribeApplyPage = () => {
 
     // 페이지 로드 시 즉시 실행
     checkRedirectParams();
-  }, [id, selectedOption, selectedCouponId]);
+  }, []); // 의존성 배열을 빈 배열로 변경하여 한 번만 실행되도록 수정
 
   // 쿠폰 데이터 가져오기
   useEffect(() => {
@@ -493,6 +518,13 @@ const SubscribeApplyPage = () => {
     setIsModalOpen(false);
     setIsLoading(true);
 
+    // 포인트 정보를 세션스토리지에 저장
+    sessionStorage.setItem("subscribePointAmount", pointAmount.toString());
+    sessionStorage.setItem(
+      "subscribeSelectedCouponId",
+      selectedCouponId?.toString() || ""
+    );
+
     // 화면에 표시되는 가격과 동일하게 내림 처리 (최소 1000원 보장)
     const displayPrice = Math.floor((finalPrice || 0) / 10000) * 10000;
     console.log("화면에 표시되는 가격:", displayPrice);
@@ -583,39 +615,8 @@ const SubscribeApplyPage = () => {
             throw new Error(`결제 요청 실패: ${JSON.stringify(errorData)}`);
           }
 
-          // 결제 성공 시 구독 신청 API 호출
-          const token = localStorage.getItem("subscribeAccessToken");
-          if (token && id) {
-            try {
-              const response = await fetch(
-                `https://alpha.vahana.kr/subscriptions/cars/${id}/request`,
-                {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                  },
-                  body: JSON.stringify({
-                    month: selectedOption,
-                    ...(selectedCouponId && {
-                      coupon_id: selectedCouponId,
-                    }),
-                  }),
-                }
-              );
-              if (response.ok) {
-                setIsPaymentSuccessModalOpen(true);
-              } else {
-                console.error("구독 신청 실패:", response.status);
-                alert("결제는 완료되었지만 구독 신청에 실패했습니다.");
-              }
-            } catch (e) {
-              console.error("구독 신청 API 호출 실패:", e);
-              alert("결제는 완료되었지만 구독 신청에 실패했습니다.");
-            }
-          } else {
-            setIsPaymentSuccessModalOpen(true);
-          }
+          // 결제 성공 시 성공 모달만 표시 (빌링키 리다이렉트에서 구독 신청 처리)
+          setIsPaymentSuccessModalOpen(true);
         } catch (e) {
           console.error("정기결제 실패:", e);
           alert(`정기결제에 실패했습니다: ${e.message}`);
@@ -651,6 +652,7 @@ const SubscribeApplyPage = () => {
         body: JSON.stringify({
           month: selectedOption,
           ...(selectedCouponId && { coupon_id: selectedCouponId }),
+          ...(pointAmount > 0 && { point_amount: pointAmount }),
         }),
       })
         .then(async (response) => {
@@ -735,39 +737,8 @@ const SubscribeApplyPage = () => {
                   return;
                 }
 
-                // 성공일 때만 구독 신청 API 호출
-                const token = localStorage.getItem("subscribeAccessToken");
-                if (token && id) {
-                  try {
-                    const response = await fetch(
-                      `https://alpha.vahana.kr/subscriptions/cars/${id}/request`,
-                      {
-                        method: "POST",
-                        headers: {
-                          "Content-Type": "application/json",
-                          Authorization: `Bearer ${token}`,
-                        },
-                        body: JSON.stringify({
-                          month: selectedOption,
-                          ...(selectedCouponId && {
-                            coupon_id: selectedCouponId,
-                          }),
-                        }),
-                      }
-                    );
-                    if (response.ok) {
-                      setIsPaymentSuccessModalOpen(true);
-                    } else {
-                      console.error("구독 신청 실패:", response.status);
-                      alert("결제는 완료되었지만 구독 신청에 실패했습니다.");
-                    }
-                  } catch (e) {
-                    console.error("구독 신청 API 호출 실패:", e);
-                    alert("결제는 완료되었지만 구독 신청에 실패했습니다.");
-                  }
-                } else {
-                  setIsPaymentSuccessModalOpen(true);
-                }
+                // 성공일 때만 성공 모달 표시 (빌링키 리다이렉트에서 구독 신청 처리)
+                setIsPaymentSuccessModalOpen(true);
                 resolve();
               }
             );
@@ -951,6 +922,11 @@ const SubscribeApplyPage = () => {
                   </PointButton>
                 </PointControlRow>
                 <PointUnitText>1만원 단위로 입력해주세요</PointUnitText>
+                {pointAmount > 0 && !isPointValid() && (
+                  <PointErrorText>
+                    포인트는 1만원 단위로 입력해주세요
+                  </PointErrorText>
+                )}
               </PointUsageSection>
 
               {pointAmount > 0 && (
@@ -1062,7 +1038,7 @@ const SubscribeApplyPage = () => {
       <BottomNavigation>
         <SubscribeButton
           onClick={handleSubscribe}
-          disabled={!isAllAgreed || isLoading}
+          disabled={!isAllAgreed || isLoading || !isPointValid()}
         >
           {isLoading ? "처리 중..." : "구독 신청하기"}
         </SubscribeButton>
@@ -1314,7 +1290,7 @@ const SubscribeApplyPage = () => {
                     isAgreed5 &&
                     isAgreed6 &&
                     isAgreed7
-                  )
+                  ) || !isPointValid()
                 }
               >
                 동의하기
@@ -1954,6 +1930,14 @@ const PointUnitText = styled.div`
   font-size: 12px;
   color: #666;
   text-align: center;
+`;
+
+const PointErrorText = styled.div`
+  font-size: 12px;
+  color: #ff6b6b;
+  text-align: center;
+  margin-top: 4px;
+  font-weight: 500;
 `;
 
 const PointDiscountInfo = styled.div`

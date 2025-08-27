@@ -16,49 +16,11 @@ const SubscribeSuccessPage = () => {
   const carId = searchParams.get("car_id");
 
   useEffect(() => {
-    const submitSubscriptionRequest = async () => {
-      try {
-        const token = localStorage.getItem("accessToken");
-        if (!token) {
-          throw new Error("토큰이 없습니다.");
-        }
-
-        // 구독 요청 API 호출
-        const response = await fetch(
-          `https://alpha.vahana.kr/subscriptions/cars/${carId}/request`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({
-              month: parseInt(month || "1"),
-              // coupon_id는 현재 없으므로 제외
-            }),
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error(`구독 요청 실패: ${response.status}`);
-        }
-
-        setIsLoading(false);
-      } catch (err) {
-        console.error("구독 요청 에러:", err);
-        setError(
-          err instanceof Error ? err.message : "구독 요청에 실패했습니다."
-        );
-        setIsLoading(false);
-      }
-    };
-
-    if (paymentId && amount && month && carId) {
-      submitSubscriptionRequest();
-    } else {
+    // 결제 완료 안내만 표시. 구독 요청은 Apply 페이지의 리다이렉트 처리에서 단일 호출됨.
+    if (!paymentId || !amount || !month || !carId) {
       setError("결제 정보가 올바르지 않습니다.");
-      setIsLoading(false);
     }
+    setIsLoading(false);
   }, [paymentId, amount, month, carId]);
 
   const handleGoHome = () => {
