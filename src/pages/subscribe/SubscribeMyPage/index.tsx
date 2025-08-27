@@ -18,7 +18,7 @@ import { clearIdentityVerification } from "@/src/utils/identityVerification";
 const SubscribeMyPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [user, setUser] = useState<SubscribeUser | null>(null);
+  const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [referrals, setReferrals] = useState<any>(null);
@@ -113,8 +113,21 @@ const SubscribeMyPage = () => {
     (async () => {
       try {
         setLoading(true);
-        const me = await getSubscribeCurrentUser();
-        setUser(me);
+
+        // 사용자 정보 가져오기 (포인트 정보 포함)
+        const userResponse = await fetch("https://alpha.vahana.kr/accounts", {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!userResponse.ok) {
+          throw new Error("Failed to fetch user info");
+        }
+
+        const userData = await userResponse.json();
+        setUser(userData.user);
       } catch (e: any) {
         console.error("Error fetching user info:", e);
 
@@ -229,9 +242,10 @@ const SubscribeMyPage = () => {
   };
 
   const copyReferralCode = async () => {
-    if (user?.referralCode) {
+    const referralCode = user?.referralCode || user?.referral_code;
+    if (referralCode) {
       try {
-        await navigator.clipboard.writeText(user.referralCode);
+        await navigator.clipboard.writeText(referralCode);
         toast.success("레퍼럴 코드가 복사되었습니다!");
       } catch (err) {
         console.error("복사 실패:", err);
@@ -269,19 +283,37 @@ const SubscribeMyPage = () => {
                 <Col>
                   <Name>{user.username || user.name || "사용자"}</Name>
                   <Small>{user.email}</Small>
-                  <Badge $verified={!!user.ciVerified}>
-                    {user.ciVerified ? "인증됨" : "미인증"}
+                  <Badge $verified={!!(user.ciVerified || user.ci_verified)}>
+                    {user.ciVerified || user.ci_verified ? "인증됨" : "미인증"}
                   </Badge>
                 </Col>
               </Row>
             </Card>
 
+            {/* 포인트 정보 카드 */}
+            <PointCard>
+              <PointHeader>
+                <PointTitle>내 포인트</PointTitle>
+                <PointMoreButton onClick={() => navigate("/subscribe/point")}>
+                  상세보기
+                </PointMoreButton>
+              </PointHeader>
+              <PointAmount>
+                {user.point?.toLocaleString("ko-KR") || 0}P
+              </PointAmount>
+              <PointDescription>
+                포인트는 차량 구독 시 할인으로 사용할 수 있습니다
+              </PointDescription>
+            </PointCard>
+
             {/* 레퍼럴 코드 블록 */}
-            {user.referralCode && (
+            {(user.referralCode || user.referral_code) && (
               <ReferralCard>
                 <ReferralTitle>내 추천 코드</ReferralTitle>
                 <ReferralCodeRow>
-                  <ReferralCode>{user.referralCode}</ReferralCode>
+                  <ReferralCode>
+                    {user.referralCode || user.referral_code}
+                  </ReferralCode>
                   <CopyButton onClick={copyReferralCode}>복사</CopyButton>
                 </ReferralCodeRow>
                 <ReferralDesc>
@@ -289,80 +321,6 @@ const SubscribeMyPage = () => {
                 </ReferralDesc>
               </ReferralCard>
             )}
-
-            {/* 추천인 리스트 */}
-            <ReferralListCard>
-              <ReferralListTitle>추천 현황</ReferralListTitle>
-
-              {/* 내가 추천한 사람들 */}
-              <ReferralSection>
-                <ReferralSectionTitle>
-                  내가 추천한 사람 ({referrals?.referrals_given?.length || 0}명)
-                </ReferralSectionTitle>
-                {referralsLoading ? (
-                  <ReferralLoadingText>로딩 중...</ReferralLoadingText>
-                ) : referrals?.referrals_given?.length > 0 ? (
-                  referrals.referrals_given.map(
-                    (referral: any, index: number) => (
-                      <ReferralItem key={index}>
-                        <ReferralItemInfo>
-                          <ReferralItemName>
-                            {referral.referree_username}
-                          </ReferralItemName>
-                          <ReferralItemDate>
-                            {new Date(referral.created_at).toLocaleDateString(
-                              "ko-KR"
-                            )}
-                          </ReferralItemDate>
-                        </ReferralItemInfo>
-                        <ReferralCouponCode>
-                          {referral.subscription_coupon_code}
-                        </ReferralCouponCode>
-                      </ReferralItem>
-                    )
-                  )
-                ) : (
-                  <ReferralEmptyText>
-                    아직 추천한 사람이 없습니다
-                  </ReferralEmptyText>
-                )}
-              </ReferralSection>
-
-              {/* 나를 추천한 사람들 */}
-              <ReferralSection>
-                <ReferralSectionTitle>
-                  나를 추천한 사람 ({referrals?.referrals_received?.length || 0}
-                  명)
-                </ReferralSectionTitle>
-                {referralsLoading ? (
-                  <ReferralLoadingText>로딩 중...</ReferralLoadingText>
-                ) : referrals?.referrals_received?.length > 0 ? (
-                  referrals.referrals_received.map(
-                    (referral: any, index: number) => (
-                      <ReferralItem key={index}>
-                        <ReferralItemInfo>
-                          <ReferralItemName>
-                            {referral.referrer_username}
-                          </ReferralItemName>
-                          <ReferralItemDate>
-                            {new Date(referral.created_at).toLocaleDateString(
-                              "ko-KR"
-                            )}
-                          </ReferralItemDate>
-                        </ReferralItemInfo>
-                        <ReferralCouponCode>
-                          {referral.subscription_coupon_code}
-                        </ReferralCouponCode>
-                      </ReferralItem>
-                    )
-                  )
-                ) : (
-                  <ReferralEmptyText>
-                    아직 나를 추천한 사람이 없습니다
-                  </ReferralEmptyText>
-                )}
-              </ReferralSection>
-            </ReferralListCard>
 
             {/* 차량 신청 리스트 */}
             <RequestListCard>
@@ -422,10 +380,27 @@ const SubscribeMyPage = () => {
               )}
             </RequestListCard>
             <Actions>
-              <ActionButton onClick={() => navigate("/subscribe/coupons")}>
-                쿠폰함 보기
+              <ActionButton
+                onClick={() => navigate("/subscribe/coupons")}
+                $variant="primary"
+              >
+                <ActionText>쿠폰함 보기</ActionText>
               </ActionButton>
-              <ActionButton onClick={onLogout}>로그아웃</ActionButton>
+              <ActionButton
+                onClick={() => navigate("/subscribe/point")}
+                $variant="primary"
+              >
+                <ActionText>포인트 상세보기</ActionText>
+              </ActionButton>
+              <ActionButton
+                onClick={() => navigate("/subscribe/referral")}
+                $variant="primary"
+              >
+                <ActionText>추천현황 보기</ActionText>
+              </ActionButton>
+              <ActionButton onClick={onLogout} $variant="secondary">
+                <ActionText>로그아웃</ActionText>
+              </ActionButton>
             </Actions>
             {/* <FooterWrap>
               <Footer />
@@ -521,17 +496,41 @@ const Button = styled.button`
 
 const Actions = styled.div`
   display: flex;
-  gap: 8px;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 24px;
 `;
 
-const ActionButton = styled.button`
-  flex: 1;
-  height: 56px;
+const ActionButton = styled.button<{ $variant: "primary" | "secondary" }>`
+  width: 100%;
+  height: 64px;
   border: none;
-  border-radius: 18px;
-  background: #202020;
+  border-radius: 20px;
+
+  background: #2f2f2f;
   color: #fff;
   font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+
+  &:active {
+    transform: translateY(0);
+  }
+`;
+
+const ActionIcon = styled.span`
+  font-size: 20px;
+  line-height: 1;
+`;
+
+const ActionText = styled.span`
+  font-size: 16px;
+  font-weight: 600;
 `;
 
 const FooterWrap = styled.div`
@@ -594,6 +593,53 @@ const ReferralDesc = styled.div`
   line-height: 1.4;
 `;
 
+// 포인트 카드 스타일 컴포넌트
+const PointCard = styled.div`
+  background: #202020;
+  /* background: linear-gradient(135deg, #8cff20 0%, #7aff1a 100%); */
+  border-radius: 20px;
+  padding: 18px;
+  margin: 12px 0 24px;
+`;
+
+const PointHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+`;
+
+const PointTitle = styled.div`
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+`;
+
+const PointMoreButton = styled.button`
+  background: #8cff20;
+  color: #000;
+  border: 1px solid rgba(140, 255, 32, 0.3);
+  border-radius: 12px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+`;
+
+const PointAmount = styled.div`
+  font-size: 24px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 8px;
+`;
+
+const PointDescription = styled.div`
+  font-size: 12px;
+  color: #9d9d9d;
+  line-height: 1.4;
+`;
+
 // 추천인 리스트 스타일 컴포넌트
 const ReferralListCard = styled.div`
   background: #202020;
@@ -605,8 +651,38 @@ const ReferralListCard = styled.div`
 const ReferralListTitle = styled.div`
   font-size: 16px;
   font-weight: 700;
-  margin-bottom: 16px;
   color: #fff;
+`;
+
+const ReferralListHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+`;
+
+const ReferralMoreButton = styled.button`
+  background: none;
+  border: none;
+  color: #8cff20;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: rgba(140, 255, 32, 0.1);
+  }
+`;
+
+const ReferralMoreText = styled.div`
+  font-size: 12px;
+  color: #8cff20;
+  text-align: center;
+  padding: 8px 0;
+  font-weight: 500;
 `;
 
 const ReferralSection = styled.div`

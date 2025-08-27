@@ -31,3 +31,5 @@ export { default as SubscribeMyPage } from "./subscribe/SubscribeMyPage";
 export { default as SubscribeCouponsPage } from "./subscribe/SubscribeCouponsPage";
 export { default as SubscribeForgotPasswordPage } from "./subscribe/SubscribeForgotPasswordPage";
 export { default as SubscribeResetPasswordPage } from "./subscribe/SubscribeResetPasswordPage";
+export { default as SubscribeReferralPage } from "./subscribe/SubscribeReferralPage";
+export { default as SubscribePointPage } from "./subscribe/SubscribePointPage";
