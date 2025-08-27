@@ -27,6 +27,8 @@ const SubscribeMyPage = () => {
     SubscriptionRequest[]
   >([]);
   const [requestsLoading, setRequestsLoading] = useState(false);
+  const [subscriptions, setSubscriptions] = useState<any[]>([]);
+  const [subscriptionsLoading, setSubscriptionsLoading] = useState(false);
 
   // 인증 모달 관리
   const { showModal, handleVerificationComplete } = useIdentityVerification({
@@ -233,6 +235,41 @@ const SubscribeMyPage = () => {
     fetchSubscriptionRequests();
   }, [navigate]);
 
+  // 내 구독 차량 리스트 가져오기
+  useEffect(() => {
+    const fetchSubscriptions = async () => {
+      const token = localStorage.getItem("subscribeAccessToken");
+      if (!token) return;
+
+      try {
+        setSubscriptionsLoading(true);
+        const response = await fetch("https://alpha.vahana.kr/subscriptions", {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!response.ok) {
+          throw new Error("Failed to fetch subscriptions");
+        }
+        const data = await response.json();
+        setSubscriptions(Array.isArray(data) ? data : []);
+      } catch (err: any) {
+        console.error("Error fetching subscriptions:", err);
+        if (err.message && err.message.includes("token_not_valid")) {
+          clearIdentityVerification();
+          localStorage.removeItem("subscribeAccessToken");
+          localStorage.removeItem("subscribeRefreshToken");
+          localStorage.removeItem("subscribeTokenExpiry");
+        }
+      } finally {
+        setSubscriptionsLoading(false);
+      }
+    };
+
+    fetchSubscriptions();
+  }, []);
+
   const onLogout = () => {
     localStorage.removeItem("subscribeAccessToken");
     localStorage.removeItem("subscribeRefreshToken");
@@ -290,6 +327,85 @@ const SubscribeMyPage = () => {
               </Row>
             </Card>
 
+            {/* 내 구독 차량 리스트 (상단으로 이동) */}
+            <SubscriptionListCard>
+              <SubscriptionListTitle>
+                내 구독 차량 ({subscriptions.length}대)
+              </SubscriptionListTitle>
+              {subscriptionsLoading ? (
+                <SubscriptionLoadingText>로딩 중...</SubscriptionLoadingText>
+              ) : subscriptions.length > 0 ? (
+                subscriptions.map((sub) => {
+                  const car = sub.request?.car;
+                  const model = car?.model;
+                  const brand = model?.brand;
+                  const imgSrc = model?.image || "";
+                  const start = sub.start ? new Date(sub.start) : null;
+                  const totalMonths = sub.request?.month ?? null;
+
+                  const calcElapsedMonths = (s: Date | null) => {
+                    if (!s) return 0;
+                    const now = new Date();
+                    let months =
+                      (now.getFullYear() - s.getFullYear()) * 12 +
+                      (now.getMonth() - s.getMonth());
+                    if (now.getDate() < s.getDate()) months -= 1;
+                    return Math.max(0, months + 1);
+                  };
+                  const currentMonths = calcElapsedMonths(start);
+                  const currentDisplay = totalMonths
+                    ? Math.min(currentMonths, totalMonths)
+                    : currentMonths;
+
+                  return (
+                    <SubscriptionBigCard key={sub.id}>
+                      <SubscriptionHero>
+                        {imgSrc ? (
+                          <SubscriptionHeroImg
+                            src={imgSrc}
+                            alt={`${brand?.name || ""} ${model?.name || ""}`}
+                            onError={(e: any) =>
+                              (e.currentTarget.style.display = "none")
+                            }
+                          />
+                        ) : (
+                          <SubscriptionHeroFallback>
+                            {brand?.name?.[0] || "V"}
+                          </SubscriptionHeroFallback>
+                        )}
+                      </SubscriptionHero>
+                      <SubscriptionHeroInfo>
+                        <SubscriptionTitle>
+                          {brand?.name} {model?.name}
+                        </SubscriptionTitle>
+                        <SubscriptionMetaRow>
+                          {/* <SubscriptionMetaLabel>진행도</SubscriptionMetaLabel> */}
+
+                          <SubscriptionMetaValue>
+                            {currentDisplay + 1}/{totalMonths ?? "-"}개월
+                          </SubscriptionMetaValue>
+
+                          <SubscriptionStatus>
+                            <SubscriptionBadge $active={!!sub.is_active}>
+                              {sub.is_current
+                                ? "진행중"
+                                : sub.is_active
+                                  ? "활성"
+                                  : "비활성"}
+                            </SubscriptionBadge>
+                          </SubscriptionStatus>
+                        </SubscriptionMetaRow>
+                      </SubscriptionHeroInfo>
+                    </SubscriptionBigCard>
+                  );
+                })
+              ) : (
+                <SubscriptionEmptyText>
+                  현재 구독 중인 차량이 없습니다
+                </SubscriptionEmptyText>
+              )}
+            </SubscriptionListCard>
+
             {/* 포인트 정보 카드 */}
             <PointCard>
               <PointHeader>
@@ -321,6 +437,96 @@ const SubscribeMyPage = () => {
                 </ReferralDesc>
               </ReferralCard>
             )}
+
+            {/* 차량 신청 리스트 */}
+            {/* 내 구독 차량 리스트 */}
+            <SubscriptionListCard>
+              <SubscriptionListTitle>
+                내 구독 차량 ({subscriptions.length}대)
+              </SubscriptionListTitle>
+              {subscriptionsLoading ? (
+                <SubscriptionLoadingText>로딩 중...</SubscriptionLoadingText>
+              ) : subscriptions.length > 0 ? (
+                subscriptions.map((sub) => {
+                  const car = sub.request?.car;
+                  const model = car?.model;
+                  const brand = model?.brand;
+                  const imgSrc =
+                    (car?.images && car.images[0]) ||
+                    model?.image ||
+                    brand?.image ||
+                    "";
+                  const start = sub.start ? new Date(sub.start) : null;
+                  const end = sub.end ? new Date(sub.end) : null;
+                  return (
+                    <SubscriptionItem key={sub.id}>
+                      <SubscriptionThumb>
+                        {imgSrc ? (
+                          <SubscriptionImg
+                            src={imgSrc}
+                            alt={`${brand?.name || ""} ${model?.name || ""}`}
+                            onError={(e: any) =>
+                              (e.currentTarget.style.display = "none")
+                            }
+                          />
+                        ) : (
+                          <SubscriptionNoImg>
+                            {brand?.name?.[0] || "V"}
+                          </SubscriptionNoImg>
+                        )}
+                      </SubscriptionThumb>
+                      <SubscriptionInfo>
+                        <SubscriptionTitle>
+                          {brand?.name} {model?.name}
+                        </SubscriptionTitle>
+                        <SubscriptionMeta>
+                          <SubscriptionMetaRow>
+                            <SubscriptionMetaLabel>기간</SubscriptionMetaLabel>
+                            <SubscriptionMetaValue>
+                              {start && end
+                                ? `${start.toLocaleDateString("ko-KR")} ~ ${end.toLocaleDateString("ko-KR")}`
+                                : "-"}
+                            </SubscriptionMetaValue>
+                          </SubscriptionMetaRow>
+                          <SubscriptionMetaRow>
+                            <SubscriptionMetaLabel>
+                              개월수
+                            </SubscriptionMetaLabel>
+                            <SubscriptionMetaValue>
+                              {sub.request?.month ?? "-"}개월
+                            </SubscriptionMetaValue>
+                          </SubscriptionMetaRow>
+                          {typeof sub.request?.point_used === "number" && (
+                            <SubscriptionMetaRow>
+                              <SubscriptionMetaLabel>
+                                사용 포인트
+                              </SubscriptionMetaLabel>
+                              <SubscriptionMetaValue>
+                                {sub.request.point_used.toLocaleString("ko-KR")}
+                                P
+                              </SubscriptionMetaValue>
+                            </SubscriptionMetaRow>
+                          )}
+                        </SubscriptionMeta>
+                      </SubscriptionInfo>
+                      <SubscriptionStatus>
+                        <SubscriptionBadge $active={!!sub.is_active}>
+                          {sub.is_current
+                            ? "진행중"
+                            : sub.is_active
+                              ? "활성"
+                              : "비활성"}
+                        </SubscriptionBadge>
+                      </SubscriptionStatus>
+                    </SubscriptionItem>
+                  );
+                })
+              ) : (
+                <SubscriptionEmptyText>
+                  현재 구독 중인 차량이 없습니다
+                </SubscriptionEmptyText>
+              )}
+            </SubscriptionListCard>
 
             {/* 차량 신청 리스트 */}
             <RequestListCard>
@@ -871,3 +1077,163 @@ const LoginButton = styled.button`
 `;
 
 export default SubscribeMyPage;
+
+// 내 구독 차량 스타일 컴포넌트
+const SubscriptionListCard = styled.div`
+  background: #202020;
+  border-radius: 20px;
+  padding: 18px;
+  margin: 12px 0 24px;
+`;
+
+const SubscriptionListTitle = styled.div`
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: #fff;
+`;
+
+const SubscriptionItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #2f2f2f;
+  border-radius: 12px;
+  margin-bottom: 12px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+`;
+
+// 큰 배너형 카드 스타일
+const SubscriptionBigCard = styled.div`
+  background: #202020;
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 12px;
+`;
+
+const SubscriptionHero = styled.div`
+  width: 100%;
+  height: 160px;
+  background: #111;
+  border-radius: 16px;
+  overflow: hidden;
+  /* padding: 32px; */
+`;
+
+const SubscriptionHeroImg = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+`;
+
+const SubscriptionHeroFallback = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #8cff20;
+  font-weight: 700;
+`;
+
+const SubscriptionHeroInfo = styled.div`
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 8px;
+`;
+
+const SubscriptionThumb = styled.div`
+  width: 80px;
+  height: 56px;
+  border-radius: 8px;
+  background: #1a1a1a;
+  flex-shrink: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const SubscriptionImg = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+`;
+
+const SubscriptionNoImg = styled.div`
+  color: #8cff20;
+  font-weight: 700;
+`;
+
+const SubscriptionInfo = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+`;
+
+const SubscriptionTitle = styled.div`
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+`;
+
+const SubscriptionMeta = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+`;
+
+const SubscriptionMetaRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`;
+
+const SubscriptionMetaLabel = styled.div`
+  font-size: 12px;
+  color: #c7c4c4;
+  min-width: 56px;
+`;
+
+const SubscriptionMetaValue = styled.div`
+  font-size: 12px;
+  color: #fff;
+  font-weight: 500;
+`;
+
+const SubscriptionStatus = styled.div`
+  flex-shrink: 0;
+`;
+
+const SubscriptionBadge = styled.div<{ $active: boolean }>`
+  font-size: 10px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 8px;
+  color: ${(p) => (p.$active ? "#000" : "#fff")};
+  background: ${(p) => (p.$active ? "#8cff20" : "#666")};
+`;
+
+const SubscriptionLoadingText = styled.div`
+  font-size: 12px;
+  color: #c7c4c4;
+  text-align: center;
+  padding: 20px 0;
+`;
+
+const SubscriptionEmptyText = styled.div`
+  font-size: 12px;
+  color: #c7c4c4;
+  text-align: center;
+  padding: 20px 0;
+  background: #2f2f2f;
+  border-radius: 12px;
+`;
