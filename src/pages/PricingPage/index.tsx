@@ -14,7 +14,6 @@ import CardImg6 from "@/src/assets/price-card-6.png";
 
 import ScrollContainer from "react-indiana-drag-scroll";
 import { Link, useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
 
 const PricingPage = () => {
   // 현재 날짜부터 한 달간의 이용 가능 기간 계산
@@ -37,53 +36,6 @@ const PricingPage = () => {
   };
 
   const monthlyPeriod = getMonthlyPeriod();
-
-  // 토스페이먼츠 SDK 로드
-  useEffect(() => {
-    const script = document.createElement("script");
-    script.src = "https://js.tosspayments.com/v2/payment";
-    script.async = true;
-    document.body.appendChild(script);
-
-    return () => {
-      const existingScript = document.querySelector(
-        'script[src="https://js.tosspayments.com/v2/payment"]'
-      );
-      if (existingScript) {
-        document.body.removeChild(existingScript);
-      }
-    };
-  }, []);
-
-  // 빌링 결과 처리
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const billingResult = urlParams.get("billing");
-
-    if (billingResult === "success") {
-      const authKey = urlParams.get("authKey");
-      const customerKey = urlParams.get("customerKey");
-
-      if (authKey && customerKey) {
-        toast.success("카드 등록이 완료되었습니다! 정기결제가 설정되었습니다.");
-        // URL에서 쿼리 파라미터 제거
-        window.history.replaceState(
-          {},
-          document.title,
-          window.location.pathname
-        );
-      }
-    } else if (billingResult === "fail") {
-      const errorCode = urlParams.get("errorCode");
-      const errorMessage = urlParams.get("errorMessage");
-
-      toast.error(
-        `카드 등록에 실패했습니다: ${errorMessage || "알 수 없는 오류"}`
-      );
-      // URL에서 쿼리 파라미터 제거
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
-  }, []);
 
   const mainData = [
     {
@@ -196,33 +148,6 @@ const PricingPage = () => {
     }
   };
 
-  const handleTossBilling = async () => {
-    try {
-      // 토스페이먼츠 SDK가 로드되었는지 확인
-      if (typeof window.TossPayments === "undefined") {
-        console.error("토스페이먼츠 SDK가 로드되지 않았습니다.");
-        return;
-      }
-
-      const tossPayments = window.TossPayments(
-        "test_ck_D5GePWvyJnrK0W0k6q8gLzN97Eoq"
-      );
-
-      // 자동결제(빌링) 카드 등록창 띄우기
-      await tossPayments.payment.requestBillingAuth({
-        method: "CARD",
-        customerName: "바하나 이용자",
-        customerEmail: "user@example.com",
-        successUrl: `${window.location.origin}/pricing?billing=success`,
-        failUrl: `${window.location.origin}/pricing?billing=fail`,
-        windowTarget: "self",
-      });
-    } catch (error) {
-      console.error("토스페이먼츠 빌링 요청 실패:", error);
-      toast.error("결제창을 열 수 없습니다. 잠시 후 다시 시도해주세요.");
-    }
-  };
-
   return (
     <Container>
       <Header />
@@ -314,7 +239,7 @@ const PricingPage = () => {
               </MonthlyPlanCard>
             </CarSection>
             <MonthlyPlanRight>
-              <KakaoTalkButton onClick={handleTossBilling}>
+              <KakaoTalkButton onClick={handleKakaoTalk}>
                 정기결제 신청
               </KakaoTalkButton>
             </MonthlyPlanRight>

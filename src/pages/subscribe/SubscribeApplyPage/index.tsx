@@ -76,6 +76,40 @@ const SubscribeApplyPage = () => {
   const [couponLoading, setCouponLoading] = useState(false);
   const [userData, setUserData] = useState<any | null>(null);
 
+  // 포인트 관련 상태
+  const [userPoint, setUserPoint] = useState<number>(0);
+  const [pointAmount, setPointAmount] = useState<number>(0);
+  const [pointLoading, setPointLoading] = useState(false);
+
+  // 포인트 조절 함수들
+  const handlePointChange = (amount: number) => {
+    const newAmount = Math.max(0, Math.min(userPoint, pointAmount + amount));
+    setPointAmount(newAmount);
+  };
+
+  const handlePointInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+
+    // 빈 값이면 0으로 설정
+    if (value === "") {
+      setPointAmount(0);
+      return;
+    }
+
+    // 숫자가 아닌 문자는 모두 제거 (쉼표도 제거)
+    const numericValue = value.replace(/[^0-9]/g, "");
+
+    // 빈 값이면 0으로 설정
+    if (numericValue === "") {
+      setPointAmount(0);
+      return;
+    }
+
+    const numValue = parseInt(numericValue) || 0;
+    const newAmount = Math.max(0, Math.min(userPoint, numValue));
+    setPointAmount(newAmount);
+  };
+
   // 약관 동의 상태
   const [isAgreed1, setIsAgreed1] = useState(false);
   const [isAgreed2, setIsAgreed2] = useState(false);
@@ -128,8 +162,19 @@ const SubscribeApplyPage = () => {
       if (!token) return;
 
       try {
-        const user = await getSubscribeCurrentUser();
-        setUserData(user);
+        // 사용자 정보와 포인트 정보 가져오기
+        const response = await fetch("https://alpha.vahana.kr/accounts", {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setUserData(data.user);
+          setUserPoint(data.user.point || 0);
+        }
       } catch (err) {
         console.error("Error fetching user data:", err);
       }
@@ -198,6 +243,7 @@ const SubscribeApplyPage = () => {
                 body: JSON.stringify({
                   month: month ? parseInt(month) : selectedOption,
                   ...(selectedCouponId && { coupon_id: selectedCouponId }),
+                  ...(pointAmount > 0 && { point_amount: pointAmount }),
                   ...(billingKey && { billing_key: billingKey }),
                 }),
               }
@@ -352,17 +398,25 @@ const SubscribeApplyPage = () => {
     return 0;
   };
 
-  // 최종 가격 계산 (할인 적용)
+  // 최종 가격 계산 (쿠폰 할인 + 포인트 할인 적용)
   const getFinalPrice = () => {
-    if (!selectedCouponId) return selectedPrice;
+    let price = selectedPrice;
 
-    const selectedCoupon = coupons.find(
-      (coupon) => coupon.id === selectedCouponId
-    );
-    if (!selectedCoupon) return selectedPrice;
+    // 쿠폰 할인 적용
+    if (selectedCouponId) {
+      const selectedCoupon = coupons.find(
+        (coupon) => coupon.id === selectedCouponId
+      );
+      if (selectedCoupon) {
+        const discountAmount = calculateDiscount(selectedPrice, selectedCoupon);
+        price = selectedPrice - discountAmount;
+      }
+    }
 
-    const discountAmount = calculateDiscount(selectedPrice, selectedCoupon);
-    return selectedPrice - discountAmount;
+    // 포인트 할인 적용
+    price = Math.max(0, price - pointAmount);
+
+    return price;
   };
 
   // 선택된 쿠폰 정보
@@ -459,9 +513,9 @@ const SubscribeApplyPage = () => {
             displayAmount: displayPrice,
             currency: "KRW",
             // 간편결제 옵션 추가 (카드 + 간편결제)
-            easyPay: {
-              easyPayProvider: "KAKAO" as any,
-            },
+            // easyPay: {
+            //   easyPayProvider: "KAKAO" as any,
+            // },
 
             offerPeriod: {
               range: {
@@ -819,6 +873,11 @@ const SubscribeApplyPage = () => {
                           : `${Math.floor((discountAmount || 0) / 10000)}만원 할인 (첫 1개월만)`}
                     </DiscountText>
                   )}
+                  {pointAmount > 0 && (
+                    <DiscountText>
+                      포인트 {Math.floor(pointAmount / 10000)}만원 할인
+                    </DiscountText>
+                  )}
                 </VatText>
               </PriceInfo>
             </ProductCard>
@@ -860,6 +919,51 @@ const SubscribeApplyPage = () => {
               </CouponList>
             )}
           </Section>
+
+          {/* 포인트 사용 섹션 */}
+          <Section>
+            <SectionTitle>포인트 사용</SectionTitle>
+            <PointCard>
+              <PointInfo>
+                <PointLabel>보유 포인트</PointLabel>
+                <PointAmount>{userPoint.toLocaleString("ko-KR")}P</PointAmount>
+              </PointInfo>
+
+              <PointUsageSection>
+                <PointUsageLabel>사용할 포인트</PointUsageLabel>
+                <PointControlRow>
+                  <PointInput
+                    type="text"
+                    value={
+                      pointAmount === 0
+                        ? ""
+                        : pointAmount.toLocaleString("ko-KR")
+                    }
+                    onChange={handlePointInputChange}
+                    placeholder="0"
+                    inputMode="numeric"
+                  />
+                  <PointButton
+                    onClick={() => setPointAmount(userPoint)}
+                    disabled={userPoint === 0}
+                  >
+                    전액
+                  </PointButton>
+                </PointControlRow>
+                <PointUnitText>1만원 단위로 입력해주세요</PointUnitText>
+              </PointUsageSection>
+
+              {pointAmount > 0 && (
+                <PointDiscountInfo>
+                  <PointDiscountLabel>포인트 할인</PointDiscountLabel>
+                  <PointDiscountAmount>
+                    -{pointAmount.toLocaleString("ko-KR")}원
+                  </PointDiscountAmount>
+                </PointDiscountInfo>
+              )}
+            </PointCard>
+          </Section>
+
           <Section>
             <SectionTitle>이용약관</SectionTitle>
             <TermsLink onClick={handleTerms}>
@@ -1742,6 +1846,134 @@ const CouponList = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px;
+`;
+
+// 포인트 사용 스타일 컴포넌트
+const PointCard = styled.div`
+  background: #202020;
+  border-radius: 16px;
+  padding: 20px;
+  border: 1px solid #3f3f3f;
+`;
+
+const PointInfo = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #3f3f3f;
+`;
+
+const PointLabel = styled.div`
+  font-size: 14px;
+  color: #c7c4c4;
+  font-weight: 500;
+`;
+
+const PointAmount = styled.div`
+  font-size: 18px;
+  font-weight: 700;
+  color: #8cff20;
+`;
+
+const PointUsageSection = styled.div`
+  margin-bottom: 16px;
+`;
+
+const PointUsageLabel = styled.div`
+  font-size: 14px;
+  color: #c7c4c4;
+  font-weight: 500;
+  margin-bottom: 12px;
+`;
+
+const PointControlRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+`;
+
+const PointButton = styled.button`
+  width: 80px;
+  height: 40px;
+  border: 1px solid #8cff20;
+  background: transparent;
+  color: #8cff20;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: rgba(140, 255, 32, 0.1);
+  }
+
+  &:disabled {
+    border-color: #666;
+    color: #666;
+    cursor: not-allowed;
+  }
+`;
+
+const PointInput = styled.input`
+  flex: 1;
+  height: 40px;
+  border: 1px solid #3f3f3f;
+  background: #2f2f2f;
+  color: #fff;
+  border-radius: 8px;
+  padding: 0 12px;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+  outline: none;
+
+  &::placeholder {
+    color: #666;
+  }
+
+  &:focus {
+    border-color: #8cff20;
+  }
+
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  &[type="number"] {
+    -moz-appearance: textfield;
+  }
+`;
+
+const PointUnitText = styled.div`
+  font-size: 12px;
+  color: #666;
+  text-align: center;
+`;
+
+const PointDiscountInfo = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 16px;
+  border-top: 1px solid #3f3f3f;
+`;
+
+const PointDiscountLabel = styled.div`
+  font-size: 14px;
+  color: #c7c4c4;
+  font-weight: 500;
+`;
+
+const PointDiscountAmount = styled.div`
+  font-size: 16px;
+  font-weight: 700;
+  color: #ff6b6b;
 `;
 
 const CouponOption = styled.div`
