@@ -26,13 +26,13 @@ const SubscribeForgotPasswordPage = () => {
   // PortOne V2 SDK 로드
   useEffect(() => {
     const script = document.createElement("script");
-    script.src = "https://js.portone.io/v2/bundle.js";
+    script.src = "https://cdn.portone.io/v2/browser-sdk.js";
     script.async = true;
     document.body.appendChild(script);
 
     return () => {
       const existingScript = document.querySelector(
-        'script[src="https://js.portone.io/v2/bundle.js"]'
+        'script[src="https://cdn.portone.io/v2/browser-sdk.js"]'
       );
       if (existingScript) {
         document.body.removeChild(existingScript);
@@ -42,70 +42,87 @@ const SubscribeForgotPasswordPage = () => {
 
   // 본인인증 처리
   const handleIdentityVerification = async () => {
+    console.log("=== 본인인증 시작 ===");
     try {
-      if (typeof (window as any).PortOne === "undefined") {
-        toast.error("본인인증 서비스를 불러올 수 없습니다.");
+      const { PortOne } = window;
+      if (!PortOne) {
+        console.error("❌ PortOne SDK가 로드되지 않았습니다.");
+        toast.error("PortOne SDK가 로드되지 않았습니다.");
         return;
       }
 
-      const portone = (window as any).PortOne(
-        "store-3994153d-0f8c-46ef-bea0-9237d4dc101b"
-      );
+      console.log("✅ PortOne SDK 로드됨");
 
-      const result = await portone.requestIdentityVerification({
-        redirectUrl: window.location.href,
+      const identityVerificationId = `identity-verification-${crypto.randomUUID()}`;
+      console.log("🔑 생성된 identityVerificationId:", identityVerificationId);
+
+      // 본인인증 요청
+      console.log("📡 본인인증 요청 시작");
+      const response = await PortOne.requestIdentityVerification({
+        storeId: "store-3994153d-0f8c-46ef-bea0-9237d4dc101b",
+        identityVerificationId: identityVerificationId,
+        channelKey: "channel-key-1149864d-6a99-45f5-ae45-cac497973f23",
+        redirectUrl: `${window.location.origin}/subscribe/forgot-password`,
       });
 
-      // 리다이렉트 처리
-      if (result.redirectUrl) {
-        window.location.href = result.redirectUrl;
+      console.log("📡 본인인증 요청 응답:", response);
+
+      if (response.code !== undefined) {
+        console.error("❌ 본인인증 실패:", response);
+        toast.error(`본인인증 실패: ${response.message}`);
+        return;
+      }
+
+      console.log("✅ 본인인증 요청 성공!");
+
+      // 본인인증 성공 시 바로 비밀번호 재설정 API 호출
+      if (response.identityVerificationId) {
+        console.log("🔑 identityVerificationId로 비밀번호 재설정 API 호출");
+
+        const resetResponse = await fetch(
+          "https://alpha.vahana.kr/accounts/reset-password",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              identity_code: response.identityVerificationId,
+            }),
+          }
+        );
+
+        const resetData = await resetResponse.json();
+        console.log("📡 비밀번호 재설정 API 응답:", resetData);
+
+        if (resetResponse.ok && resetData.token?.access_token) {
+          console.log("✅ 토큰 발급 성공, 자동 로그인 및 페이지 이동");
+
+          // 토큰을 로컬스토리지에 저장하고 비밀번호 수정 페이지로 이동
+          localStorage.setItem(
+            "subscribeAccessToken",
+            resetData.token.access_token
+          );
+          localStorage.setItem(
+            "subscribeRefreshToken",
+            resetData.token.refresh_token || ""
+          );
+
+          toast.success("본인인증이 완료되었습니다. 비밀번호를 변경해주세요.");
+          navigate("/subscribe/reset-password");
+        } else {
+          console.error("❌ 비밀번호 재설정 API 실패:", resetData);
+          toast.error(resetData.message || "본인인증 처리에 실패했습니다.");
+        }
+      } else {
+        console.error("❌ identityVerificationId가 없습니다:", response);
+        toast.error("본인인증 정보를 가져올 수 없습니다.");
       }
     } catch (error: any) {
-      console.error("본인인증 실패:", error);
+      console.error("❌ 본인인증 실패:", error);
       toast.error("본인인증에 실패했습니다.");
     }
   };
-
-  // 본인인증 결과 처리
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const code = params.get("code");
-    const identityVerificationId = params.get("identityVerificationId");
-
-    if (code === "SUCCESS" && identityVerificationId) {
-      // 서버에 본인인증 코드 전송
-      const token = localStorage.getItem("subscribeAccessToken");
-      if (token) {
-        fetch("https://alpha.vahana.kr/accounts/portone", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            identity_code: identityVerificationId,
-          }),
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            if (data.code === 0) {
-              setIsIdentityVerified(true);
-              setIdentityCode(identityVerificationId);
-              toast.success("본인인증이 완료되었습니다.");
-            } else {
-              toast.error(data.message || "본인인증 처리에 실패했습니다.");
-            }
-          })
-          .catch((error) => {
-            console.error("본인인증 서버 처리 실패:", error);
-            toast.error("본인인증 처리에 실패했습니다.");
-          });
-      }
-
-      // URL 정리
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
-  }, []);
 
   // 이메일 인증코드 발송
   const handleSendCode = async () => {
@@ -146,50 +163,6 @@ const SubscribeForgotPasswordPage = () => {
     } catch (error) {
       console.error("인증코드 발송 실패:", error);
       toast.error("인증코드 발송에 실패했습니다.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // 비밀번호 재설정 토큰 발급 (본인인증)
-  const handleGetResetTokenWithIdentity = async () => {
-    if (!identityCode) {
-      toast.error("본인인증을 완료해주세요.");
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      const response = await fetch(
-        "https://alpha.vahana.kr/accounts/reset-password",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            identity_code: identityCode,
-          }),
-        }
-      );
-
-      const data = await response.json();
-      if (response.ok && data.token?.access_token) {
-        // 토큰을 로컬스토리지에 저장하고 비밀번호 수정 페이지로 이동
-        localStorage.setItem("subscribeAccessToken", data.token.access_token);
-        localStorage.setItem(
-          "subscribeRefreshToken",
-          data.token.refresh_token || ""
-        );
-        setResetToken(data.token.access_token);
-        toast.success("인증이 완료되었습니다. 비밀번호를 변경해주세요.");
-        navigate("/subscribe/reset-password");
-      } else {
-        toast.error(data.message || "인증에 실패했습니다.");
-      }
-    } catch (error) {
-      console.error("인증 실패:", error);
-      toast.error("인증에 실패했습니다.");
     } finally {
       setIsLoading(false);
     }
@@ -281,9 +254,7 @@ const SubscribeForgotPasswordPage = () => {
               <SuccessSection>
                 <SuccessIcon>✓</SuccessIcon>
                 <SuccessText>본인인증이 완료되었습니다</SuccessText>
-                <ResetButton onClick={handleGetResetTokenWithIdentity}>
-                  비밀번호 변경하기
-                </ResetButton>
+                <LoadingText>비밀번호 변경 페이지로 이동 중...</LoadingText>
               </SuccessSection>
             )}
           </TabContent>
@@ -478,6 +449,12 @@ const SuccessText = styled.div`
   color: #8cff20;
 `;
 
+const LoadingText = styled.div`
+  font-size: 14px;
+  color: #c7c4c4;
+  text-align: center;
+`;
+
 const InputGroup = styled.div`
   display: flex;
   flex-direction: column;
@@ -607,5 +584,12 @@ const ResetButton = styled.button`
     background: #7aff1a;
   }
 `;
+
+// TypeScript 타입 선언
+declare global {
+  interface Window {
+    PortOne: any;
+  }
+}
 
 export default SubscribeForgotPasswordPage;
