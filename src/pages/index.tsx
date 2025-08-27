@@ -30,3 +30,4 @@ export { default as SubscribeKakaoLoadingPage } from "./subscribe/SubscribeKakao
 export { default as SubscribeMyPage } from "./subscribe/SubscribeMyPage";
 export { default as SubscribeCouponsPage } from "./subscribe/SubscribeCouponsPage";
 export { default as SubscribeForgotPasswordPage } from "./subscribe/SubscribeForgotPasswordPage";
+export { default as SubscribeResetPasswordPage } from "./subscribe/SubscribeResetPasswordPage";

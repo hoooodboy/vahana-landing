@@ -157,6 +157,10 @@ function AllRoutes() {
           element: <Pages.SubscribeCouponsPage />,
         },
         {
+          path: "/subscribe/reset-password",
+          element: <Pages.SubscribeResetPasswordPage />,
+        },
+        {
           path: "/*",
           element: <Pages.HomePage />,
         },
@@ -237,6 +241,10 @@ function AllRoutes() {
         {
           path: "/subscribe/forgot-password",
           element: <Pages.SubscribeForgotPasswordPage />,
+        },
+        {
+          path: "/subscribe/reset-password",
+          element: <Pages.SubscribeResetPasswordPage />,
         },
         {
           path: "/subscribe",

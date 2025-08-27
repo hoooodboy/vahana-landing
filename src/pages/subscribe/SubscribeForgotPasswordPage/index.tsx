@@ -13,6 +13,7 @@ const SubscribeForgotPasswordPage = () => {
   const [verificationCode, setVerificationCode] = useState("");
   const [isCodeSent, setIsCodeSent] = useState(false);
   const [countdown, setCountdown] = useState(0);
+  const [resetToken, setResetToken] = useState(""); // 비밀번호 재설정 토큰
 
   // 카운트다운 타이머
   useEffect(() => {
@@ -150,8 +151,8 @@ const SubscribeForgotPasswordPage = () => {
     }
   };
 
-  // 비밀번호 재설정 (본인인증)
-  const handleResetPasswordWithIdentity = async () => {
+  // 비밀번호 재설정 토큰 발급 (본인인증)
+  const handleGetResetTokenWithIdentity = async () => {
     if (!identityCode) {
       toast.error("본인인증을 완료해주세요.");
       return;
@@ -173,22 +174,29 @@ const SubscribeForgotPasswordPage = () => {
       );
 
       const data = await response.json();
-      if (response.ok) {
-        toast.success("새 비밀번호가 이메일로 발송되었습니다.");
-        navigate("/subscribe/login");
+      if (response.ok && data.token?.access_token) {
+        // 토큰을 로컬스토리지에 저장하고 비밀번호 수정 페이지로 이동
+        localStorage.setItem("subscribeAccessToken", data.token.access_token);
+        localStorage.setItem(
+          "subscribeRefreshToken",
+          data.token.refresh_token || ""
+        );
+        setResetToken(data.token.access_token);
+        toast.success("인증이 완료되었습니다. 비밀번호를 변경해주세요.");
+        navigate("/subscribe/reset-password");
       } else {
-        toast.error(data.message || "비밀번호 재설정에 실패했습니다.");
+        toast.error(data.message || "인증에 실패했습니다.");
       }
     } catch (error) {
-      console.error("비밀번호 재설정 실패:", error);
-      toast.error("비밀번호 재설정에 실패했습니다.");
+      console.error("인증 실패:", error);
+      toast.error("인증에 실패했습니다.");
     } finally {
       setIsLoading(false);
     }
   };
 
-  // 비밀번호 재설정 (이메일)
-  const handleResetPasswordWithEmail = async () => {
+  // 비밀번호 재설정 토큰 발급 (이메일)
+  const handleGetResetTokenWithEmail = async () => {
     if (!email.trim() || !verificationCode.trim()) {
       toast.error("이메일과 인증코드를 모두 입력해주세요.");
       return;
@@ -211,15 +219,22 @@ const SubscribeForgotPasswordPage = () => {
       );
 
       const data = await response.json();
-      if (response.ok) {
-        toast.success("새 비밀번호가 이메일로 발송되었습니다.");
-        navigate("/subscribe/login");
+      if (response.ok && data.token?.access_token) {
+        // 토큰을 로컬스토리지에 저장하고 비밀번호 수정 페이지로 이동
+        localStorage.setItem("subscribeAccessToken", data.token.access_token);
+        localStorage.setItem(
+          "subscribeRefreshToken",
+          data.token.refresh_token || ""
+        );
+        setResetToken(data.token.access_token);
+        toast.success("인증이 완료되었습니다. 비밀번호를 변경해주세요.");
+        navigate("/subscribe/reset-password");
       } else {
-        toast.error(data.message || "비밀번호 재설정에 실패했습니다.");
+        toast.error(data.message || "인증에 실패했습니다.");
       }
     } catch (error) {
-      console.error("비밀번호 재설정 실패:", error);
-      toast.error("비밀번호 재설정에 실패했습니다.");
+      console.error("인증 실패:", error);
+      toast.error("인증에 실패했습니다.");
     } finally {
       setIsLoading(false);
     }
@@ -255,7 +270,7 @@ const SubscribeForgotPasswordPage = () => {
             <Description>
               본인인증이 완료된 회원만 이용 가능합니다.
               <br />
-              본인인증 후 새 비밀번호가 이메일로 발송됩니다.
+              본인인증 후 비밀번호 변경 페이지로 이동합니다.
             </Description>
 
             {!isIdentityVerified ? (
@@ -266,8 +281,8 @@ const SubscribeForgotPasswordPage = () => {
               <SuccessSection>
                 <SuccessIcon>✓</SuccessIcon>
                 <SuccessText>본인인증이 완료되었습니다</SuccessText>
-                <ResetButton onClick={handleResetPasswordWithIdentity}>
-                  비밀번호 재설정
+                <ResetButton onClick={handleGetResetTokenWithIdentity}>
+                  비밀번호 변경하기
                 </ResetButton>
               </SuccessSection>
             )}
@@ -279,7 +294,7 @@ const SubscribeForgotPasswordPage = () => {
             <Description>
               가입한 이메일로 인증코드를 발송합니다.
               <br />
-              인증코드 확인 후 새 비밀번호가 이메일로 발송됩니다.
+              인증코드 확인 후 비밀번호 변경 페이지로 이동합니다.
             </Description>
 
             <InputGroup>
@@ -329,10 +344,10 @@ const SubscribeForgotPasswordPage = () => {
                       : "재발송"}
                   </ResendButton>
                   <ResetButton
-                    onClick={handleResetPasswordWithEmail}
+                    onClick={handleGetResetTokenWithEmail}
                     disabled={isLoading || !verificationCode.trim()}
                   >
-                    {isLoading ? "처리 중..." : "비밀번호 재설정"}
+                    {isLoading ? "처리 중..." : "비밀번호 변경하기"}
                   </ResetButton>
                 </ButtonGroup>
               </>

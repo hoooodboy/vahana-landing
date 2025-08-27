@@ -458,6 +458,10 @@ const SubscribeApplyPage = () => {
             // 빌링키 발급 UI에 표시할 금액과 통화 설정
             displayAmount: displayPrice,
             currency: "KRW",
+            // 간편결제 옵션 추가 (카드 + 간편결제)
+            easyPay: {
+              easyPayProvider: "KAKAO" as any,
+            },
 
             offerPeriod: {
               range: {
@@ -507,6 +511,10 @@ const SubscribeApplyPage = () => {
                     /-/g,
                     ""
                   ),
+                },
+                // 간편결제 옵션 추가 (카드 + 간편결제)
+                easyPay: {
+                  easyPayProvider: "KAKAO" as any,
                 },
                 amount: {
                   total: displayPrice,
