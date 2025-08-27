@@ -254,7 +254,7 @@ const SubscribeReferralPage = () => {
           )}
         </SectionCard>
 
-        <BackButton onClick={() => navigate("/subscribe/mypage")}>
+        <BackButton onClick={() => navigate("/subscribe/my")}>
           마이페이지로 돌아가기
         </BackButton>
       </Content>
