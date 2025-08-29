@@ -462,7 +462,9 @@ const PriceSection = styled.div`
 
 const PriceToggle = styled.div`
   display: flex;
+  justify-content: flex-end;
   gap: 8px;
+  flex-wrap: wrap;
 `;
 
 const ToggleButton = styled.button<{ active: boolean }>`
@@ -475,6 +477,7 @@ const ToggleButton = styled.button<{ active: boolean }>`
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+  white-space: nowrap;
 `;
 
 const PriceDisplay = styled.div`
