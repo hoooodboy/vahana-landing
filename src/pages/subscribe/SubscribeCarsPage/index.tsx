@@ -219,12 +219,13 @@ const SubscribeCarsPage = () => {
     );
   }
 
-  // NEW 우선, 이후 가격 정렬
+  // 정렬: NEW > HOT > 기타, 동등시 가격 정렬
   const sortedModels = [...subscriptionData].sort((a, b) => {
     const carA = a.car[0];
     const carB = b.car[0];
-    const newDiff = (carB?.is_new ? 1 : 0) - (carA?.is_new ? 1 : 0);
-    if (newDiff !== 0) return newDiff;
+    const scoreA = carA?.is_new ? 2 : carA?.is_hot ? 1 : 0;
+    const scoreB = carB?.is_new ? 2 : carB?.is_hot ? 1 : 0;
+    if (scoreB !== scoreA) return scoreB - scoreA; // NEW(2) > HOT(1) > 기타(0)
     const priceA = carA?.retail_price ?? 0;
     const priceB = carB?.retail_price ?? 0;
     return sortOrder === "high" ? priceB - priceA : priceA - priceB;
