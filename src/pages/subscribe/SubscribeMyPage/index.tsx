@@ -358,27 +358,48 @@ const SubscribeMyPage = () => {
                     const model = car?.model;
                     const brand = model?.brand;
                     const imgSrc = model?.image || "";
-                    const start = sub.start ? new Date(sub.start) : null;
-                    const totalMonths = sub.request?.month ?? null;
+                    const startStr = (sub.start_date ||
+                      sub.request?.start_date) as string | undefined;
+                    const endStr = (sub.end_date || sub.request?.end_date) as
+                      | string
+                      | undefined;
+                    const startDateText = (startStr || "-")
+                      .toString()
+                      .slice(0, 10);
+                    const endDateText = (endStr || "-").toString().slice(0, 10);
 
-                    const calcElapsedMonths = (s: Date | null) => {
-                      if (!s) return 0;
-                      const now = new Date();
+                    const startDate = startStr ? new Date(startStr) : null;
+                    const endDate = endStr ? new Date(endStr) : null;
+
+                    const clampTo = (d: Date | null, max: Date | null) => {
+                      if (!d) return null;
+                      if (!max) return d;
+                      return d.getTime() > max.getTime() ? max : d;
+                    };
+
+                    const diffMonthsInclusive = (
+                      a: Date | null,
+                      b: Date | null
+                    ) => {
+                      if (!a || !b) return 0;
                       let months =
-                        (now.getFullYear() - s.getFullYear()) * 12 +
-                        (now.getMonth() - s.getMonth());
-                      if (now.getDate() < s.getDate()) months -= 1;
+                        (b.getFullYear() - a.getFullYear()) * 12 +
+                        (b.getMonth() - a.getMonth());
+                      if (b.getDate() < a.getDate()) months -= 1;
                       return Math.max(0, months + 1);
                     };
-                    const currentMonths = calcElapsedMonths(start);
-                    const currentDisplay = totalMonths
-                      ? Math.min(currentMonths, totalMonths)
-                      : currentMonths;
+
+                    const today = new Date();
+                    const progressEnd = clampTo(today, endDate);
+                    const totalMonths = diffMonthsInclusive(startDate, endDate);
+                    const currentDisplay = diffMonthsInclusive(
+                      startDate,
+                      progressEnd
+                    );
 
                     return (
                       <SubscriptionBigCard key={sub.id}>
                         <SubscriptionHero>
-                          {!!car?.is_hot && <HotTag>HOT</HotTag>}
                           {imgSrc ? (
                             <SubscriptionHeroImg
                               src={imgSrc}
@@ -394,16 +415,10 @@ const SubscribeMyPage = () => {
                           )}
                         </SubscriptionHero>
                         <SubscriptionHeroInfo>
-                          <SubscriptionTitle>
-                            {brand?.name} {model?.name}
-                          </SubscriptionTitle>
-                          <SubscriptionMetaRow>
-                            {/* <SubscriptionMetaLabel>진행도</SubscriptionMetaLabel> */}
-
-                            <SubscriptionMetaValue>
-                              {currentDisplay + 1}/{totalMonths ?? "-"}개월
-                            </SubscriptionMetaValue>
-
+                          <SubscriptionHeaderRow>
+                            <SubscriptionTitle>
+                              {brand?.name} {model?.name}
+                            </SubscriptionTitle>
                             <SubscriptionStatus>
                               <SubscriptionBadge $active={!!sub.is_active}>
                                 {sub.is_current
@@ -413,7 +428,27 @@ const SubscribeMyPage = () => {
                                     : "비활성"}
                               </SubscriptionBadge>
                             </SubscriptionStatus>
-                          </SubscriptionMetaRow>
+                          </SubscriptionHeaderRow>
+                          <SubscriptionMetaColumn>
+                            <SubscriptionMetaRow>
+                              <SubscriptionMetaLabel>
+                                개월
+                              </SubscriptionMetaLabel>
+                              <SubscriptionMetaValue>
+                                {totalMonths
+                                  ? `${currentDisplay}/${totalMonths}개월`
+                                  : "-"}
+                              </SubscriptionMetaValue>
+                            </SubscriptionMetaRow>
+                            <SubscriptionMetaRow>
+                              <SubscriptionMetaLabel>
+                                기간
+                              </SubscriptionMetaLabel>
+                              <SubscriptionMetaValue>
+                                {`${startDateText} ~ ${endDateText}`}
+                              </SubscriptionMetaValue>
+                            </SubscriptionMetaRow>
+                          </SubscriptionMetaColumn>
                         </SubscriptionHeroInfo>
                       </SubscriptionBigCard>
                     );
@@ -1086,10 +1121,22 @@ const HotTag = styled.div`
 const SubscriptionHeroInfo = styled.div`
   padding: 12px;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  flex-direction: column;
+  gap: 8px;
   margin-top: 8px;
+`;
+
+const SubscriptionHeaderRow = styled.div`
+  display: flex;
+  align-items: center;
+  /* justify-content: space-between; */
+  gap: 12px;
+`;
+
+const SubscriptionMetaColumn = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 `;
 
 const SubscriptionThumb = styled.div`
