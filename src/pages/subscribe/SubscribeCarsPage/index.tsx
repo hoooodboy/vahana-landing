@@ -271,11 +271,17 @@ const SubscribeCarsPage = () => {
         <CarList>
           {sortedModels.map((model, index) => {
             const carInfo = model.car[0]; // 첫 번째 차량 정보 사용
+            const isPreRelease =
+              !carInfo?.release_date ||
+              `${(carInfo as any).release_date}`.trim() === "";
 
             return (
               <CarCard
                 key={model.id}
-                onClick={() => navigate(`/subscribe/cars/${model.id}`)}
+                $disabled={isPreRelease}
+                onClick={() => {
+                  if (!isPreRelease) navigate(`/subscribe/cars/${model.id}`);
+                }}
               >
                 <CardHeader>
                   <HeaderLeft>
@@ -435,7 +441,7 @@ const CarList = styled.div`
   gap: 24px;
 `;
 
-const CarCard = styled.div`
+const CarCard = styled.div<{ $disabled?: boolean }>`
   height: 444px;
   width: 100%;
   padding: 24px 18px;
@@ -446,6 +452,8 @@ const CarCard = styled.div`
   justify-content: space-between;
   cursor: pointer;
   transition: background 0.2s ease;
+  opacity: ${(p) => (p.$disabled ? 0.5 : 1)};
+  pointer-events: ${(p) => (p.$disabled ? "none" : "auto")};
 
   &:hover {
     background: #2a2a2a;

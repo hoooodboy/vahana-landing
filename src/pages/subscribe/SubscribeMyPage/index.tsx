@@ -335,70 +335,89 @@ const SubscribeMyPage = () => {
               {subscriptionsLoading ? (
                 <SubscriptionLoadingText>로딩 중...</SubscriptionLoadingText>
               ) : subscriptions.length > 0 ? (
-                subscriptions.map((sub) => {
-                  const car = sub.request?.car;
-                  const model = car?.model;
-                  const brand = model?.brand;
-                  const imgSrc = model?.image || "";
-                  const start = sub.start ? new Date(sub.start) : null;
-                  const totalMonths = sub.request?.month ?? null;
+                [...subscriptions]
+                  .sort((a, b) => {
+                    const as = a?.request?.car?.is_new
+                      ? 2
+                      : a?.request?.car?.is_hot
+                        ? 1
+                        : 0;
+                    const bs = b?.request?.car?.is_new
+                      ? 2
+                      : b?.request?.car?.is_hot
+                        ? 1
+                        : 0;
+                    if (bs !== as) return bs - as; // NEW(2) > HOT(1) > etc(0)
+                    // tie-breaker: 최신 시작일 우선
+                    const aStart = a?.start ? new Date(a.start).getTime() : 0;
+                    const bStart = b?.start ? new Date(b.start).getTime() : 0;
+                    return bStart - aStart;
+                  })
+                  .map((sub) => {
+                    const car = sub.request?.car;
+                    const model = car?.model;
+                    const brand = model?.brand;
+                    const imgSrc = model?.image || "";
+                    const start = sub.start ? new Date(sub.start) : null;
+                    const totalMonths = sub.request?.month ?? null;
 
-                  const calcElapsedMonths = (s: Date | null) => {
-                    if (!s) return 0;
-                    const now = new Date();
-                    let months =
-                      (now.getFullYear() - s.getFullYear()) * 12 +
-                      (now.getMonth() - s.getMonth());
-                    if (now.getDate() < s.getDate()) months -= 1;
-                    return Math.max(0, months + 1);
-                  };
-                  const currentMonths = calcElapsedMonths(start);
-                  const currentDisplay = totalMonths
-                    ? Math.min(currentMonths, totalMonths)
-                    : currentMonths;
+                    const calcElapsedMonths = (s: Date | null) => {
+                      if (!s) return 0;
+                      const now = new Date();
+                      let months =
+                        (now.getFullYear() - s.getFullYear()) * 12 +
+                        (now.getMonth() - s.getMonth());
+                      if (now.getDate() < s.getDate()) months -= 1;
+                      return Math.max(0, months + 1);
+                    };
+                    const currentMonths = calcElapsedMonths(start);
+                    const currentDisplay = totalMonths
+                      ? Math.min(currentMonths, totalMonths)
+                      : currentMonths;
 
-                  return (
-                    <SubscriptionBigCard key={sub.id}>
-                      <SubscriptionHero>
-                        {imgSrc ? (
-                          <SubscriptionHeroImg
-                            src={imgSrc}
-                            alt={`${brand?.name || ""} ${model?.name || ""}`}
-                            onError={(e: any) =>
-                              (e.currentTarget.style.display = "none")
-                            }
-                          />
-                        ) : (
-                          <SubscriptionHeroFallback>
-                            {brand?.name?.[0] || "V"}
-                          </SubscriptionHeroFallback>
-                        )}
-                      </SubscriptionHero>
-                      <SubscriptionHeroInfo>
-                        <SubscriptionTitle>
-                          {brand?.name} {model?.name}
-                        </SubscriptionTitle>
-                        <SubscriptionMetaRow>
-                          {/* <SubscriptionMetaLabel>진행도</SubscriptionMetaLabel> */}
+                    return (
+                      <SubscriptionBigCard key={sub.id}>
+                        <SubscriptionHero>
+                          {!!car?.is_hot && <HotTag>HOT</HotTag>}
+                          {imgSrc ? (
+                            <SubscriptionHeroImg
+                              src={imgSrc}
+                              alt={`${brand?.name || ""} ${model?.name || ""}`}
+                              onError={(e: any) =>
+                                (e.currentTarget.style.display = "none")
+                              }
+                            />
+                          ) : (
+                            <SubscriptionHeroFallback>
+                              {brand?.name?.[0] || "V"}
+                            </SubscriptionHeroFallback>
+                          )}
+                        </SubscriptionHero>
+                        <SubscriptionHeroInfo>
+                          <SubscriptionTitle>
+                            {brand?.name} {model?.name}
+                          </SubscriptionTitle>
+                          <SubscriptionMetaRow>
+                            {/* <SubscriptionMetaLabel>진행도</SubscriptionMetaLabel> */}
 
-                          <SubscriptionMetaValue>
-                            {currentDisplay + 1}/{totalMonths ?? "-"}개월
-                          </SubscriptionMetaValue>
+                            <SubscriptionMetaValue>
+                              {currentDisplay + 1}/{totalMonths ?? "-"}개월
+                            </SubscriptionMetaValue>
 
-                          <SubscriptionStatus>
-                            <SubscriptionBadge $active={!!sub.is_active}>
-                              {sub.is_current
-                                ? "진행중"
-                                : sub.is_active
-                                  ? "활성"
-                                  : "비활성"}
-                            </SubscriptionBadge>
-                          </SubscriptionStatus>
-                        </SubscriptionMetaRow>
-                      </SubscriptionHeroInfo>
-                    </SubscriptionBigCard>
-                  );
-                })
+                            <SubscriptionStatus>
+                              <SubscriptionBadge $active={!!sub.is_active}>
+                                {sub.is_current
+                                  ? "진행중"
+                                  : sub.is_active
+                                    ? "활성"
+                                    : "비활성"}
+                              </SubscriptionBadge>
+                            </SubscriptionStatus>
+                          </SubscriptionMetaRow>
+                        </SubscriptionHeroInfo>
+                      </SubscriptionBigCard>
+                    );
+                  })
               ) : (
                 <SubscriptionEmptyText>
                   현재 구독 중인 차량이 없습니다
@@ -1032,6 +1051,7 @@ const SubscriptionHero = styled.div`
   border-radius: 16px;
   overflow: hidden;
   /* padding: 32px; */
+  position: relative;
 `;
 
 const SubscriptionHeroImg = styled.img`
@@ -1048,6 +1068,19 @@ const SubscriptionHeroFallback = styled.div`
   justify-content: center;
   color: #8cff20;
   font-weight: 700;
+`;
+
+const HotTag = styled.div`
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ff3b3b 100%);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 4px 8px;
+  border-radius: 999px;
+  letter-spacing: 0.5px;
 `;
 
 const SubscriptionHeroInfo = styled.div`
