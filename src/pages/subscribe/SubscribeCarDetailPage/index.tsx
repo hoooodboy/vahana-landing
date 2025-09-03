@@ -73,6 +73,8 @@ const SubscribeCarDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const [modalImageIndex, setModalImageIndex] = useState<number>(0);
 
   // API 데이터 가져오기
   useEffect(() => {
@@ -240,7 +242,14 @@ const SubscribeCarDetailPage = () => {
           <Slider>
             {carInfo.images.map((image, index) => (
               <Slide key={index} index={index}>
-                <CarImage src={image} alt={`${currentCar.name} ${index + 1}`} />
+                <CarImage
+                  src={image}
+                  alt={`${currentCar.name} ${index + 1}`}
+                  onClick={() => {
+                    setModalImageIndex(index);
+                    setIsImageModalOpen(true);
+                  }}
+                />
               </Slide>
             ))}
           </Slider>
@@ -315,6 +324,21 @@ const SubscribeCarDetailPage = () => {
         </ActionButton>
       </ActionButtonContainer>
 
+      {/* 전체화면 이미지 모달 */}
+      {isImageModalOpen && (
+        <ImageModalOverlay onClick={() => setIsImageModalOpen(false)}>
+          <ImageModalContent onClick={(e) => e.stopPropagation()}>
+            <ImageModalImg
+              src={carInfo.images[modalImageIndex]}
+              alt={`fullscreen-${modalImageIndex + 1}`}
+            />
+            <ImageModalClose onClick={() => setIsImageModalOpen(false)}>
+              ✕
+            </ImageModalClose>
+          </ImageModalContent>
+        </ImageModalOverlay>
+      )}
+
       {/* 하단 네비게이션 */}
       <BottomNavigation>
         <KakaoButton onClick={handleKakaoTalk}>
@@ -376,6 +400,7 @@ const CarImage = styled.img`
   width: 100%;
   height: 100%;
   object-fit: cover;
+  cursor: pointer;
 `;
 
 const DotOverlay = styled.div`
@@ -595,6 +620,51 @@ const SubscribeButton = styled.button`
   &:hover {
     background: #7aff1a;
   }
+`;
+
+// 전체 화면 이미지 모달 스타일
+const ImageModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
+  padding: 16px;
+`;
+
+const ImageModalContent = styled.div`
+  position: relative;
+  width: 100%;
+  height: 100%;
+  max-width: 100vw;
+  max-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const ImageModalImg = styled.img`
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+`;
+
+const ImageModalClose = styled.button`
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 16px;
+  cursor: pointer;
 `;
 
 const FAQSection = styled.div`

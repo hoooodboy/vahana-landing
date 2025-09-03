@@ -38,7 +38,7 @@ function BaseLayout() {
       </LogoContainer> */}
       <Content rightMargin={rightMargin}>
         <Outlet />
-        <Footer />
+        {/* <Footer /> */}
         <ScrollToTop />
       </Content>
       <ContactButton
