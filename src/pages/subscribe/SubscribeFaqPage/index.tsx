@@ -74,7 +74,9 @@ const SubscribeFaqPage = () => {
                   <span>{f.question}</span>
                   <Chevron $open={openId === f.id}>▾</Chevron>
                 </FaqQuestion>
-                {openId === f.id && <FaqAnswer>{f.answer}</FaqAnswer>}
+                {openId === f.id && (
+                  <FaqAnswer>{f.answer.replace(/\\n/g, "\n")}</FaqAnswer>
+                )}
               </FaqItem>
             ))}
           </FaqList>
@@ -184,6 +186,7 @@ const FaqAnswer = styled.div`
   font-size: 13px;
   color: #c7c4c4;
   line-height: 1.6;
+  white-space: pre-line;
 `;
 
 const Block = styled.div`

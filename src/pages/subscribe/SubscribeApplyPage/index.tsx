@@ -536,7 +536,7 @@ const SubscribeApplyPage = () => {
           // 1단계: 빌링키 발급
           const issueResponse = await PortOne.requestIssueBillingKey({
             storeId: "store-3994153d-0f8c-46ef-bea0-9237d4dc101b",
-            channelKey: "channel-key-f63c6247-aa64-479b-9733-53f10f590530",
+            channelKey: "channel-key-0d55ac3a-d5b8-409c-b357-b3137663de1d",
             billingKeyMethod: "CARD",
             issueId: `issue-${userData?.id}-${Date.now()}`,
             issueName: `${currentCar?.brand.name} ${currentCar?.name} 정기결제 빌링키 발급`,
@@ -713,7 +713,7 @@ const SubscribeApplyPage = () => {
           await new Promise<void>((resolve) => {
             (window as any).IMP.request_pay(
               {
-                channelKey: "channel-key-f63c6247-aa64-479b-9733-53f10f590530",
+                channelKey: "channel-key-0d55ac3a-d5b8-409c-b357-b3137663de1d",
                 pay_method: "card",
                 customer_uid: `subscribe_${userData?.id || userData?.name || new Date().getTime()}`,
                 merchant_uid: merchantUid,
